@@ -7,7 +7,7 @@ import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Star, Minus, Plus, ShoppingCart, ArrowLeft, Truck, Shield, RotateCcw } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -32,7 +32,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const hasDiscount = product.salePrice && product.salePrice < product.price;
   const category = shop.categories.find((c) => c.id === product.categoryId);
   const relatedProducts = shop.products.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
 
@@ -56,11 +55,6 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
               <Image src={product.images[activeImage]} alt={product.name} fill className="object-cover" />
-              {hasDiscount && (
-                <span className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-accent text-white text-sm font-bold">
-                  -{Math.round(((product.price - product.salePrice!) / product.price) * 100)}%
-                </span>
-              )}
             </div>
             {product.images.length > 1 && (
               <div className="flex gap-3">
@@ -81,22 +75,10 @@ export default function ProductDetailPage() {
             {category && <Badge variant="outline">{category.name}</Badge>}
             <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-foreground">{product.name}</h1>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={"w-4 h-4 " + (i < Math.round(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-muted")} />
-                ))}
-              </div>
-              <span className="text-sm text-muted-foreground">{product.rating} ({product.reviewCount} đánh giá)</span>
-            </div>
-
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-heading font-extrabold text-accent">
-                {formatPrice(hasDiscount ? product.salePrice! : product.price)}
+                {formatPrice(product.price)}
               </span>
-              {hasDiscount && (
-                <span className="text-lg text-muted-foreground line-through">{formatPrice(product.price)}</span>
-              )}
             </div>
 
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
@@ -112,7 +94,6 @@ export default function ProductDetailPage() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <span className="text-sm text-muted-foreground">Còn {product.stock} sản phẩm</span>
             </div>
 
             <div className="flex gap-3">
@@ -120,21 +101,6 @@ export default function ProductDetailPage() {
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Thêm vào giỏ hàng
               </Button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-              <div className="text-center">
-                <Truck className="w-5 h-5 mx-auto text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Giao hàng nhanh</span>
-              </div>
-              <div className="text-center">
-                <Shield className="w-5 h-5 mx-auto text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Bảo hành chính hãng</span>
-              </div>
-              <div className="text-center">
-                <RotateCcw className="w-5 h-5 mx-auto text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Đổi trả 30 ngày</span>
-              </div>
             </div>
           </div>
         </div>
