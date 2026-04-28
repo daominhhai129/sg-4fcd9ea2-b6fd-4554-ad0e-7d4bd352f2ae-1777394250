@@ -5,7 +5,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,7 @@ interface ProductFormData {
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [products, setProducts] = useState<Product[]>(shop.products);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -231,6 +232,14 @@ export default function ProductsPage() {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex items-center border border-border rounded-xl overflow-hidden">
+              <button onClick={() => setViewMode("grid")} className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}>
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button onClick={() => setViewMode("table")} className={`p-2 transition-colors ${viewMode === "table" ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}>
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
@@ -356,32 +365,83 @@ export default function ProductsPage() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((product) => (
-            <div key={product.id} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg transition-shadow group">
-              <div className="relative aspect-square overflow-hidden">
-                <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
-                <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
+        {viewMode === "grid" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((product) => (
+              <div key={product.id} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg transition-shadow group">
+                <div className="relative aspect-square overflow-hidden">
+                  <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
-                    <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                    Sửa
-                  </Button>
-                  <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => handleDelete(product.id)}>
-                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                    Xóa
-                  </Button>
+                <div className="p-4">
+                  <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
+                  <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
+                      <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                      Sửa
+                    </Button>
+                    <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => handleDelete(product.id)}>
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                      Xóa
+                    </Button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border/50 overflow-hidden bg-card">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sản phẩm</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Danh mục</th>
+                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">Giá</th>
+                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-[140px]">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((product) => (
+                    <tr key={product.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-border/50">
+                            <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground truncate">{product.name}</p>
+                            <p className="text-xs text-muted-foreground sm:hidden">{product.categoryName}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 hidden sm:table-cell">
+                        <span className="text-sm text-muted-foreground">{product.categoryName}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm font-bold text-accent">{formatPrice(product.price)}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
+                            <Pencil className="w-3.5 h-3.5 mr-1" />
+                            Sửa
+                          </Button>
+                          <Button variant="destructive" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(product.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {filtered.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
