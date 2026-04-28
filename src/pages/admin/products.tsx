@@ -40,7 +40,7 @@ const quillModules = {
     ["bold", "italic", "underline", "strike"],
     [{ list: "ordered" }, { list: "bullet" }],
     [{ color: [] }, { background: [] }],
-    ["link"],
+    ["link", "image"],
     ["clean"],
   ],
 };
@@ -374,7 +374,8 @@ export default function ProductsPage() {
                     <Label className="text-sm font-semibold">Mô tả sản phẩm</Label>
                     <span className="text-xs text-muted-foreground">{getPlainTextLength(description)}/{MAX_DESCRIPTION_LENGTH}</span>
                   </div>
-                  <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[200px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body">
+                  <p className="text-xs text-muted-foreground mb-1.5">Có thể chèn ảnh trực tiếp vào mô tả qua thanh công cụ</p>
+                  <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[240px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body [&_.ql-editor_img]:rounded-lg [&_.ql-editor_img]:my-2">
                     <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder="Nhập mô tả sản phẩm..." />
                   </div>
                 </div>
@@ -623,7 +624,7 @@ export default function ProductsPage() {
                 {viewingProduct.description && (
                   <div>
                     <p className="text-sm font-semibold mb-2">Mô tả sản phẩm</p>
-                    <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1" dangerouslySetInnerHTML={{ __html: viewingProduct.description }} />
+                    <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_img]:rounded-lg [&_img]:my-3" dangerouslySetInnerHTML={{ __html: viewingProduct.description }} />
                   </div>
                 )}
 
