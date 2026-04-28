@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, FileText, Calendar, ImagePlus, X, Star, Search, Package, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText, Calendar, ImagePlus, X, Star, Search, Package, Eye, ChevronLeft, ChevronRight, Store, ShoppingCart } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +54,9 @@ export default function PostsPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [viewing, setViewing] = useState<Post | null>(null);
   const [detailImageIdx, setDetailImageIdx] = useState(0);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewing, setPreviewing] = useState<Post | null>(null);
+  const [previewImageIdx, setPreviewImageIdx] = useState(0);
 
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -205,6 +208,12 @@ export default function PostsPage() {
     }
   };
 
+  const openPreview = (post: Post) => {
+    setPreviewing(post);
+    setPreviewImageIdx(0);
+    setPreviewOpen(true);
+  };
+
   return (
     <>
       <SEO title="Bài viết — Admin" />
@@ -247,6 +256,10 @@ export default function PostsPage() {
                   <h3 className="font-heading font-bold text-foreground mb-1">{post.title}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
                   <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                    <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => openPreview(post)}>
+                      <Eye className="w-3 h-3 mr-1" />
+                      Xem trước
+                    </Button>
                     <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => openEdit(post)}>
                       <Pencil className="w-3 h-3 mr-1" />
                       Sửa
@@ -377,11 +390,115 @@ export default function PostsPage() {
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDetailOpen(false)}>
                     Đóng
                   </Button>
+                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => { setDetailOpen(false); openPreview(viewing); }}>
+                    <Eye className="w-4 h-4 mr-1.5" />
+                    Xem trước
+                  </Button>
                   <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
                     <Pencil className="w-4 h-4 mr-1.5" />
                     Chỉnh sửa
                   </Button>
                 </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 gap-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Xem trước bài viết</DialogTitle>
+            </DialogHeader>
+            {previewing && (
+              <div className="bg-background">
+                <div className="sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
+                      <Store className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground leading-tight">{shop.name}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Chế độ xem trước · Khách truy cập</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPreviewOpen(false)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <article className="px-5 sm:px-10 py-8 max-w-3xl mx-auto">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{previewing.createdAt}</span>
+                    <span>·</span>
+                    <span>{shop.name}</span>
+                  </div>
+                  <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-foreground leading-tight mb-4">{previewing.title}</h1>
+                  {previewing.excerpt && (
+                    <p className="text-lg text-muted-foreground leading-relaxed mb-6">{previewing.excerpt}</p>
+                  )}
+
+                  {(previewing.images?.length || 0) > 0 && (
+                    <div className="space-y-3 mb-8">
+                      <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-border bg-muted">
+                        <Image src={(previewing.images || [previewing.coverImage])[previewImageIdx] || previewing.coverImage} alt={previewing.title} fill className="object-cover" />
+                      </div>
+                      {(previewing.images?.length || 0) > 1 && (
+                        <div className="grid grid-cols-5 gap-2">
+                          {previewing.images!.map((img, idx) => (
+                            <button key={idx} onClick={() => setPreviewImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === previewImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
+                              <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {previewing.content && (
+                    <div className="prose prose-lg max-w-none text-foreground [&_h3]:font-heading [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:my-3 [&_p]:leading-relaxed [&_ul]:my-3 [&_ol]:my-3 [&_li]:my-1 [&_img]:rounded-xl [&_img]:my-5 [&_img]:w-full [&_a]:text-primary [&_a]:underline" dangerouslySetInnerHTML={{ __html: previewing.content }} />
+                  )}
+
+                  {(previewing.productIds?.length || 0) > 0 && (
+                    <div className="mt-10 pt-8 border-t border-border">
+                      <h2 className="text-xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
+                        <Package className="w-5 h-5 text-primary" />
+                        Sản phẩm trong bài viết
+                      </h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {previewing.productIds!.map((pid) => {
+                          const product = shop.products.find((p) => p.id === pid);
+                          if (!product) return null;
+                          const hasSale = product.salePrice && product.salePrice < product.price;
+                          return (
+                            <div key={pid} className="rounded-2xl bg-card border border-border overflow-hidden hover:shadow-md hover:border-primary/40 transition-all group">
+                              <div className="relative aspect-square overflow-hidden bg-muted">
+                                <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform" />
+                                {hasSale && (
+                                  <span className="absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-md">Giảm giá</span>
+                                )}
+                              </div>
+                              <div className="p-3">
+                                <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
+                                <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2 min-h-[40px]">{product.name}</h3>
+                                <div className="flex items-baseline gap-1.5 mb-2">
+                                  <span className="text-base font-bold text-accent">{formatPrice(product.salePrice || product.price)}</span>
+                                  {hasSale && (
+                                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</span>
+                                  )}
+                                </div>
+                                <Button size="sm" className="w-full rounded-lg gradient-primary text-white border-0 text-xs h-8">
+                                  <ShoppingCart className="w-3 h-3 mr-1" />
+                                  Xem sản phẩm
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </article>
               </div>
             )}
           </DialogContent>
