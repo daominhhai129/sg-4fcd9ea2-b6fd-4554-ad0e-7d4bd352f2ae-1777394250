@@ -1,12 +1,24 @@
-import React from 'react'
+import { Navbar } from "@/components/landing/Navbar";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { FeaturedShops } from "@/components/landing/FeaturedShops";
+import { Features } from "@/components/landing/Features";
+import { Footer } from "@/components/landing/Footer";
+import { SEO } from "@/components/SEO";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">Hello World</h1>
-        <p className="text-lg text-muted-foreground">This is going to be your softgen app, start by describing your project.</p>
-      </div>
-    </main>
-  )
+    <>
+      <SEO
+        title="VietShop — Nền tảng thương mại điện tử đa cửa hàng"
+        description="Khởi tạo cửa hàng trực tuyến, quản lý sản phẩm và đơn hàng dễ dàng. Giao diện đẹp, tối ưu di động."
+      />
+      <Navbar />
+      <main>
+        <HeroSection />
+        <FeaturedShops />
+        <Features />
+      </main>
+      <Footer />
+    </>
+  );
 }
