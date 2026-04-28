@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Store, Phone, Mail, MapPin, Image as ImageIcon, Palette, Facebook, Instagram, Youtube, Check } from "lucide-react";
+import { Save, Store, Phone, Mail, MapPin, Image as ImageIcon, Palette, Facebook, Instagram, Youtube, Check, Globe, Music2 } from "lucide-react";
 import type { Shop } from "@/types";
 
 const themePresets = [
@@ -44,7 +44,6 @@ export default function ProfilePage() {
       ...prev,
       name: form.get("name") as string,
       description: form.get("description") as string,
-      intro: form.get("intro") as string,
       logo: logoUrl,
       banner: bannerUrl,
       themeColor,
@@ -57,6 +56,8 @@ export default function ProfilePage() {
           { platform: "facebook", url: form.get("facebook") as string },
           { platform: "instagram", url: form.get("instagram") as string },
           { platform: "youtube", url: form.get("youtube") as string },
+          { platform: "tiktok", url: form.get("tiktok") as string },
+          { platform: "website", url: form.get("website") as string },
         ],
       },
     }));
@@ -67,6 +68,8 @@ export default function ProfilePage() {
   const facebookUrl = shop.contact.socialLinks.find((s) => s.platform === "facebook")?.url || "";
   const instagramUrl = shop.contact.socialLinks.find((s) => s.platform === "instagram")?.url || "";
   const youtubeUrl = shop.contact.socialLinks.find((s) => s.platform === "youtube")?.url || "";
+  const tiktokUrl = shop.contact.socialLinks.find((s) => s.platform === "tiktok")?.url || "";
+  const websiteUrl = shop.contact.socialLinks.find((s) => s.platform === "website")?.url || "";
 
   return (
     <>
@@ -123,11 +126,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <Label className="text-sm font-semibold">Mô tả ngắn</Label>
-                <Textarea name="description" defaultValue={shop.description} className="rounded-xl mt-1.5" rows={2} placeholder="Mô tả ngắn 1-2 câu về cửa hàng" />
-              </div>
-              <div>
-                <Label className="text-sm font-semibold">Giới thiệu chi tiết</Label>
-                <Textarea name="intro" defaultValue={shop.intro || ""} className="rounded-xl mt-1.5" rows={5} placeholder="Câu chuyện thương hiệu, sứ mệnh, điểm khác biệt..." />
+                <Textarea name="description" defaultValue={shop.description} className="rounded-xl mt-1.5" rows={3} placeholder="Mô tả ngắn 1-2 câu về cửa hàng" />
               </div>
             </div>
           </div>
@@ -184,10 +183,14 @@ export default function ProfilePage() {
           </div>
 
           <div className="rounded-2xl bg-card border border-border/50 p-6">
-            <h2 className="font-heading font-bold text-foreground mb-1">Mạng xã hội</h2>
+            <h2 className="font-heading font-bold text-foreground mb-1">Mạng xã hội & Website</h2>
             <p className="text-xs text-muted-foreground mb-5">Liên kết tới các kênh truyền thông của shop</p>
 
             <div className="space-y-4">
+              <div>
+                <Label className="flex items-center gap-1.5 text-sm font-semibold"><Globe className="w-3.5 h-3.5" />Website</Label>
+                <Input name="website" defaultValue={websiteUrl} placeholder="https://shop.com" className="rounded-xl mt-1.5" />
+              </div>
               <div>
                 <Label className="flex items-center gap-1.5 text-sm font-semibold"><Facebook className="w-3.5 h-3.5" />Facebook</Label>
                 <Input name="facebook" defaultValue={facebookUrl} placeholder="https://facebook.com/shop" className="rounded-xl mt-1.5" />
@@ -195,6 +198,10 @@ export default function ProfilePage() {
               <div>
                 <Label className="flex items-center gap-1.5 text-sm font-semibold"><Instagram className="w-3.5 h-3.5" />Instagram</Label>
                 <Input name="instagram" defaultValue={instagramUrl} placeholder="https://instagram.com/shop" className="rounded-xl mt-1.5" />
+              </div>
+              <div>
+                <Label className="flex items-center gap-1.5 text-sm font-semibold"><Music2 className="w-3.5 h-3.5" />TikTok</Label>
+                <Input name="tiktok" defaultValue={tiktokUrl} placeholder="https://tiktok.com/@shop" className="rounded-xl mt-1.5" />
               </div>
               <div>
                 <Label className="flex items-center gap-1.5 text-sm font-semibold"><Youtube className="w-3.5 h-3.5" />YouTube</Label>
