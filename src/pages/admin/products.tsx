@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -70,6 +70,7 @@ export default function ProductsPage() {
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
   const [description, setDescription] = useState("");
   const [videoLinks, setVideoLinks] = useState<string[]>([""]);
+  const [affiliateLink, setAffiliateLink] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -97,6 +98,7 @@ export default function ProductsPage() {
     setThumbnailIndex(0);
     setDescription("");
     setVideoLinks([""]);
+    setAffiliateLink("");
   };
 
   const openEdit = (product: Product) => {
@@ -109,6 +111,7 @@ export default function ProductsPage() {
         ? (product as unknown as { videoLinks?: string[] }).videoLinks!
         : [""]
     );
+    setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setDialogOpen(true);
   };
 
@@ -195,6 +198,7 @@ export default function ProductsPage() {
       categoryId: form.get("categoryId") as string,
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
+      affiliateLink: affiliateLink.trim() || undefined,
     };
 
     const orderedImages = [...data.images];
@@ -377,6 +381,18 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
+                <div>
+                  <Label className="text-sm font-semibold flex items-center gap-1.5">
+                    <ShoppingCart className="w-4 h-4" />
+                    Link mua hàng (Affiliate)
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-1.5">Shopee, TikTok Shop, hoặc link sản phẩm bất kỳ</p>
+                  <div className="relative">
+                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input value={affiliateLink} onChange={(e) => setAffiliateLink(e.target.value)} placeholder="https://shopee.vn/product/... hoặc link bất kỳ" className="pl-10 rounded-xl" />
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-2 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
                   <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu sản phẩm</Button>
@@ -387,7 +403,7 @@ export default function ProductsPage() {
         </div>
 
         {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filtered.map((product) => (
               <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">
@@ -523,6 +539,16 @@ export default function ProductsPage() {
                         </div>
                       </div>
                     ) : null}
+
+                    {(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink && (
+                      <div>
+                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" />Link mua hàng</p>
+                        <a href={(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
+                          <Link2 className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink}</span>
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 

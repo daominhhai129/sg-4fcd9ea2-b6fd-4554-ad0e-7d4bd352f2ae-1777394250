@@ -1,6 +1,6 @@
 ---
 title: Auth system + Super Admin
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [auth, admin, superadmin]
