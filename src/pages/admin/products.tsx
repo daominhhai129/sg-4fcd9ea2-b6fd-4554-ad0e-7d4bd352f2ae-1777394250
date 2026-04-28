@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, dynamic } from "react";
+import { useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
