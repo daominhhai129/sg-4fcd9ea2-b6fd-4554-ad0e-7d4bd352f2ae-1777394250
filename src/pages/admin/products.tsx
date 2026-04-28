@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, Eye, ExternalLink } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -530,12 +530,9 @@ export default function ProductsPage() {
                 )}
 
                 <div className="flex gap-3 pt-3 border-t">
-                  <Link href={`/shop/${shop.slug}/product/${viewingProduct.id}`} target="_blank" className="flex-1">
-                    <Button type="button" variant="outline" className="w-full rounded-xl">
-                      <Eye className="w-4 h-4 mr-1.5" />
-                      Preview storefront
-                    </Button>
-                  </Link>
+                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDetailOpen(false)}>
+                    Đóng
+                  </Button>
                   <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
                     <Pencil className="w-4 h-4 mr-1.5" />
                     Chỉnh sửa
