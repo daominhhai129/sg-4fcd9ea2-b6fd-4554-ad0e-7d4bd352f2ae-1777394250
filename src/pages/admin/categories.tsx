@@ -131,37 +131,58 @@ export default function CategoriesPage() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {categories.map((cat) => (
-            <div key={cat.id} className="rounded-2xl bg-card border border-border/50 overflow-hidden group">
-              <div className="relative h-36 overflow-hidden">
-                <Image src={cat.image} alt={cat.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <h3 className="text-white font-heading font-bold text-lg">{cat.name}</h3>
-                  <p className="text-white/80 text-xs">{cat.productCount} sản phẩm</p>
-                </div>
+        <div className="rounded-2xl border border-border/50 overflow-hidden bg-card">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 w-20">Ảnh</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tên danh mục</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">Mô tả</th>
+                  <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">Sản phẩm</th>
+                  <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-32">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.map((cat) => (
+                  <tr key={cat.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-border/50">
+                        <Image src={cat.image} alt={cat.name} fill className="object-cover" />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-semibold text-foreground">{cat.name}</p>
+                      <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} sản phẩm</p>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{cat.description}</p>
+                    </td>
+                    <td className="px-4 py-3 text-center hidden sm:table-cell">
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-semibold">{cat.productCount}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
+                          <Pencil className="w-3.5 h-3.5 mr-1" />
+                          Sửa
+                        </Button>
+                        <Button size="sm" variant="destructive" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(cat.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {categories.length === 0 && (
+              <div className="text-center py-16">
+                <FolderOpen className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground">Chưa có danh mục nào.</p>
               </div>
-              <div className="p-4">
-                <p className="text-sm text-muted-foreground line-clamp-2">{cat.description}</p>
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline" className="flex-1 rounded-xl text-xs" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
-                    <Pencil className="w-3 h-3 mr-1" />
-                    Sửa
-                  </Button>
-                  <Button size="sm" variant="outline" className="rounded-xl text-xs text-destructive hover:text-destructive" onClick={() => handleDelete(cat.id)}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-          {categories.length === 0 && (
-            <div className="col-span-full text-center py-16">
-              <FolderOpen className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">Chưa có danh mục nào.</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </AdminLayout>
     </>
