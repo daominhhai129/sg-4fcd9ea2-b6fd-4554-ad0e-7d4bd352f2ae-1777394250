@@ -17,6 +17,10 @@ export const shops: Shop[] = [
         { platform: "Instagram", url: "https://instagram.com/techzone" },
       ],
     },
+    categories: [],
+    products: [],
+    orders: [],
+    posts: [],
   },
   {
     id: "shop-2",
@@ -34,6 +38,10 @@ export const shops: Shop[] = [
         { platform: "TikTok", url: "https://tiktok.com/@fashionhub" },
       ],
     },
+    categories: [],
+    products: [],
+    orders: [],
+    posts: [],
   },
   {
     id: "shop-3",
@@ -50,6 +58,10 @@ export const shops: Shop[] = [
         { platform: "Facebook", url: "https://facebook.com/greengarden" },
       ],
     },
+    categories: [],
+    products: [],
+    orders: [],
+    posts: [],
   },
 ];
 
