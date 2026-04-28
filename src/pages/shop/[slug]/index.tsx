@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { shops } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBanner } from "@/components/storefront/ShopBanner";
+import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
@@ -47,7 +48,7 @@ export default function ShopPage() {
     <>
       <SEO title={shop.name + " — VietShop"} description={shop.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
-      <main className="pb-16">
+      <main className="pb-24">
         <ShopBanner shop={shop} />
 
         <div className="container mt-10">
@@ -105,6 +106,7 @@ export default function ShopPage() {
           )}
         </div>
       </main>
+      <ShopBottomBar shop={shop} />
     </>
   );
 }
