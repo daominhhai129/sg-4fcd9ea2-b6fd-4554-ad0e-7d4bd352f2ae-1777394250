@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
   Package,
@@ -12,6 +14,7 @@ import {
   X,
   Store,
   ChevronLeft,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +35,18 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLayoutProps) {
   const router = useRouter();
+  const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +61,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <Store className="w-4 h-4 text-white" />
             </div>
-            <span className="font-heading font-bold text-foreground">{shopName}</span>
+            <span className="font-heading font-bold text-foreground">{user.shopName || shopName}</span>
           </Link>
           <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />
@@ -76,7 +90,14 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-3 right-3">
+        <div className="absolute bottom-4 left-3 right-3 space-y-1">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
+            {user.avatar && <Image src={user.avatar} alt={user.name} width={32} height={32} className="rounded-full" />}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.shopName}</p>
+            </div>
+          </div>
           <Link
             href="/shop/tech-zone"
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -84,6 +105,13 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             <ChevronLeft className="w-4 h-4" />
             Xem cửa hàng
           </Link>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Đăng xuất
+          </button>
         </div>
       </aside>
 
