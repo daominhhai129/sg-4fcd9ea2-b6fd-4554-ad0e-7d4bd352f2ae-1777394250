@@ -183,9 +183,7 @@ export default function ProductsPage() {
   };
 
   const getPlainTextLength = (html: string) => {
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return tmp.textContent?.length || 0;
+    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").length;
   };
 
   const handleDescriptionChange = (value: string) => {
