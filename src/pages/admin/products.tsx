@@ -81,7 +81,11 @@ export default function ProductsPage() {
     if (categoryFilter !== "all") {
       result = result.filter((p) => p.categoryId === categoryFilter);
     }
-    return result;
+    return [...result].sort((a, b) => {
+      const dateA = (a as unknown as { updatedAt?: string }).updatedAt || a.createdAt;
+      const dateB = (b as unknown as { updatedAt?: string }).updatedAt || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
   }, [products, search, categoryFilter]);
 
   const handleDelete = (id: string) => {
@@ -203,7 +207,7 @@ export default function ProductsPage() {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
-            ? { ...p, ...data, images: orderedImages, categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "" }
+            ? { ...p, ...data, images: orderedImages, categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "", updatedAt: new Date().toISOString() } as Product
             : p
         )
       );
@@ -216,7 +220,7 @@ export default function ProductsPage() {
         reviewCount: 0,
         stock: 0,
         status: "active",
-        createdAt: new Date().toISOString().split("T")[0],
+        createdAt: new Date().toISOString(),
         categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "",
         ...data,
         images: orderedImages,
