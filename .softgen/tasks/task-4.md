@@ -1,6 +1,6 @@
 ---
 title: Admin danh mục + Đơn hàng
-status: todo
+status: done
 priority: medium
 type: feature
 tags: [admin, categories, orders]

@@ -1,6 +1,6 @@
 ---
 title: Storefront pages
-status: todo
+status: done
 priority: high
 type: feature
 tags: [storefront, shop]

@@ -1,6 +1,6 @@
 ---
 title: Admin bài viết + Cài đặt cửa hàng
-status: todo
+status: done
 priority: medium
 type: feature
 tags: [admin, posts, settings]

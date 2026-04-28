@@ -1,6 +1,6 @@
 ---
 title: Admin dashboard + Quản lý sản phẩm
-status: todo
+status: done
 priority: high
 type: feature
 tags: [admin, products]
