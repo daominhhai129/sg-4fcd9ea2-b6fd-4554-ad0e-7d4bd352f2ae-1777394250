@@ -3,10 +3,9 @@ import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, Clock, MapPin, Phone, Mail } from "lucide-react";
+import { Search, Eye, MapPin, Phone, Mail, Package } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,12 +23,11 @@ import type { Order } from "@/types";
 
 const shop = shops[0];
 
-const statusConfig: Record<string, { label: string; variant: "default" | "outline" | "secondary" | "destructive"; className: string }> = {
-  pending: { label: "Chờ xác nhận", variant: "outline", className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-  confirmed: { label: "Đã xác nhận", variant: "outline", className: "bg-blue-100 text-blue-700 border-blue-200" },
-  shipping: { label: "Đang giao", variant: "outline", className: "bg-purple-100 text-purple-700 border-purple-200" },
-  delivered: { label: "Hoàn thành", variant: "outline", className: "bg-green-100 text-green-700 border-green-200" },
-  cancelled: { label: "Đã hủy", variant: "destructive", className: "" },
+const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
+  pending: { label: "Chờ xác nhận", className: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-500" },
+  confirmed: { label: "Đã xác nhận", className: "bg-blue-100 text-blue-700 border-blue-200", dot: "bg-blue-500" },
+  delivered: { label: "Hoàn thành", className: "bg-green-100 text-green-700 border-green-200", dot: "bg-green-500" },
+  cancelled: { label: "Đã hủy", className: "bg-red-100 text-red-700 border-red-200", dot: "bg-red-500" },
 };
 
 export default function OrdersPage() {
@@ -82,52 +80,71 @@ export default function OrdersPage() {
           <p className="text-sm text-muted-foreground">{filtered.length} đơn hàng</p>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="text-left text-xs font-semibold text-muted-foreground p-4">Mã đơn</th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground p-4">Khách hàng</th>
-                  <th className="text-right text-xs font-semibold text-muted-foreground p-4">Tổng tiền</th>
-                  <th className="text-center text-xs font-semibold text-muted-foreground p-4 hidden sm:table-cell">Trạng thái</th>
-                  <th className="text-center text-xs font-semibold text-muted-foreground p-4 hidden md:table-cell">Ngày tạo</th>
-                  <th className="text-right text-xs font-semibold text-muted-foreground p-4"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((order) => {
-                  const sc = statusConfig[order.status];
-                  return (
-                    <tr key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                      <td className="p-4 text-sm font-mono font-medium text-foreground">{order.id}</td>
-                      <td className="p-4">
-                        <p className="text-sm font-medium text-foreground">{order.customerName}</p>
-                        <p className="text-xs text-muted-foreground">{order.customerPhone}</p>
-                      </td>
-                      <td className="p-4 text-right text-sm font-bold text-accent">{formatPrice(order.total)}</td>
-                      <td className="p-4 text-center hidden sm:table-cell">
-                        <span className={"inline-block px-2.5 py-1 rounded-lg text-xs font-medium " + sc.className}>{sc.label}</span>
-                      </td>
-                      <td className="p-4 text-center hidden md:table-cell text-sm text-muted-foreground">{order.createdAt}</td>
-                      <td className="p-4 text-right">
-                        <Button size="sm" variant="ghost" className="rounded-lg" onClick={() => setSelectedOrder(order)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 rounded-2xl border border-border/50 bg-card">
+            <Package className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground">Không tìm thấy đơn hàng nào.</p>
           </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">Không tìm thấy đơn hàng nào.</div>
-          )}
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filtered.map((order) => {
+              const sc = statusConfig[order.status];
+              return (
+                <div key={order.id} className="rounded-2xl bg-card border border-border/50 p-4 hover:shadow-lg hover:border-primary/30 transition-all flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Mã đơn</p>
+                      <p className="text-sm font-mono font-semibold text-foreground truncate">{order.id}</p>
+                    </div>
+                    <div className={"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 " + sc.className}>
+                      <span className={"w-1.5 h-1.5 rounded-full " + sc.dot} />
+                      {sc.label}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2 border-t border-border/50">
+                    <p className="text-sm font-semibold text-foreground truncate">{order.customerName}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 shrink-0" /><span className="truncate">{order.customerPhone}</span></p>
+                    <p className="text-xs text-muted-foreground flex items-start gap-1.5"><MapPin className="w-3 h-3 shrink-0 mt-0.5" /><span className="line-clamp-1">{order.address}</span></p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{order.items.length} sản phẩm</p>
+                      <p className="text-base font-bold text-accent">{formatPrice(order.total)}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{order.createdAt}</p>
+                  </div>
+
+                  <Select value={order.status} onValueChange={(val) => updateStatus(order.id, val as Order["status"])}>
+                    <SelectTrigger className="rounded-xl h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(statusConfig).map(([key, val]) => (
+                        <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <a href={"tel:" + order.customerPhone} className="inline-flex items-center justify-center gap-1.5 h-9 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-xs font-semibold transition-colors">
+                      <Phone className="w-3.5 h-3.5" />
+                      Gọi
+                    </a>
+                    <Button size="sm" variant="outline" className="rounded-xl h-9 text-xs" onClick={() => setSelectedOrder(order)}>
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      Chi tiết
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-heading">Chi tiết đơn hàng {selectedOrder?.id}</DialogTitle>
             </DialogHeader>
@@ -140,6 +157,10 @@ export default function OrdersPage() {
                   <p className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" />{selectedOrder.address}</p>
                   {selectedOrder.note && <p className="text-muted-foreground italic">Ghi chú: {selectedOrder.note}</p>}
                 </div>
+                <a href={"tel:" + selectedOrder.customerPhone} className="inline-flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-sm font-semibold transition-colors">
+                  <Phone className="w-4 h-4" />
+                  Gọi khách hàng
+                </a>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item) => (
                     <div key={item.productId} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
