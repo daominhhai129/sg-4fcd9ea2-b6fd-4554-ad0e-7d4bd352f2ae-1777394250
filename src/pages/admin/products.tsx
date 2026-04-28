@@ -419,7 +419,7 @@ export default function ProductsPage() {
         </div>
 
         {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filtered.map((product) => (
               <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">

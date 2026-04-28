@@ -1,12 +1,37 @@
 import Image from "next/image";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Download } from "lucide-react";
 import type { Shop } from "@/types";
+import { Button } from "@/components/ui/button";
 
 interface ShopBannerProps {
   shop: Shop;
 }
 
 export function ShopBanner({ shop }: ShopBannerProps) {
+  const handleSaveContact = () => {
+    const vcard = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${shop.name}`,
+      `ORG:${shop.name}`,
+      `TEL;TYPE=WORK,VOICE:${shop.contact.phone}`,
+      `EMAIL;TYPE=WORK:${shop.contact.email}`,
+      `ADR;TYPE=WORK:;;${shop.contact.address};;;;`,
+      `NOTE:${shop.description}`,
+      "END:VCARD",
+    ].join("\r\n");
+
+    const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${shop.slug}.vcf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="relative">
       <div className="relative h-48 md:h-56 overflow-hidden">
@@ -26,6 +51,10 @@ export function ShopBanner({ shop }: ShopBannerProps) {
               <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-primary" />{shop.contact.phone}</span>
               <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary" />{shop.contact.email}</span>
             </div>
+            <Button onClick={handleSaveContact} size="sm" className="mt-4 gradient-primary text-white border-0 rounded-xl">
+              <Download className="w-4 h-4 mr-1.5" />
+              Lưu danh bạ
+            </Button>
           </div>
         </div>
       </div>
