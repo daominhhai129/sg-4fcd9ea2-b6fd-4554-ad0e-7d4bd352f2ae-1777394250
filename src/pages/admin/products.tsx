@@ -5,21 +5,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Search,
-  Plus,
-  Pencil,
-  Trash2,
-  MoreHorizontal,
-  Eye,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Search, Plus, Pencil, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -39,12 +25,6 @@ import {
 import type { Product } from "@/types";
 
 const shop = shops[0];
-
-const statusConfig: Record<string, { label: string; variant: "default" | "outline" | "secondary" | "destructive" }> = {
-  active: { label: "Đang bán", variant: "default" },
-  draft: { label: "Nháp", variant: "secondary" },
-  outOfStock: { label: "Hết hàng", variant: "destructive" },
-};
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
@@ -77,9 +57,7 @@ export default function ProductsPage() {
       description: form.get("description") as string,
       price: Number(form.get("price")),
       salePrice: form.get("salePrice") ? Number(form.get("salePrice")) : undefined,
-      stock: Number(form.get("stock")),
       categoryId: form.get("categoryId") as string,
-      status: form.get("status") as Product["status"],
     };
 
     if (editingProduct) {
@@ -98,6 +76,8 @@ export default function ProductsPage() {
         images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
         rating: 0,
         reviewCount: 0,
+        stock: 0,
+        status: "active",
         createdAt: new Date().toISOString().split("T")[0],
         categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "",
         ...data,
@@ -170,35 +150,16 @@ export default function ProductsPage() {
                     <Input name="salePrice" type="number" defaultValue={editingProduct?.salePrice || ""} className="rounded-xl mt-1" />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Tồn kho</Label>
-                    <Input name="stock" type="number" defaultValue={editingProduct?.stock || 0} className="rounded-xl mt-1" />
-                  </div>
-                  <div>
-                    <Label>Danh mục</Label>
-                    <Select name="categoryId" defaultValue={editingProduct?.categoryId || shop.categories[0]?.id}>
-                      <SelectTrigger className="rounded-xl mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {shop.categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
                 <div>
-                  <Label>Trạng thái</Label>
-                  <Select name="status" defaultValue={editingProduct?.status || "active"}>
+                  <Label>Danh mục</Label>
+                  <Select name="categoryId" defaultValue={editingProduct?.categoryId || shop.categories[0]?.id}>
                     <SelectTrigger className="rounded-xl mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Đang bán</SelectItem>
-                      <SelectItem value="draft">Nháp</SelectItem>
-                      <SelectItem value="outOfStock">Hết hàng</SelectItem>
+                      {shop.categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -211,74 +172,39 @@ export default function ProductsPage() {
           </Dialog>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="text-left text-xs font-semibold text-muted-foreground p-4">Sản phẩm</th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground p-4 hidden md:table-cell">Danh mục</th>
-                  <th className="text-right text-xs font-semibold text-muted-foreground p-4">Giá</th>
-                  <th className="text-center text-xs font-semibold text-muted-foreground p-4 hidden sm:table-cell">Kho</th>
-                  <th className="text-center text-xs font-semibold text-muted-foreground p-4 hidden sm:table-cell">Trạng thái</th>
-                  <th className="text-right text-xs font-semibold text-muted-foreground p-4"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((product) => {
-                  const sc = statusConfig[product.status];
-                  return (
-                    <tr key={product.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
-                            <Image src={product.images[0]} alt={product.name} width={40} height={40} className="object-cover w-full h-full" />
-                          </div>
-                          <span className="text-sm font-medium text-foreground line-clamp-1">{product.name}</span>
-                        </div>
-                      </td>
-                      <td className="p-4 hidden md:table-cell">
-                        <span className="text-sm text-muted-foreground">{product.categoryName}</span>
-                      </td>
-                      <td className="p-4 text-right">
-                        <span className="text-sm font-bold text-accent">{formatPrice(product.salePrice || product.price)}</span>
-                      </td>
-                      <td className="p-4 text-center hidden sm:table-cell">
-                        <span className="text-sm text-foreground">{product.stock}</span>
-                      </td>
-                      <td className="p-4 text-center hidden sm:table-cell">
-                        <Badge variant={sc.variant} className="text-xs">{sc.label}</Badge>
-                      </td>
-                      <td className="p-4 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-                              <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEdit(product)}>
-                              <Pencil className="w-4 h-4 mr-2" />Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Eye className="w-4 h-4 mr-2" />Xem
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(product.id)}>
-                              <Trash2 className="w-4 h-4 mr-2" />Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filtered.map((product) => (
+            <div key={product.id} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg transition-shadow group">
+              <div className="relative aspect-square overflow-hidden">
+                <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
+                <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-base font-bold text-accent">{formatPrice(product.salePrice || product.price)}</span>
+                  {product.salePrice && (
+                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
+                    <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                    Sửa
+                  </Button>
+                  <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => handleDelete(product.id)}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    Xóa
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
+        )}
       </AdminLayout>
     </>
   );
