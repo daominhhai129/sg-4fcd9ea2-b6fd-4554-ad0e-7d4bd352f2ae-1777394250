@@ -45,6 +45,7 @@ export interface Product {
   reviewCount: number;
   createdAt: string;
   status: "active" | "draft" | "outOfStock";
+  featured?: boolean;
 }
 
 export interface Order {

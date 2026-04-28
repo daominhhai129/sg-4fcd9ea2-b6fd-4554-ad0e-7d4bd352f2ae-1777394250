@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import type { Product } from "@/types";
 import NextDynamic from "next/dynamic";
+import { Switch } from "@/components/ui/switch";
 
 const ReactQuill = NextDynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -71,6 +72,7 @@ export default function ProductsPage() {
   const [description, setDescription] = useState("");
   const [videoLinks, setVideoLinks] = useState<string[]>([""]);
   const [affiliateLink, setAffiliateLink] = useState("");
+  const [featured, setFeatured] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -99,6 +101,7 @@ export default function ProductsPage() {
     setDescription("");
     setVideoLinks([""]);
     setAffiliateLink("");
+    setFeatured(false);
   };
 
   const openEdit = (product: Product) => {
@@ -112,6 +115,7 @@ export default function ProductsPage() {
         : [""]
     );
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
+    setFeatured(product.featured || false);
     setDialogOpen(true);
   };
 
@@ -199,6 +203,7 @@ export default function ProductsPage() {
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
       affiliateLink: affiliateLink.trim() || undefined,
+      featured: featured,
     };
 
     const orderedImages = [...data.images];
@@ -391,6 +396,17 @@ export default function ProductsPage() {
                     <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input value={affiliateLink} onChange={(e) => setAffiliateLink(e.target.value)} placeholder="https://shopee.vn/product/... hoặc link bất kỳ" className="pl-10 rounded-xl" />
                   </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-gradient-to-r from-primary/5 to-accent/5">
+                  <div className="flex items-start gap-2.5">
+                    <Sparkles className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+                    <div>
+                      <Label className="text-sm font-semibold cursor-pointer">Sản phẩm nổi bật</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Hiển thị ở phần đầu trang storefront</p>
+                    </div>
+                  </div>
+                  <Switch checked={featured} onCheckedChange={setFeatured} />
                 </div>
 
                 <div className="flex gap-3 pt-2 border-t">

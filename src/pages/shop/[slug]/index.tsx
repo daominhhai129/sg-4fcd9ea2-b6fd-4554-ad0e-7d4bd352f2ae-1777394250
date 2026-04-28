@@ -7,7 +7,7 @@ import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
@@ -18,6 +18,11 @@ export default function ShopPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const shop = shops.find((s) => s.slug === slug);
+
+  const featuredProducts = useMemo(() => {
+    if (!shop) return [];
+    return shop.products.filter((p) => p.featured);
+  }, [shop]);
 
   const filteredProducts = useMemo(() => {
     if (!shop) return [];
@@ -50,6 +55,25 @@ export default function ShopPage() {
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="pb-24">
         <ShopBanner shop={shop} />
+
+        {featuredProducts.length > 0 && (
+          <div className="container mt-10">
+            <div className="flex items-center gap-2 mb-5">
+              <Sparkles className="w-5 h-5 text-accent" />
+              <h2 className="text-xl font-heading font-bold text-foreground">Sản phẩm nổi bật</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  shopSlug={shop.slug}
+                  onAddToCart={addToCart}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="container mt-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
