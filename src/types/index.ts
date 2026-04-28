@@ -5,6 +5,8 @@ export interface Shop {
   description: string;
   logo: string;
   banner: string;
+  themeColor?: string;
+  intro?: string;
   contact: ShopContact;
   categories: ProductCategory[];
   products: Product[];

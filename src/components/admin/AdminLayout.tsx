@@ -15,6 +15,7 @@ import {
   Store,
   ChevronLeft,
   LogOut,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/admin/categories", label: "Danh mục", icon: FolderOpen },
   { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingBag },
   { href: "/admin/posts", label: "Bài viết", icon: FileText },
+  { href: "/admin/profile", label: "Hồ sơ shop", icon: UserCircle },
   { href: "/admin/settings", label: "Cài đặt", icon: Settings },
 ];
 
