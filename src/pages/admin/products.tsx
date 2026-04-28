@@ -431,7 +431,7 @@ export default function ProductsPage() {
         {viewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filtered.map((product) => (
-              <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer">
+              <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border-2 border-foreground/15 overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                   <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-md" title="Xem trên storefront">
