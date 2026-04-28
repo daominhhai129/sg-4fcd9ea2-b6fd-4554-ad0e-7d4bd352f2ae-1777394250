@@ -90,7 +90,7 @@ export default function OrdersPage() {
             {filtered.map((order) => {
               const sc = statusConfig[order.status];
               return (
-                <div key={order.id} className="rounded-2xl bg-card border-2 border-border p-4 hover:shadow-lg hover:border-primary/40 transition-all flex flex-col gap-3">
+                <div key={order.id} className="rounded-2xl bg-card border-2 border-foreground/15 p-4 hover:shadow-lg hover:border-primary/50 transition-all flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-xs text-muted-foreground">Mã đơn</p>
