@@ -6,6 +6,10 @@ export interface Shop {
   logo: string;
   banner: string;
   contact: ShopContact;
+  categories: ProductCategory[];
+  products: Product[];
+  orders: Order[];
+  posts: Post[];
 }
 
 export interface ShopContact {

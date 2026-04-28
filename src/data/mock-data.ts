@@ -91,6 +91,13 @@ export const posts: Post[] = [
   { id: "post-3", shopId: "shop-1", title: "Mẹo bảo quản pin laptop bền lâu", slug: "meo-bao-quan-pin", content: "Pin laptop là một trong những bộ phận quan trọng nhất...", excerpt: "Những mẹo đơn giản giúp pin laptop của bạn luôn bền bỉ theo thời gian.", coverImage: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&h=400&fit=crop", createdAt: "2026-04-15", status: "draft" },
 ];
 
+shops.forEach((shop) => {
+  shop.categories = categories.filter((c) => c.shopId === shop.id);
+  shop.products = products.filter((p) => p.shopId === shop.id);
+  shop.orders = orders.filter((o) => o.shopId === shop.id);
+  shop.posts = posts.filter((p) => p.shopId === shop.id);
+});
+
 export function getShopBySlug(slug: string): Shop | undefined {
   return shops.find((s) => s.slug === slug);
 }
