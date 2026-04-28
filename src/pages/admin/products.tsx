@@ -1,11 +1,12 @@
 import { useState, useMemo, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, Eye, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -61,6 +62,9 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(shop.products);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [detailImageIdx, setDetailImageIdx] = useState(0);
 
   const [formImages, setFormImages] = useState<string[]>([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
@@ -108,6 +112,19 @@ export default function ProductsPage() {
     setEditingProduct(null);
     resetForm();
     setDialogOpen(true);
+  };
+
+  const openDetail = (product: Product) => {
+    setViewingProduct(product);
+    setDetailImageIdx(0);
+    setDetailOpen(true);
+  };
+
+  const handleEditFromDetail = () => {
+    if (viewingProduct) {
+      setDetailOpen(false);
+      openEdit(viewingProduct);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -368,9 +385,12 @@ export default function ProductsPage() {
         {viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((product) => (
-              <div key={product.id} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg transition-shadow group">
+              <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-md" title="Xem trên storefront">
+                    <ExternalLink className="w-4 h-4 text-foreground" />
+                  </Link>
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
@@ -378,7 +398,7 @@ export default function ProductsPage() {
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
                       <Pencil className="w-3.5 h-3.5 mr-1.5" />
                       Sửa
@@ -401,12 +421,12 @@ export default function ProductsPage() {
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sản phẩm</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Danh mục</th>
                     <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">Giá</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-[140px]">Thao tác</th>
+                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-[180px]">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((product) => (
-                    <tr key={product.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                    <tr key={product.id} onClick={() => openDetail(product)} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-border/50">
@@ -424,8 +444,13 @@ export default function ProductsPage() {
                       <td className="px-4 py-3 text-right">
                         <span className="text-sm font-bold text-accent">{formatPrice(product.price)}</span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
+                          <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank">
+                            <Button variant="ghost" size="sm" className="rounded-xl h-8 w-8 p-0" title="Preview">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </Button>
+                          </Link>
                           <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
                             Sửa
@@ -446,6 +471,80 @@ export default function ProductsPage() {
         {filtered.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
         )}
+
+        <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-heading">Chi tiết sản phẩm</DialogTitle>
+            </DialogHeader>
+            {viewingProduct && (
+              <div className="space-y-5">
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div className="space-y-3">
+                    <div className="relative aspect-square rounded-xl overflow-hidden border border-border bg-muted">
+                      <Image src={viewingProduct.images[detailImageIdx] || viewingProduct.images[0]} alt={viewingProduct.name} fill className="object-cover" />
+                    </div>
+                    {viewingProduct.images.length > 1 && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {viewingProduct.images.map((img, idx) => (
+                          <button key={idx} onClick={() => setDetailImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === detailImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
+                            <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{viewingProduct.categoryName}</p>
+                      <h3 className="text-xl font-heading font-bold text-foreground">{viewingProduct.name}</h3>
+                      {(viewingProduct as unknown as { sku?: string }).sku && (
+                        <p className="text-xs text-muted-foreground mt-1">SKU: {(viewingProduct as unknown as { sku?: string }).sku}</p>
+                      )}
+                    </div>
+
+                    <div className="text-2xl font-bold text-accent">{formatPrice(viewingProduct.price)}</div>
+
+                    {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks?.length ? (
+                      <div>
+                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><Video className="w-4 h-4" />Video</p>
+                        <div className="space-y-1.5">
+                          {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks!.map((link, idx) => (
+                            <a key={idx} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
+                              <Link2 className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{link}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                {viewingProduct.description && (
+                  <div>
+                    <p className="text-sm font-semibold mb-2">Mô tả sản phẩm</p>
+                    <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1" dangerouslySetInnerHTML={{ __html: viewingProduct.description }} />
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-3 border-t">
+                  <Link href={`/shop/${shop.slug}/product/${viewingProduct.id}`} target="_blank" className="flex-1">
+                    <Button type="button" variant="outline" className="w-full rounded-xl">
+                      <Eye className="w-4 h-4 mr-1.5" />
+                      Preview storefront
+                    </Button>
+                  </Link>
+                  <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
+                    <Pencil className="w-4 h-4 mr-1.5" />
+                    Chỉnh sửa
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </AdminLayout>
     </>
   );
