@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, FileText, Calendar, ImagePlus, X, Star, Search, Package, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText, Calendar, ImagePlus, X, Star, Search, Package, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +47,8 @@ const quillModules = {
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>(shop.posts);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -62,6 +64,13 @@ export default function PostsPage() {
   const [productIds, setProductIds] = useState<string[]>([]);
   const [productSearch, setProductSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalPages = Math.max(1, Math.ceil(posts.length / ITEMS_PER_PAGE));
+  const paginatedPosts = useMemo(() => posts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [posts, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
 
   const filteredProducts = useMemo(() => {
     if (!productSearch) return shop.products;
@@ -209,7 +218,7 @@ export default function PostsPage() {
         </div>
 
         <div className="space-y-4">
-          {posts.map((post) => {
+          {paginatedPosts.map((post) => {
             const productCount = post.productIds?.length || 0;
             const imageCount = post.images?.length || 1;
             return (
@@ -258,6 +267,35 @@ export default function PostsPage() {
             </div>
           )}
         </div>
+
+        {posts.length > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 px-1">
+            <p className="text-sm text-muted-foreground">
+              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, posts.length)} / {posts.length} bài viết
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Trước
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${currentPage === page ? "bg-primary text-white" : "bg-card border border-border hover:bg-muted"}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                Sau
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">

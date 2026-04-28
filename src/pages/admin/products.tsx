@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -61,6 +61,8 @@ export default function ProductsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [products, setProducts] = useState<Product[]>(shop.products);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -91,6 +93,17 @@ export default function ProductsPage() {
       return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
   }, [products, search, categoryFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = useMemo(() => filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filtered, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
 
   const handleDelete = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
@@ -430,7 +443,7 @@ export default function ProductsPage() {
 
         {viewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {filtered.map((product) => (
+            {paginated.map((product) => (
               <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border-2 border-foreground/15 overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -471,7 +484,7 @@ export default function ProductsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((product) => (
+                  {paginated.map((product) => (
                     <tr key={product.id} onClick={() => openDetail(product)} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -516,6 +529,35 @@ export default function ProductsPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
+        )}
+
+        {filtered.length > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 px-1">
+            <p className="text-sm text-muted-foreground">
+              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length} sản phẩm
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Trước
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${currentPage === page ? "bg-primary text-white" : "bg-card border border-border hover:bg-muted"}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                Sau
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
         )}
 
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
