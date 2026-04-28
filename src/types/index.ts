@@ -78,6 +78,8 @@ export interface Post {
   content: string;
   excerpt: string;
   coverImage: string;
+  images?: string[];
+  productIds?: string[];
   createdAt: string;
   status: "published" | "draft";
 }
