@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, dynamic } from "react";
 import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,8 +22,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Product } from "@/types";
+import NextDynamic from "next/dynamic";
+
+const ReactQuill = NextDynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 const shop = shops[0];
+const MAX_IMAGES = 8;
+const MAX_VIDEOS = 2;
+const MAX_DESCRIPTION_LENGTH = 3000;
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ color: [] }, { background: [] }],
+    ["link"],
+    ["clean"],
+  ],
+};
+
+interface ProductFormData {
+  name: string;
+  sku: string;
+  description: string;
+  price: number;
+  categoryId: string;
+  images: string[];
+  thumbnailIndex: number;
+  videoLinks: string[];
+}
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
@@ -32,6 +60,12 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(shop.products);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [formImages, setFormImages] = useState<string[]>([]);
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+  const [description, setDescription] = useState("");
+  const [videoLinks, setVideoLinks] = useState<string[]>([""]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     let result = products;
@@ -49,22 +83,109 @@ export default function ProductsPage() {
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const resetForm = () => {
+    setFormImages([]);
+    setThumbnailIndex(0);
+    setDescription("");
+    setVideoLinks([""]);
+  };
+
+  const openEdit = (product: Product) => {
+    setEditingProduct(product);
+    setFormImages(product.images || []);
+    setThumbnailIndex(0);
+    setDescription(product.description || "");
+    setVideoLinks(
+      (product as unknown as { videoLinks?: string[] }).videoLinks?.length
+        ? (product as unknown as { videoLinks?: string[] }).videoLinks!
+        : [""]
+    );
+    setDialogOpen(true);
+  };
+
+  const openCreate = () => {
+    setEditingProduct(null);
+    resetForm();
+    setDialogOpen(true);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const remaining = MAX_IMAGES - formImages.length;
+    const toAdd = Array.from(files).slice(0, remaining);
+    toAdd.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormImages((prev) => {
+          if (prev.length >= MAX_IMAGES) return prev;
+          return [...prev, reader.result as string];
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setFormImages((prev) => prev.filter((_, i) => i !== index));
+    setThumbnailIndex((prev) => {
+      if (index === prev) return 0;
+      if (index < prev) return prev - 1;
+      return prev;
+    });
+  };
+
+  const handleVideoLinkChange = (index: number, value: string) => {
+    setVideoLinks((prev) => prev.map((v, i) => (i === index ? value : v)));
+  };
+
+  const addVideoLink = () => {
+    if (videoLinks.length < MAX_VIDEOS) {
+      setVideoLinks((prev) => [...prev, ""]);
+    }
+  };
+
+  const removeVideoLink = (index: number) => {
+    setVideoLinks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getPlainTextLength = (html: string) => {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent?.length || 0;
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    if (getPlainTextLength(value) <= MAX_DESCRIPTION_LENGTH) {
+      setDescription(value);
+    }
+  };
+
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const data = {
       name: form.get("name") as string,
-      description: form.get("description") as string,
+      sku: form.get("sku") as string,
+      description: description,
       price: Number(form.get("price")),
-      salePrice: form.get("salePrice") ? Number(form.get("salePrice")) : undefined,
       categoryId: form.get("categoryId") as string,
+      images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
+      videoLinks: videoLinks.filter((v) => v.trim() !== ""),
     };
+
+    const orderedImages = [...data.images];
+    if (thumbnailIndex > 0 && thumbnailIndex < orderedImages.length) {
+      const [thumb] = orderedImages.splice(thumbnailIndex, 1);
+      orderedImages.unshift(thumb);
+    }
 
     if (editingProduct) {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
-            ? { ...p, ...data, categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "" }
+            ? { ...p, ...data, images: orderedImages, categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "" }
             : p
         )
       );
@@ -73,7 +194,6 @@ export default function ProductsPage() {
         id: "p-new-" + Date.now(),
         shopId: shop.id,
         slug: data.name.toLowerCase().replace(/\s+/g, "-"),
-        images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
         rating: 0,
         reviewCount: 0,
         stock: 0,
@@ -81,21 +201,13 @@ export default function ProductsPage() {
         createdAt: new Date().toISOString().split("T")[0],
         categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "",
         ...data,
+        images: orderedImages,
       };
       setProducts((prev) => [newProduct, ...prev]);
     }
     setDialogOpen(false);
     setEditingProduct(null);
-  };
-
-  const openEdit = (product: Product) => {
-    setEditingProduct(product);
-    setDialogOpen(true);
-  };
-
-  const openCreate = () => {
-    setEditingProduct(null);
-    setDialogOpen(true);
+    resetForm();
   };
 
   return (
@@ -120,40 +232,38 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white border-0" onClick={openCreate}>
                 <Plus className="w-4 h-4 mr-2" />
                 Thêm sản phẩm
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-heading">{editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
+              <form onSubmit={handleSave} className="space-y-5">
                 <div>
-                  <Label>Tên sản phẩm</Label>
-                  <Input name="name" defaultValue={editingProduct?.name || ""} required className="rounded-xl mt-1" />
+                  <Label className="text-sm font-semibold">Tên sản phẩm <span className="text-destructive">*</span></Label>
+                  <Input name="name" defaultValue={editingProduct?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
-                <div>
-                  <Label>Mô tả</Label>
-                  <Textarea name="description" defaultValue={editingProduct?.description || ""} className="rounded-xl mt-1" rows={3} />
-                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Giá (VNĐ)</Label>
-                    <Input name="price" type="number" defaultValue={editingProduct?.price || ""} required className="rounded-xl mt-1" />
+                    <Label className="text-sm font-semibold">Mã SKU</Label>
+                    <Input name="sku" defaultValue={(editingProduct as unknown as { sku?: string })?.sku || ""} placeholder="VD: SP-001" className="rounded-xl mt-1.5" />
                   </div>
                   <div>
-                    <Label>Giá khuyến mãi</Label>
-                    <Input name="salePrice" type="number" defaultValue={editingProduct?.salePrice || ""} className="rounded-xl mt-1" />
+                    <Label className="text-sm font-semibold">Giá (VNĐ) <span className="text-destructive">*</span></Label>
+                    <Input name="price" type="number" defaultValue={editingProduct?.price || ""} required className="rounded-xl mt-1.5" />
                   </div>
                 </div>
+
                 <div>
-                  <Label>Danh mục</Label>
+                  <Label className="text-sm font-semibold">Danh mục</Label>
                   <Select name="categoryId" defaultValue={editingProduct?.categoryId || shop.categories[0]?.id}>
-                    <SelectTrigger className="rounded-xl mt-1">
+                    <SelectTrigger className="rounded-xl mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -163,9 +273,83 @@ export default function ProductsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex gap-3 pt-2">
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-sm font-semibold">Ảnh sản phẩm (tối đa {MAX_IMAGES})</Label>
+                    <span className="text-xs text-muted-foreground">{formImages.length}/{MAX_IMAGES}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-3">
+                    {formImages.map((img, idx) => (
+                      <div key={idx} className={`relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${idx === thumbnailIndex ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`} onClick={() => setThumbnailIndex(idx)}>
+                        <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                        {idx === thumbnailIndex && (
+                          <div className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                            <Star className="w-2.5 h-2.5 fill-current" />
+                            Thumb
+                          </div>
+                        )}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(idx); }} className="absolute top-1 right-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80 transition-colors">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {formImages.length < MAX_IMAGES && (
+                      <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 hover:border-primary/50 hover:bg-primary/5 transition-colors">
+                        <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-[10px] text-muted-foreground">Thêm ảnh</span>
+                      </button>
+                    )}
+                  </div>
+                  <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+                  {formImages.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">Nhấn vào ảnh để chọn làm thumbnail</p>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-sm font-semibold">Mô tả sản phẩm</Label>
+                    <span className="text-xs text-muted-foreground">{getPlainTextLength(description)}/{MAX_DESCRIPTION_LENGTH}</span>
+                  </div>
+                  <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[200px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body">
+                    <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder="Nhập mô tả sản phẩm..." />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
+                      <Video className="w-4 h-4" />
+                      Video sản phẩm (tối đa {MAX_VIDEOS})
+                    </Label>
+                  </div>
+                  <div className="space-y-2">
+                    {videoLinks.map((link, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input value={link} onChange={(e) => handleVideoLinkChange(idx, e.target.value)} placeholder="Dán link YouTube hoặc TikTok" className="pl-10 rounded-xl" />
+                        </div>
+                        {videoLinks.length > 1 && (
+                          <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVideoLink(idx)}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    {videoLinks.length < MAX_VIDEOS && (
+                      <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVideoLink}>
+                        <Plus className="w-3.5 h-3.5 mr-1.5" />
+                        Thêm video
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu</Button>
+                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu sản phẩm</Button>
                 </div>
               </form>
             </DialogContent>
@@ -182,10 +366,7 @@ export default function ProductsPage() {
                 <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
                 <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-base font-bold text-accent">{formatPrice(product.salePrice || product.price)}</span>
-                  {product.salePrice && (
-                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</span>
-                  )}
+                  <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
