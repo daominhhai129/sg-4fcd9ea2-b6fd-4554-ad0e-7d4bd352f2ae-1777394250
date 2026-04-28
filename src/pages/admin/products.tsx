@@ -73,6 +73,7 @@ export default function ProductsPage() {
   const [videoLinks, setVideoLinks] = useState<string[]>([""]);
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
+  const [priceInput, setPriceInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -102,6 +103,7 @@ export default function ProductsPage() {
     setVideoLinks([""]);
     setAffiliateLink("");
     setFeatured(false);
+    setPriceInput("");
   };
 
   const openEdit = (product: Product) => {
@@ -116,6 +118,7 @@ export default function ProductsPage() {
     );
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
+    setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
     setDialogOpen(true);
   };
 
@@ -191,6 +194,15 @@ export default function ProductsPage() {
     }
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    if (!raw) {
+      setPriceInput("");
+      return;
+    }
+    setPriceInput(Number(raw).toLocaleString("vi-VN"));
+  };
+
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -198,7 +210,7 @@ export default function ProductsPage() {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
       description: description,
-      price: Number(form.get("price")),
+      price: Number(priceInput.replace(/\D/g, "")) || 0,
       categoryId: form.get("categoryId") as string,
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
@@ -295,7 +307,7 @@ export default function ProductsPage() {
                   </div>
                   <div>
                     <Label className="text-sm font-semibold">Giá (VNĐ) <span className="text-destructive">*</span></Label>
-                    <Input name="price" type="number" defaultValue={editingProduct?.price || ""} required className="rounded-xl mt-1.5" />
+                    <Input name="price" type="text" inputMode="numeric" value={priceInput} onChange={handlePriceChange} required placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                 </div>
 
