@@ -77,10 +77,13 @@ interface AuthContextType {
   isLoading: boolean;
   allUsers: AppUser[];
   shopConfigs: ShopConfig[];
+  impersonating: boolean;
   loginAsUser: () => void;
   loginAsSuperAdmin: () => void;
   loginWithCredentials: (email: string, password: string) => boolean;
   logout: () => void;
+  enterShopAsAdmin: (userId: string) => void;
+  exitImpersonation: () => void;
   setShopLimit: (shopId: string, value: number) => void;
   getShopConfig: (shopId: string) => ShopConfig | undefined;
   lockUser: (userId: string) => void;
@@ -96,6 +99,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AppUser | null>(null);
+  const [originalUser, setOriginalUser] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<AppUser[]>(INITIAL_USERS);
   const [admin, setAdmin] = useState<AppUser>(INITIAL_ADMIN);
@@ -103,9 +107,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("auth_user");
+    const orig = localStorage.getItem("auth_original");
     if (stored) {
       try {
         setUser(JSON.parse(stored));
+      } catch {}
+    }
+    if (orig) {
+      try {
+        setOriginalUser(JSON.parse(orig));
       } catch {}
     }
     setIsLoading(false);
@@ -115,6 +125,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u);
     if (u) localStorage.setItem("auth_user", JSON.stringify(u));
     else localStorage.removeItem("auth_user");
+  };
+
+  const persistOriginal = (u: AppUser | null) => {
+    setOriginalUser(u);
+    if (u) localStorage.setItem("auth_original", JSON.stringify(u));
+    else localStorage.removeItem("auth_original");
   };
 
   const loginAsUser = useCallback(() => {
@@ -139,8 +155,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     persistUser(null);
+    persistOriginal(null);
     router.push("/login");
   }, [router]);
+
+  const enterShopAsAdmin = useCallback((userId: string) => {
+    const target = users.find((u) => u.id === userId);
+    if (!target || !user || user.role !== "super_admin") return;
+    persistOriginal(user);
+    persistUser(target);
+    router.push("/admin");
+  }, [router, user, users]);
+
+  const exitImpersonation = useCallback(() => {
+    if (!originalUser) return;
+    const orig = originalUser;
+    persistOriginal(null);
+    persistUser(orig);
+    router.push("/super-admin");
+  }, [router, originalUser]);
 
   const setShopLimit = useCallback((shopId: string, value: number) => {
     setShopConfigs((prev) => prev.map((sc) => (sc.shopId === shopId ? { ...sc, limits: { products: value, categories: value, posts: value } } : sc)));
@@ -188,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword }}>
       {children}
     </AuthContext.Provider>
   );

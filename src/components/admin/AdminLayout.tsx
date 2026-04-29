@@ -16,6 +16,8 @@ import {
   ChevronLeft,
   LogOut,
   UserCircle,
+  Shield,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +39,7 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLayoutProps) {
   const router = useRouter();
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, logout, impersonating, exitImpersonation } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -122,6 +124,17 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
       )}
 
       <div className="lg:pl-64">
+        {impersonating && (
+          <div className="bg-accent text-white px-4 lg:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
+            <span className="flex items-center gap-2 font-medium">
+              <Shield className="w-4 h-4" />
+              Đang xem dưới quyền Super Admin
+            </span>
+            <button onClick={exitImpersonation} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 transition-colors font-semibold">
+              <ArrowLeft className="w-3.5 h-3.5" /> Quay lại Super Admin
+            </button>
+          </div>
+        )}
         <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
           <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}>
             <Menu className="w-5 h-5" />

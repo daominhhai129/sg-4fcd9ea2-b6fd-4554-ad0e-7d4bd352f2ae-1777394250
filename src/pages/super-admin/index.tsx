@@ -10,13 +10,13 @@ import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog } from
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, Pencil } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SuperAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword } = useAuth();
+  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, enterShopAsAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [editingShop, setEditingShop] = useState<string | null>(null);
@@ -178,6 +178,11 @@ export default function SuperAdminPage() {
                                   {u.phone && (
                                     <DropdownMenuItem asChild>
                                       <a href={"tel:" + u.phone}><Phone className="w-4 h-4 mr-2" /> Gọi điện</a>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {sc && (
+                                    <DropdownMenuItem onClick={() => enterShopAsAdmin(u.id)}>
+                                      <LogIn className="w-4 h-4 mr-2" /> Vào dashboard
                                     </DropdownMenuItem>
                                   )}
                                   <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
