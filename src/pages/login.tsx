@@ -13,15 +13,17 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
-    const result = await loginWithCredentials(email, password);
-    if (!result.ok) {
-      setError(result.error || "Email hoặc mật khẩu không đúng");
-    }
-    setIsSubmitting(false);
+    setTimeout(() => {
+      const success = loginWithCredentials(email, password);
+      if (!success) {
+        setError("Email hoặc mật khẩu không đúng");
+      }
+      setIsSubmitting(false);
+    }, 500);
   };
 
   return (
@@ -94,7 +96,7 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={loginAsUser} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+              <button onClick={loginAsUser} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <User className="w-5 h-5 text-primary" />
                 </div>
@@ -103,7 +105,7 @@ export default function LoginPage() {
                   <p className="text-xs text-muted-foreground">Shop Owner</p>
                 </div>
               </button>
-              <button type="button" onClick={loginAsSuperAdmin} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-accent/50 hover:bg-accent/5 transition-all group">
+              <button onClick={loginAsSuperAdmin} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-accent/50 hover:bg-accent/5 transition-all group">
                 <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                   <Shield className="w-5 h-5 text-accent" />
                 </div>

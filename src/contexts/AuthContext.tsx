@@ -1,193 +1,185 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session } from "@supabase/supabase-js";
 
-export interface ShopConfig {
-  shopId: string;
-  ownerId: string;
-  ownerName: string;
-  shopName: string;
-  limits: { products: number; categories: number; posts: number; storage: number };
-  usage: { products: number; categories: number; posts: number; storage: number };
-  customDomain?: string;
+export type UserRole = "user" | "super_admin";
+export type UserStatus = "active" | "locked";
+
+export const DEFAULT_PASSWORD = "iLoveProID@";
+
+export interface ShopLimits {
+  products: number;
+  categories: number;
+  posts: number;
 }
 
 export interface AppUser {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  role: "super_admin" | "shop_owner";
+  phone?: string;
+  role: UserRole;
   shopId?: string;
   shopName?: string;
-  shopSlug?: string;
-  shopThemeColor?: string;
-  avatar: string;
-  status: "active" | "locked";
+  avatar?: string;
+  status: UserStatus;
   expiresAt: string;
+  password: string;
+  customDomain?: string;
 }
+
+export interface ShopConfig {
+  shopId: string;
+  shopName: string;
+  ownerId: string;
+  ownerName: string;
+  limits: ShopLimits;
+  usage: ShopLimits;
+}
+
+const DEFAULT_LIMITS: ShopLimits = { products: 200, categories: 200, posts: 200 };
+
+const today = new Date();
+const inDays = (d: number) => new Date(today.getTime() + d * 86400000).toISOString();
+
+const INITIAL_USERS: AppUser[] = [
+  { id: "user-1", name: "Nguyễn Văn An", email: "an@techzone.vn", phone: "0901234567", role: "user", shopId: "shop-1", shopName: "Tech Zone", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(180), password: DEFAULT_PASSWORD },
+  { id: "user-2", name: "Trần Thị Bình", email: "binh@fashionhub.vn", phone: "0912345678", role: "user", shopId: "shop-2", shopName: "Fashion Hub", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(90), password: DEFAULT_PASSWORD },
+  { id: "user-3", name: "Lê Minh Cường", email: "cuong@greengarden.vn", phone: "0987654321", role: "user", shopId: "shop-3", shopName: "Green Garden", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(45), password: DEFAULT_PASSWORD },
+];
+
+const INITIAL_ADMIN: AppUser = {
+  id: "admin-1",
+  name: "Super Admin",
+  email: "admin@platform.vn",
+  phone: "0900000000",
+  role: "super_admin",
+  avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&h=80&fit=crop",
+  status: "active",
+  expiresAt: inDays(3650),
+  password: DEFAULT_PASSWORD,
+};
+
+const INITIAL_SHOP_CONFIGS: ShopConfig[] = [
+  { shopId: "shop-1", shopName: "Tech Zone", ownerId: "user-1", ownerName: "Nguyễn Văn An", limits: { ...DEFAULT_LIMITS }, usage: { products: 6, categories: 4, posts: 3 } },
+  { shopId: "shop-2", shopName: "Fashion Hub", ownerId: "user-2", ownerName: "Trần Thị Bình", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
+  { shopId: "shop-3", shopName: "Green Garden", ownerId: "user-3", ownerName: "Lê Minh Cường", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
+];
 
 export interface CreateUserInput {
   name: string;
   email: string;
   phone: string;
   shopName: string;
-  password: string;
-  expiresAt: string;
+  expiryDays: number;
 }
 
-interface AuthContextValue {
+interface AuthContextType {
   user: AppUser | null;
   isLoading: boolean;
   allUsers: AppUser[];
   shopConfigs: ShopConfig[];
   impersonating: boolean;
-  loginAsUser: () => Promise<void>;
-  loginAsSuperAdmin: () => Promise<void>;
-  loginWithCredentials: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  logout: () => Promise<void>;
+  loginAsUser: () => void;
+  loginAsSuperAdmin: () => void;
+  loginWithCredentials: (email: string, password: string) => boolean;
+  logout: () => void;
   enterShopAsAdmin: (userId: string) => void;
   exitImpersonation: () => void;
-  setShopLimit: (shopId: string, limits: ShopConfig["limits"]) => void;
+  setShopLimit: (shopId: string, value: number) => void;
   getShopConfig: (shopId: string) => ShopConfig | undefined;
   lockUser: (userId: string) => void;
   unlockUser: (userId: string) => void;
   extendUserExpiry: (userId: string, days: number) => void;
-  resetUserPassword: (userId: string) => string;
+  resetUserPassword: (userId: string) => void;
   createUser: (input: CreateUserInput) => void;
   updateUser: (userId: string, input: { name: string; email: string; phone: string; shopName: string }) => void;
-  updateAdminPassword: (newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  updateAdminPassword: (newPassword: string) => void;
   setUserDomain: (userId: string, domain: string) => void;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AppUser | null>(null);
   const [originalUser, setOriginalUser] = useState<AppUser | null>(null);
-  const [users, setUsers] = useState<AppUser[]>([]);
-  const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const sessionRef = useRef<Session | null>(null);
-
-  const loadUserFromSession = useCallback(async (session: Session | null) => {
-    if (!session) {
-      setUser(null);
-      return;
-    }
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, full_name, phone, role, shop_id, expires_at, status")
-      .eq("id", session.user.id)
-      .maybeSingle();
-    if (!profile) {
-      setUser(null);
-      return;
-    }
-    let shopName: string | undefined;
-    let shopSlug: string | undefined;
-    let shopThemeColor: string | undefined;
-    if (profile.shop_id) {
-      const { data: shop } = await supabase
-        .from("shops")
-        .select("name, slug, theme_color")
-        .eq("id", profile.shop_id)
-        .maybeSingle();
-      if (shop) {
-        shopName = shop.name;
-        shopSlug = shop.slug;
-        shopThemeColor = shop.theme_color || undefined;
-      }
-    }
-    setUser({
-      id: profile.id,
-      name: profile.full_name || session.user.email || "User",
-      email: session.user.email || "",
-      phone: profile.phone || "",
-      role: profile.role === "super_admin" ? "super_admin" : "shop_owner",
-      shopId: profile.shop_id || undefined,
-      shopName,
-      shopSlug,
-      shopThemeColor,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + profile.id,
-      status: profile.status === "locked" ? "locked" : "active",
-      expiresAt: profile.expires_at || new Date(Date.now() + 365 * 86400000).toISOString(),
-    });
-  }, []);
+  const [users, setUsers] = useState<AppUser[]>(INITIAL_USERS);
+  const [admin, setAdmin] = useState<AppUser>(INITIAL_ADMIN);
+  const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>(INITIAL_SHOP_CONFIGS);
 
   useEffect(() => {
-    let mounted = true;
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      sessionRef.current = session;
-      await loadUserFromSession(session);
-      setIsLoading(false);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      sessionRef.current = session;
-      await loadUserFromSession(session);
-      setIsLoading(false);
-    });
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [loadUserFromSession]);
-
-  const loginWithCredentials = useCallback(async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      return { ok: false, error: error?.message || "Đăng nhập thất bại" };
+    const stored = localStorage.getItem("auth_user");
+    const orig = localStorage.getItem("auth_original");
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch {}
     }
-    await loadUserFromSession(data.session);
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .maybeSingle();
-    if (profile?.role === "super_admin") {
-      router.push("/super-admin");
-    } else {
-      router.push("/admin");
+    if (orig) {
+      try {
+        setOriginalUser(JSON.parse(orig));
+      } catch {}
     }
-    return { ok: true };
-  }, [loadUserFromSession, router]);
+    setIsLoading(false);
+  }, []);
 
-  const loginAsUser = useCallback(async () => {
-    await loginWithCredentials("tech@shop.vn", "ShopOwner@123");
-  }, [loginWithCredentials]);
+  const persistUser = (u: AppUser | null) => {
+    setUser(u);
+    if (u) localStorage.setItem("auth_user", JSON.stringify(u));
+    else localStorage.removeItem("auth_user");
+  };
 
-  const loginAsSuperAdmin = useCallback(async () => {
-    await loginWithCredentials("superadmin@platform.vn", "SuperAdmin@123");
-  }, [loginWithCredentials]);
+  const persistOriginal = (u: AppUser | null) => {
+    setOriginalUser(u);
+    if (u) localStorage.setItem("auth_original", JSON.stringify(u));
+    else localStorage.removeItem("auth_original");
+  };
 
-  const logout = useCallback(async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setOriginalUser(null);
+  const loginAsUser = useCallback(() => {
+    persistUser(users[0]);
+    router.push("/admin");
+  }, [router, users]);
+
+  const loginAsSuperAdmin = useCallback(() => {
+    persistUser(admin);
+    router.push("/super-admin");
+  }, [router, admin]);
+
+  const loginWithCredentials = useCallback((email: string, _password: string) => {
+    const found = [...users, admin].find((u) => u.email === email);
+    if (found) {
+      persistUser(found);
+      router.push(found.role === "super_admin" ? "/super-admin" : "/admin");
+      return true;
+    }
+    return false;
+  }, [router, users, admin]);
+
+  const logout = useCallback(() => {
+    persistUser(null);
+    persistOriginal(null);
     router.push("/login");
   }, [router]);
 
   const enterShopAsAdmin = useCallback((userId: string) => {
     const target = users.find((u) => u.id === userId);
-    if (!target || !user) return;
-    setOriginalUser(user);
-    setUser({ ...target });
+    if (!target || !user || user.role !== "super_admin") return;
+    persistOriginal(user);
+    persistUser(target);
     router.push("/admin");
-  }, [users, user, router]);
+  }, [router, user, users]);
 
   const exitImpersonation = useCallback(() => {
-    if (originalUser) {
-      setUser(originalUser);
-      setOriginalUser(null);
-      router.push("/super-admin");
-    }
-  }, [originalUser, router]);
+    if (!originalUser) return;
+    const orig = originalUser;
+    persistOriginal(null);
+    persistUser(orig);
+    router.push("/super-admin");
+  }, [router, originalUser]);
 
-  const setShopLimit = useCallback((shopId: string, limits: ShopConfig["limits"]) => {
-    setShopConfigs((prev) => prev.map((sc) => (sc.shopId === shopId ? { ...sc, limits } : sc)));
+  const setShopLimit = useCallback((shopId: string, value: number) => {
+    setShopConfigs((prev) => prev.map((sc) => (sc.shopId === shopId ? { ...sc, limits: { products: value, categories: value, posts: value } } : sc)));
   }, []);
 
   const getShopConfig = useCallback((shopId: string) => shopConfigs.find((sc) => sc.shopId === shopId), [shopConfigs]);
@@ -195,68 +187,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const lockUser = useCallback((userId: string) => {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, status: "locked" } : u)));
   }, []);
+
   const unlockUser = useCallback((userId: string) => {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, status: "active" } : u)));
   }, []);
+
   const extendUserExpiry = useCallback((userId: string, days: number) => {
     setUsers((prev) => prev.map((u) => {
       if (u.id !== userId) return u;
-      const base = u.expiresAt ? new Date(u.expiresAt) : new Date();
-      const next = new Date(Math.max(base.getTime(), Date.now()));
-      next.setDate(next.getDate() + days);
-      return { ...u, expiresAt: next.toISOString() };
+      const base = new Date(u.expiresAt);
+      const now = new Date();
+      const start = base > now ? base : now;
+      return { ...u, expiresAt: new Date(start.getTime() + days * 86400000).toISOString() };
     }));
   }, []);
-  const resetUserPassword = useCallback((_userId: string) => {
-    return Math.random().toString(36).slice(-10);
+
+  const resetUserPassword = useCallback((userId: string) => {
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, password: DEFAULT_PASSWORD } : u)));
   }, []);
+
   const createUser = useCallback((input: CreateUserInput) => {
-    const newId = "u-" + Date.now();
-    const newShopId = "shop-" + Date.now();
-    setUsers((prev) => [...prev, {
-      id: newId, name: input.name, email: input.email, phone: input.phone,
-      role: "shop_owner", shopId: newShopId, shopName: input.shopName,
-      shopSlug: input.shopName.toLowerCase().replace(/\s+/g, "-"),
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + newId,
-      status: "active", expiresAt: input.expiresAt,
-    }]);
-    setShopConfigs((prev) => [...prev, {
-      shopId: newShopId, ownerId: newId, ownerName: input.name, shopName: input.shopName,
-      limits: { products: 100, categories: 20, posts: 50, storage: 500 },
-      usage: { products: 0, categories: 0, posts: 0, storage: 0 },
-    }]);
+    const id = "user-" + Date.now();
+    const shopId = "shop-" + Date.now();
+    const newUser: AppUser = {
+      id, name: input.name, email: input.email, phone: input.phone,
+      role: "user", shopId, shopName: input.shopName,
+      avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop",
+      status: "active", expiresAt: inDays(input.expiryDays), password: DEFAULT_PASSWORD,
+    };
+    setUsers((prev) => [...prev, newUser]);
+    setShopConfigs((prev) => [...prev, { shopId, shopName: input.shopName, ownerId: id, ownerName: input.name, limits: { ...DEFAULT_LIMITS }, usage: { products: 0, categories: 0, posts: 0 } }]);
   }, []);
+
   const updateUser = useCallback((userId: string, input: { name: string; email: string; phone: string; shopName: string }) => {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, name: input.name, email: input.email, phone: input.phone, shopName: input.shopName } : u)));
     setShopConfigs((prev) => prev.map((sc) => (sc.ownerId === userId ? { ...sc, ownerName: input.name, shopName: input.shopName } : sc)));
   }, []);
-  const updateAdminPassword = useCallback(async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
+
+  const updateAdminPassword = useCallback((newPassword: string) => {
+    setAdmin((prev) => ({ ...prev, password: newPassword }));
   }, []);
+
   const setUserDomain = useCallback((userId: string, domain: string) => {
-    const target = users.find((u) => u.id === userId);
-    if (!target?.shopId) return;
-    setShopConfigs((prev) => prev.map((sc) => (sc.shopId === target.shopId ? { ...sc, customDomain: domain } : sc)));
-  }, [users]);
+    const cleaned = domain.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, customDomain: cleaned || undefined } : u)));
+  }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser,
-      loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout,
-      enterShopAsAdmin, exitImpersonation,
-      setShopLimit, getShopConfig,
-      lockUser, unlockUser, extendUserExpiry, resetUserPassword,
-      createUser, updateUser, updateAdminPassword, setUserDomain,
-    }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
 }
