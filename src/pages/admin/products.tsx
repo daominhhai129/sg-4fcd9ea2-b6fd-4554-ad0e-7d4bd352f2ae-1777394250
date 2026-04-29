@@ -461,13 +461,12 @@ export default function ProductsPage() {
                     <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => openEdit(product)}>
+                    <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2 border-2 border-primary text-primary hover:bg-primary hover:text-white" onClick={() => openEdit(product)}>
                       <Pencil className="w-3.5 h-3.5 mr-1" />
                       {t("common.edit")}
                     </Button>
-                    <Button variant="destructive" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => handleDelete(product.id)}>
-                      <Trash2 className="w-3.5 h-3.5 mr-1" />
-                      {t("common.delete")}
+                    <Button variant="destructive" size="icon" className="rounded-xl shrink-0" onClick={() => handleDelete(product.id)} title={t("common.delete")}>
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
