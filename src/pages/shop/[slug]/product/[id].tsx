@@ -47,10 +47,10 @@ export default function ProductDetailPage() {
       <SEO title={product.name + " — " + shop.name} description={product.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="container py-8">
-        <button onClick={() => router.back()} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <Link href={"/shop/" + shop.slug} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Quay lại
-        </button>
+        </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-4">
