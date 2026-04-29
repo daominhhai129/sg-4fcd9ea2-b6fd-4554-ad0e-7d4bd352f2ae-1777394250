@@ -18,8 +18,12 @@ import {
   UserCircle,
   Shield,
   ArrowLeft,
+  HeadphonesIcon,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
@@ -41,6 +45,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
   const router = useRouter();
   const { user, isLoading, logout, impersonating, exitImpersonation } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -56,11 +61,11 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
     <div className="min-h-screen bg-background">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 lg:translate-x-0 flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-border">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-border flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <Store className="w-4 h-4 text-white" />
@@ -72,7 +77,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
           </button>
         </div>
 
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = router.pathname === item.href;
             return (
@@ -92,9 +97,16 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
               </Link>
             );
           })}
+          <button
+            onClick={() => { setSupportOpen(true); setSidebarOpen(false); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <HeadphonesIcon className="w-4.5 h-4.5" />
+            Hỗ trợ
+          </button>
         </nav>
 
-        <div className="absolute bottom-4 left-3 right-3 space-y-1">
+        <div className="p-3 border-t border-border space-y-1 flex-shrink-0">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
             {user.avatar && <Image src={user.avatar} alt={user.name} width={32} height={32} className="rounded-full" />}
             <div className="min-w-0">
@@ -144,6 +156,60 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
 
         <main className="p-4 lg:p-8">{children}</main>
       </div>
+
+      <Dialog open={supportOpen} onOpenChange={setSupportOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <HeadphonesIcon className="w-5 h-5 text-primary" />
+              Liên hệ hỗ trợ
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Cần trợ giúp? Đội ngũ Pro ID luôn sẵn sàng hỗ trợ bạn 24/7.
+            </p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Hotline</p>
+              <a href="tel:0965784668" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">096 578 4668</p>
+                  <p className="text-xs text-muted-foreground">Bấm để gọi</p>
+                </div>
+              </a>
+              <a href="tel:0986851829" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">098 685 1829</p>
+                  <p className="text-xs text-muted-foreground">Bấm để gọi</p>
+                </div>
+              </a>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Zalo Official</p>
+              <a
+                href="https://zalo.me/proidvn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-xl bg-[#0068FF]/10 hover:bg-[#0068FF]/15 transition-colors border border-[#0068FF]/20"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#0068FF] text-white flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Zalo OA - Pro ID</p>
+                  <p className="text-xs text-muted-foreground">zalo.me/proidvn</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
