@@ -51,7 +51,12 @@ export function ShopBanner({ shop }: ShopBannerProps) {
               <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-primary" />{shop.contact.phone}</span>
               <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary" />{shop.contact.email}</span>
             </div>
-            <Button onClick={handleSaveContact} size="sm" className="mt-4 gradient-primary text-white border-0 rounded-xl">
+            <Button
+              onClick={handleSaveContact}
+              size="sm"
+              className="mt-4 text-white border-0 rounded-xl hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: `hsl(${shop.themeColor})` }}
+            >
               <Download className="w-4 h-4 mr-1.5" />
               Lưu danh bạ
             </Button>

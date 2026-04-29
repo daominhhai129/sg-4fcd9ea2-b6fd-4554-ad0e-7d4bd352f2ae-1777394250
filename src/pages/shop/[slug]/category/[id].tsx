@@ -114,9 +114,10 @@ export default function CategoryPage() {
                 <Link
                   key={cat.id}
                   href={`/shop/${shop.slug}/category/${cat.slug}`}
+                  style={active ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                   className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                     active
-                      ? "gradient-primary text-white shadow-md"
+                      ? "text-white shadow-md border-0"
                       : "bg-card text-foreground border border-border hover:border-primary"
                   }`}
                 >
@@ -153,7 +154,8 @@ export default function CategoryPage() {
                     <button
                       key={p}
                       onClick={() => { setPage(p); window.scrollTo({ top: 200, behavior: "smooth" }); }}
-                      className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${page === p ? "gradient-primary text-white" : "bg-card border border-border hover:bg-muted"}`}
+                      style={page === p ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                      className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${page === p ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
                       {p}
                     </button>

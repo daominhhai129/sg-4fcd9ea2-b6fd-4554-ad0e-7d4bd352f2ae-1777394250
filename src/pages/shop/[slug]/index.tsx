@@ -134,9 +134,10 @@ export default function ShopPage() {
           <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 select-none">
             <button
               onClick={() => { setCategoryFilter("all"); setProductPage(1); }}
+              style={categoryFilter === "all" ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
               className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
                 categoryFilter === "all"
-                  ? "gradient-primary text-white shadow-md"
+                  ? "text-white shadow-md border-0"
                   : "bg-card text-foreground border border-border hover:border-primary"
               }`}
             >
@@ -146,9 +147,10 @@ export default function ShopPage() {
               <button
                 key={cat.id}
                 onClick={() => { setCategoryFilter(cat.id); setProductPage(1); }}
+                style={categoryFilter === cat.id ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                 className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
                   categoryFilter === cat.id
-                    ? "gradient-primary text-white shadow-md"
+                    ? "text-white shadow-md border-0"
                     : "bg-card text-foreground border border-border hover:border-primary"
                 }`}
               >
@@ -190,7 +192,8 @@ export default function ShopPage() {
                     <button
                       key={page}
                       onClick={() => { setProductPage(page); window.scrollTo({ top: 400, behavior: "smooth" }); }}
-                      className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${productPage === page ? "gradient-primary text-white" : "bg-card border border-border hover:bg-muted"}`}
+                      style={productPage === page ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                      className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${productPage === page ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
                       {page}
                     </button>
@@ -249,7 +252,8 @@ export default function ShopPage() {
                       <button
                         key={page}
                         onClick={() => setPostPage(page)}
-                        className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${postPage === page ? "gradient-primary text-white" : "bg-card border border-border hover:bg-muted"}`}
+                        style={postPage === page ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                        className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${postPage === page ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                       >
                         {page}
                       </button>
