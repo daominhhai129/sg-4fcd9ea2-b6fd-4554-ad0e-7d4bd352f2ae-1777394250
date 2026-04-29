@@ -100,7 +100,7 @@ export default function PostDetailPage() {
         </article>
 
         {relatedProducts.length > 0 && (
-          <div className="container max-w-6xl mt-12">
+          <div className="container max-w-4xl mt-12">
             <div className="flex items-center gap-2 mb-5">
               <Sparkles className="w-5 h-5 text-accent" />
               <h2 className="text-xl font-heading font-bold text-foreground">Sản phẩm liên quan</h2>
@@ -114,7 +114,7 @@ export default function PostDetailPage() {
         )}
 
         {otherPosts.length > 0 && (
-          <div className="container max-w-6xl mt-12">
+          <div className="container max-w-4xl mt-12">
             <h2 className="text-xl font-heading font-bold text-foreground mb-5">Bài viết khác</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {otherPosts.map((p) => (
