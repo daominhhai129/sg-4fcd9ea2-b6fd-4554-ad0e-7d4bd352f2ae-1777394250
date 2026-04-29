@@ -533,11 +533,11 @@ export default function ProductsPage() {
         )}
 
         {filtered.length > 0 && totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-1">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 px-1">
+            <p className="text-sm text-muted-foreground text-center sm:text-left">
               Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length} sản phẩm
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
               <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Trước
