@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Save } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Save, CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { CreateUserInput } from "@/contexts/AuthContext";
 
 interface LimitDialogProps {
@@ -43,29 +46,95 @@ interface ExtendDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userName: string;
+  currentExpiry?: string;
   onConfirm: (days: number) => void;
 }
 
-export function ExtendDialog({ open, onOpenChange, userName, onConfirm }: ExtendDialogProps) {
+export function ExtendDialog({ open, onOpenChange, userName, currentExpiry, onConfirm }: ExtendDialogProps) {
+  const [mode, setMode] = useState<"days" | "date">("days");
   const [days, setDays] = useState(30);
-  useEffect(() => { if (open) setDays(30); }, [open]);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMode("days");
+      setDays(30);
+      const base = currentExpiry ? new Date(currentExpiry) : new Date();
+      const initial = new Date(base);
+      initial.setDate(initial.getDate() + 30);
+      setDate(initial);
+    }
+  }, [open, currentExpiry]);
+
+  const handleConfirm = () => {
+    if (mode === "days") {
+      onConfirm(days);
+    } else if (date) {
+      const base = currentExpiry ? new Date(currentExpiry) : new Date();
+      const diffMs = date.getTime() - base.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      onConfirm(diffDays);
+    }
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader><DialogTitle className="font-heading">Gia hạn cho {userName}</DialogTitle></DialogHeader>
         <div className="space-y-4">
-          <div>
-            <Label className="text-sm font-semibold">Số ngày gia hạn</Label>
-            <Input type="number" value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded-xl mt-1.5" />
-            <div className="flex gap-2 mt-2">
-              {[30, 90, 180, 365].map((d) => (
-                <button key={d} type="button" onClick={() => setDays(d)} className="px-3 py-1 rounded-lg text-xs font-medium bg-muted hover:bg-primary/10 transition-colors">{d} ngày</button>
-              ))}
-            </div>
+          {currentExpiry && (
+            <p className="text-xs text-muted-foreground">
+              Hạn hiện tại: <span className="font-semibold text-foreground">{new Date(currentExpiry).toLocaleDateString("vi-VN")}</span>
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-xl">
+            <button type="button" onClick={() => setMode("days")} className={cn("py-1.5 text-xs font-semibold rounded-lg transition-colors", mode === "days" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}>
+              Số ngày
+            </button>
+            <button type="button" onClick={() => setMode("date")} className={cn("py-1.5 text-xs font-semibold rounded-lg transition-colors", mode === "date" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}>
+              Chọn ngày
+            </button>
           </div>
+
+          {mode === "days" ? (
+            <div>
+              <Label className="text-sm font-semibold">Số ngày gia hạn</Label>
+              <Input type="number" value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded-xl mt-1.5" />
+              <div className="flex gap-2 mt-2">
+                {[30, 90, 180, 365].map((d) => (
+                  <button key={d} type="button" onClick={() => setDays(d)} className="px-3 py-1 rounded-lg text-xs font-medium bg-muted hover:bg-primary/10 transition-colors">{d} ngày</button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <Label className="text-sm font-semibold">Hạn mới</Label>
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start rounded-xl mt-1.5 font-normal", !date && "text-muted-foreground")}>
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    {date ? date.toLocaleDateString("vi-VN") : "Chọn ngày..."}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(d) => { setDate(d); setPopoverOpen(false); }}
+                    disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
+
           <div className="flex gap-3 pt-2 border-t">
             <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={() => { onConfirm(days); onOpenChange(false); }}>Gia hạn</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleConfirm}>Gia hạn</Button>
           </div>
         </div>
       </DialogContent>

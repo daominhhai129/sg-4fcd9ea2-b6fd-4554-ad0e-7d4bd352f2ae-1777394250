@@ -255,6 +255,7 @@ export default function SuperAdminPage() {
           open={!!extendingUser}
           onOpenChange={(o) => { if (!o) setExtendingUser(null); }}
           userName={extendingUserData?.name || ""}
+          currentExpiry={extendingUserData?.expiresAt}
           onConfirm={(days) => { if (extendingUser) extendUserExpiry(extendingUser, days); }}
         />
         <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={createUser} />
