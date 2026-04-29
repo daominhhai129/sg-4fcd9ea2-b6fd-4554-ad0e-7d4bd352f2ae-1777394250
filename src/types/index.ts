@@ -27,7 +27,7 @@ export interface ProductCategory {
   name: string;
   slug: string;
   description: string;
-  image: string;
+  image?: string;
   productCount: number;
 }
 

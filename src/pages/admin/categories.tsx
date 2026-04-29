@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { shops } from "@/data/mock-data";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, FolderOpen, ImagePlus, X, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, GripVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,28 +22,11 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<ProductCategory[]>(shop.categories);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (dialogOpen) {
-      setImageUrl(editing?.image || "");
-    }
-  }, [dialogOpen, editing]);
 
   const syncToShop = (next: ProductCategory[]) => {
     shop.categories.splice(0, shop.categories.length, ...next);
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setImageUrl(reader.result as string);
-    reader.readAsDataURL(file);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,7 +36,6 @@ export default function CategoriesPage() {
       name: form.get("name") as string,
       slug: (form.get("name") as string).toLowerCase().replace(/\s+/g, "-"),
       description: form.get("description") as string,
-      image: imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     };
 
     let next: ProductCategory[];
@@ -73,7 +54,6 @@ export default function CategoriesPage() {
     syncToShop(next);
     setDialogOpen(false);
     setEditing(null);
-    setImageUrl("");
   };
 
   const handleDelete = (id: string) => {
@@ -130,14 +110,14 @@ export default function CategoriesPage() {
             <p className="text-sm text-muted-foreground">{categories.length} danh mục</p>
             <p className="text-xs text-muted-foreground/80 mt-0.5">Kéo thả để sắp xếp thứ tự hiển thị trên storefront</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageUrl(""); } }}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button className="gradient-primary text-white border-0" onClick={() => { setEditing(null); setImageUrl(""); setDialogOpen(true); }}>
+              <Button className="gradient-primary text-white border-0" onClick={() => { setEditing(null); setDialogOpen(true); }}>
                 <Plus className="w-4 h-4 mr-2" />
                 Thêm danh mục
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md" onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader>
                 <DialogTitle className="font-heading">{editing ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}</DialogTitle>
               </DialogHeader>
@@ -148,30 +128,7 @@ export default function CategoriesPage() {
                 </div>
                 <div>
                   <Label className="text-sm font-semibold">Mô tả</Label>
-                  <Textarea name="description" defaultValue={editing?.description || ""} className="rounded-xl mt-1.5" rows={2} />
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold">Ảnh danh mục</Label>
-                  <div className="mt-1.5">
-                    {imageUrl ? (
-                      <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-border group">
-                        <Image src={imageUrl} alt="Preview" fill className="object-cover" />
-                        <button type="button" onClick={() => setImageUrl("")} className="absolute top-2 right-2 bg-destructive text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-destructive/80 transition-colors">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                        <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm text-foreground rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors flex items-center gap-1.5">
-                          <ImagePlus className="w-3.5 h-3.5" />
-                          Đổi ảnh
-                        </button>
-                      </div>
-                    ) : (
-                      <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full aspect-video rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-colors">
-                        <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Tải ảnh lên</span>
-                      </button>
-                    )}
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  </div>
+                  <Textarea name="description" defaultValue={editing?.description || ""} className="rounded-xl mt-1.5" rows={3} />
                 </div>
                 <div className="flex gap-3 pt-2">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
@@ -188,7 +145,6 @@ export default function CategoriesPage() {
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="w-10 px-2 py-3"></th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 w-20">Ảnh</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tên danh mục</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">Mô tả</th>
                   <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">Sản phẩm</th>
@@ -213,11 +169,6 @@ export default function CategoriesPage() {
                       <td className="px-2 py-3">
                         <div className="cursor-grab active:cursor-grabbing flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Kéo để sắp xếp">
                           <GripVertical className="w-4 h-4" />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-border/50">
-                          <Image src={cat.image} alt={cat.name} fill className="object-cover" />
                         </div>
                       </td>
                       <td className="px-4 py-3">
