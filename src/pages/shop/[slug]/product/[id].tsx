@@ -77,7 +77,7 @@ export default function ProductDetailPage() {
             <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-foreground">{product.name}</h1>
 
             <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-heading font-extrabold text-accent">
+              <span className="text-2xl md:text-3xl font-heading font-extrabold text-accent">
                 {formatPrice(product.price)}
               </span>
             </div>
