@@ -1,7 +1,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
-import { mockShops, formatPrice } from "@/data/mock-data";
+import { shops, formatPrice } from "@/data/mock-data";
 import { DollarSign, Package as PackageIcon, ShoppingBag, FolderOpen, FileText, CalendarClock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ const statusMap: Record<string, { label: string; className: string }> = {
 
 export default function AdminDashboard() {
   const { user, getShopConfig } = useAuth();
-  const shop = mockShops.find((s) => s.id === user?.shopId) || mockShops[0];
+  const shop = shops.find((s) => s.id === user?.shopId) || shops[0];
   const shopConfig = getShopConfig(shop.id);
 
   const revenue = shop.orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
