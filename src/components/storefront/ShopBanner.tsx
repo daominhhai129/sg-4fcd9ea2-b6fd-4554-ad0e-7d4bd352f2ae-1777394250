@@ -45,8 +45,8 @@ export function ShopBanner({ shop }: ShopBannerProps) {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-foreground">{shop.name}</h1>
-            <p className="text-muted-foreground mt-1 text-sm md:text-base">{shop.description}</p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs md:text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">{shop.description}</p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary" />{shop.contact.address}</span>
               <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-primary" />{shop.contact.phone}</span>
               <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary" />{shop.contact.email}</span>
