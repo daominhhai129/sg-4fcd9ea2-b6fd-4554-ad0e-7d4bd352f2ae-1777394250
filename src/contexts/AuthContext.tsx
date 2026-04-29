@@ -2,9 +2,33 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
-import { mockUsers, mockShopConfigs, type MockUser, type ShopConfig } from "@/data/mock-data";
 
-interface CreateUserInput {
+export interface ShopConfig {
+  shopId: string;
+  ownerId: string;
+  ownerName: string;
+  shopName: string;
+  limits: { products: number; categories: number; posts: number; storage: number };
+  usage: { products: number; categories: number; posts: number; storage: number };
+  customDomain?: string;
+}
+
+export interface AppUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "super_admin" | "shop_owner";
+  shopId?: string;
+  shopName?: string;
+  shopSlug?: string;
+  shopThemeColor?: string;
+  avatar: string;
+  status: "active" | "locked";
+  expiresAt: string;
+}
+
+export interface CreateUserInput {
   name: string;
   email: string;
   phone: string;
@@ -14,9 +38,9 @@ interface CreateUserInput {
 }
 
 interface AuthContextValue {
-  user: MockUser | null;
+  user: AppUser | null;
   isLoading: boolean;
-  allUsers: MockUser[];
+  allUsers: AppUser[];
   shopConfigs: ShopConfig[];
   impersonating: boolean;
   loginAsUser: () => Promise<void>;
@@ -41,10 +65,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [originalUser, setOriginalUser] = useState<MockUser | null>(null);
-  const [users, setUsers] = useState<MockUser[]>(mockUsers);
-  const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>(mockShopConfigs);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [originalUser, setOriginalUser] = useState<AppUser | null>(null);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const sessionRef = useRef<Session | null>(null);
 
@@ -77,21 +101,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         shopThemeColor = shop.theme_color || undefined;
       }
     }
-    const mappedUser: MockUser = {
+    setUser({
       id: profile.id,
       name: profile.full_name || session.user.email || "User",
       email: session.user.email || "",
       phone: profile.phone || "",
-      role: (profile.role === "super_admin" ? "super_admin" : "shop_owner") as MockUser["role"],
+      role: profile.role === "super_admin" ? "super_admin" : "shop_owner",
       shopId: profile.shop_id || undefined,
       shopName,
       shopSlug,
       shopThemeColor,
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + profile.id,
-      status: (profile.status === "locked" ? "locked" : "active") as MockUser["status"],
+      status: profile.status === "locked" ? "locked" : "active",
       expiresAt: profile.expires_at || new Date(Date.now() + 365 * 86400000).toISOString(),
-    };
-    setUser(mappedUser);
+    });
   }, []);
 
   useEffect(() => {
