@@ -30,7 +30,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           {shop.categories.slice(0, 4).map((cat) => (
             <Link
               key={cat.id}
-              href={"/shop/" + shop.slug + "?category=" + cat.slug}
+              href={"/shop/" + shop.slug + "/category/" + cat.slug}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               {cat.name}
@@ -71,7 +71,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           {shop.categories.map((cat) => (
             <Link
               key={cat.id}
-              href={"/shop/" + shop.slug + "?category=" + cat.slug}
+              href={"/shop/" + shop.slug + "/category/" + cat.slug}
               className="block py-2 text-sm font-medium text-muted-foreground"
               onClick={() => setMobileOpen(false)}
             >
