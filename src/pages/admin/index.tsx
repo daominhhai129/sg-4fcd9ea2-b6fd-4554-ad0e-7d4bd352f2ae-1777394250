@@ -15,7 +15,7 @@ const shop = shops[0];
 const stats = [
   {
     label: "Doanh thu",
-    value: formatPrice(shop.orders.reduce((s, o) => s + o.total, 0)),
+    value: formatPrice(shop.orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0)),
     icon: DollarSign,
     change: "+12.5%",
     color: "text-green-600 bg-green-50",
@@ -38,9 +38,7 @@ const stats = [
 
 const statusMap: Record<string, { label: string; className: string }> = {
   pending: { label: "Chờ xác nhận", className: "bg-yellow-100 text-yellow-700" },
-  confirmed: { label: "Đã xác nhận", className: "bg-blue-100 text-blue-700" },
-  shipping: { label: "Đang giao", className: "bg-purple-100 text-purple-700" },
-  delivered: { label: "Hoàn thành", className: "bg-green-100 text-green-700" },
+  confirmed: { label: "Đã xác nhận", className: "bg-green-100 text-green-700" },
   cancelled: { label: "Đã hủy", className: "bg-red-100 text-red-700" },
 };
 

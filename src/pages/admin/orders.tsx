@@ -25,8 +25,7 @@ const shop = shops[0];
 
 const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
   pending: { label: "Chờ xác nhận", className: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-500" },
-  confirmed: { label: "Đã xác nhận", className: "bg-blue-100 text-blue-700 border-blue-200", dot: "bg-blue-500" },
-  delivered: { label: "Hoàn thành", className: "bg-green-100 text-green-700 border-green-200", dot: "bg-green-500" },
+  confirmed: { label: "Đã xác nhận", className: "bg-green-100 text-green-700 border-green-200", dot: "bg-green-500" },
   cancelled: { label: "Đã hủy", className: "bg-red-100 text-red-700 border-red-200", dot: "bg-red-500" },
 };
 

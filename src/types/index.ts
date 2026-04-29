@@ -59,7 +59,7 @@ export interface Order {
   address: string;
   items: OrderItem[];
   total: number;
-  status: "pending" | "confirmed" | "shipping" | "delivered" | "cancelled";
+  status: "pending" | "confirmed" | "cancelled";
   createdAt: string;
   note?: string;
 }
