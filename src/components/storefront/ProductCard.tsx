@@ -47,7 +47,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
         <Button
           size="sm"
           className="w-full mt-3 text-white border-0 text-xs h-9 hover:opacity-90 transition-opacity"
-          style={themeColor ? { backgroundColor: themeColor } : undefined}
+          style={themeColor ? { backgroundColor: `hsl(${themeColor})` } : undefined}
           disabled={product.status === "outOfStock"}
           onClick={(e) => {
             e.preventDefault();
