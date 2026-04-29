@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export default function SuperAdminPage() {
   const router = useRouter();
@@ -106,6 +107,9 @@ export default function SuperAdminPage() {
             <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
           </div>
           <div className="absolute bottom-4 left-3 right-3 space-y-1">
+            <div className="px-3 pb-1">
+              <LanguageToggle />
+            </div>
             <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
               <Image src={user.avatar || ""} alt={user.name} width={32} height={32} className="rounded-full" />
               <div className="min-w-0">

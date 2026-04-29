@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const navItems = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
@@ -107,6 +108,9 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
         </nav>
 
         <div className="p-3 border-t border-border space-y-1 flex-shrink-0">
+          <div className="px-3 pb-2">
+            <LanguageToggle />
+          </div>
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
             {user.avatar && <Image src={user.avatar} alt={user.name} width={32} height={32} className="rounded-full" />}
             <div className="min-w-0">
