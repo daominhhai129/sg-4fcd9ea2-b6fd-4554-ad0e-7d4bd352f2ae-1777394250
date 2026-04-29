@@ -7,7 +7,7 @@ import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Minus, Plus, ShoppingCart, ArrowLeft } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -34,6 +34,7 @@ export default function ProductDetailPage() {
 
   const category = shop.categories.find((c) => c.id === product.categoryId);
   const relatedProducts = shop.products.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
+  const relatedPosts = shop.posts.filter((post) => post.status === "published" && post.productIds?.includes(product.id)).slice(0, 3);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -110,7 +111,39 @@ export default function ProductDetailPage() {
             <h2 className="text-xl font-heading font-bold text-foreground mb-6">Sản phẩm liên quan</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedProducts.map((p) => (
-                <ProductCard key={p.id} product={p} shopSlug={shop.slug} onAddToCart={addToCart} />
+                <ProductCard key={p.id} product={p} shopSlug={shop.slug} themeColor={shop.themeColor} onAddToCart={addToCart} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedPosts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-xl font-heading font-bold text-foreground mb-6">Bài viết liên quan</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={"/shop/" + shop.slug + "/post/" + post.slug}
+                  className="group rounded-2xl bg-card border border-border/50 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <Image src={post.coverImage} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {new Date(post.createdAt).toLocaleDateString("vi-VN")}
+                    </div>
+                    <h3 className="font-heading font-bold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.excerpt}</p>
+                    <span className="inline-flex items-center gap-1 mt-3 text-sm font-semibold text-primary">
+                      Đọc tiếp <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
