@@ -29,11 +29,10 @@ export default function SuperAdminPage() {
     if (!isLoading && (!user || user.role !== "super_admin")) router.replace("/login");
   }, [user, isLoading, router]);
 
-  const filteredUsers = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return allUsers;
-    return allUsers.filter((u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.phone || "").includes(q));
-  }, [allUsers, search]);
+  const filteredUsers = allUsers
+    .filter((u) => u.role === "user")
+    .filter((u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()) || (u.shopName || "").toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt));
 
   if (isLoading || !user || user.role !== "super_admin") {
     return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
