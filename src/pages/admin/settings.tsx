@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { shops } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Lock, Eye, EyeOff, Check, AlertCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Save, Lock, Eye, EyeOff, Check, AlertCircle, Bell } from "lucide-react";
 
 export default function SettingsPage() {
   const shop = shops[0];
@@ -13,6 +14,20 @@ export default function SettingsPage() {
   const [showNewPwd, setShowNewPwd] = useState(false);
   const [pwdSaved, setPwdSaved] = useState(false);
   const [pwdError, setPwdError] = useState("");
+  const [notifyNewOrder, setNotifyNewOrder] = useState(true);
+  const [notifySaved, setNotifySaved] = useState(false);
+
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("notify-new-order") : null;
+    if (saved !== null) setNotifyNewOrder(saved === "true");
+  }, []);
+
+  const handleNotifyToggle = (val: boolean) => {
+    setNotifyNewOrder(val);
+    if (typeof window !== "undefined") localStorage.setItem("notify-new-order", String(val));
+    setNotifySaved(true);
+    setTimeout(() => setNotifySaved(false), 2000);
+  };
 
   const handlePasswordSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +58,30 @@ export default function SettingsPage() {
     <>
       <SEO title="Cài đặt — Admin" />
       <AdminLayout title="Cài đặt" shopName={shop.name}>
-        <div className="max-w-2xl">
+        <div className="max-w-2xl space-y-6">
+          <div className="rounded-2xl bg-card border border-border/50 p-6">
+            <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-primary" />
+              Thông báo
+            </h2>
+            <p className="text-xs text-muted-foreground mb-5">Quản lý cách bạn nhận thông báo từ cửa hàng</p>
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-muted/30">
+              <div className="flex-1 pr-4">
+                <div className="text-sm font-semibold text-foreground">Thông báo đơn hàng mới</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Nhận thông báo ngay khi có khách đặt đơn hàng mới</div>
+              </div>
+              <Switch checked={notifyNewOrder} onCheckedChange={handleNotifyToggle} />
+            </div>
+
+            {notifySaved && (
+              <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-xl mt-3">
+                <Check className="w-4 h-4" />
+                Đã lưu cài đặt
+              </div>
+            )}
+          </div>
+
           <div className="rounded-2xl bg-card border border-border/50 p-6">
             <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
