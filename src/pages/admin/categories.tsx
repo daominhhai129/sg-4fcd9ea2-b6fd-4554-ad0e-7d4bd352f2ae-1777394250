@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, FolderOpen, ImagePlus, X } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, ImagePlus, X, GripVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,8 @@ export default function CategoriesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,6 +33,10 @@ export default function CategoriesPage() {
       setImageUrl(editing?.image || "");
     }
   }, [dialogOpen, editing]);
+
+  const syncToShop = (next: ProductCategory[]) => {
+    shop.categories.splice(0, shop.categories.length, ...next);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,10 +57,9 @@ export default function CategoriesPage() {
       image: imageUrl || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     };
 
+    let next: ProductCategory[];
     if (editing) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === editing.id ? { ...c, ...data } : c))
-      );
+      next = categories.map((c) => (c.id === editing.id ? { ...c, ...data } : c));
     } else {
       const newCat: ProductCategory = {
         id: "cat-new-" + Date.now(),
@@ -62,23 +67,69 @@ export default function CategoriesPage() {
         productCount: 0,
         ...data,
       };
-      setCategories((prev) => [newCat, ...prev]);
+      next = [newCat, ...categories];
     }
+    setCategories(next);
+    syncToShop(next);
     setDialogOpen(false);
     setEditing(null);
     setImageUrl("");
   };
 
   const handleDelete = (id: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    const next = categories.filter((c) => c.id !== id);
+    setCategories(next);
+    syncToShop(next);
+  };
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (id !== dragOverId) setDragOverId(id);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      setDragOverId(null);
+      return;
+    }
+    const fromIdx = categories.findIndex((c) => c.id === draggedId);
+    const toIdx = categories.findIndex((c) => c.id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+    const next = [...categories];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    setCategories(next);
+    syncToShop(next);
+    setDraggedId(null);
+    setDragOverId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedId(null);
+    setDragOverId(null);
   };
 
   return (
     <>
       <SEO title="Danh mục — Admin" />
       <AdminLayout title="Danh mục">
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-muted-foreground">{categories.length} danh mục</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-sm text-muted-foreground">{categories.length} danh mục</p>
+            <p className="text-xs text-muted-foreground/80 mt-0.5">Kéo thả để sắp xếp thứ tự hiển thị trên storefront</p>
+          </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageUrl(""); } }}>
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white border-0" onClick={() => { setEditing(null); setImageUrl(""); setDialogOpen(true); }}>
@@ -136,6 +187,7 @@ export default function CategoriesPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
+                  <th className="w-10 px-2 py-3"></th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 w-20">Ảnh</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tên danh mục</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">Mô tả</th>
@@ -144,36 +196,54 @@ export default function CategoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {categories.map((cat) => (
-                  <tr key={cat.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-border/50">
-                        <Image src={cat.image} alt={cat.name} fill className="object-cover" />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="text-sm font-semibold text-foreground">{cat.name}</p>
-                      <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} sản phẩm</p>
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{cat.description}</p>
-                    </td>
-                    <td className="px-4 py-3 text-center hidden sm:table-cell">
-                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-semibold">{cat.productCount}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
-                          <Pencil className="w-3.5 h-3.5 mr-1" />
-                          Sửa
-                        </Button>
-                        <Button size="sm" variant="destructive" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(cat.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {categories.map((cat) => {
+                  const isDragging = draggedId === cat.id;
+                  const isOver = dragOverId === cat.id && draggedId !== cat.id;
+                  return (
+                    <tr
+                      key={cat.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, cat.id)}
+                      onDragOver={(e) => handleDragOver(e, cat.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, cat.id)}
+                      onDragEnd={handleDragEnd}
+                      className={`border-b border-border/50 last:border-0 transition-all ${isDragging ? "opacity-40" : ""} ${isOver ? "bg-primary/10 border-t-2 border-t-primary" : "hover:bg-muted/30"}`}
+                    >
+                      <td className="px-2 py-3">
+                        <div className="cursor-grab active:cursor-grabbing flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Kéo để sắp xếp">
+                          <GripVertical className="w-4 h-4" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-border/50">
+                          <Image src={cat.image} alt={cat.name} fill className="object-cover" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-semibold text-foreground">{cat.name}</p>
+                        <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} sản phẩm</p>
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell">
+                        <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{cat.description}</p>
+                      </td>
+                      <td className="px-4 py-3 text-center hidden sm:table-cell">
+                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-semibold">{cat.productCount}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
+                            <Pencil className="w-3.5 h-3.5 mr-1" />
+                            Sửa
+                          </Button>
+                          <Button size="sm" variant="destructive" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(cat.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             {categories.length === 0 && (
