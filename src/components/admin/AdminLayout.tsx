@@ -25,16 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LanguageToggle } from "@/components/LanguageToggle";
-
-const navItems = [
-  { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Sản phẩm", icon: Package },
-  { href: "/admin/categories", label: "Danh mục", icon: FolderOpen },
-  { href: "/admin/orders", label: "Đơn hàng", icon: ShoppingBag },
-  { href: "/admin/posts", label: "Bài viết", icon: FileText },
-  { href: "/admin/profile", label: "Hồ sơ shop", icon: UserCircle },
-  { href: "/admin/settings", label: "Cài đặt", icon: Settings },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -45,8 +36,19 @@ interface AdminLayoutProps {
 export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLayoutProps) {
   const router = useRouter();
   const { user, isLoading, logout, impersonating, exitImpersonation } = useAuth();
+  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+
+  const navItems = [
+    { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
+    { href: "/admin/products", label: t("nav.products"), icon: Package },
+    { href: "/admin/categories", label: t("nav.categories"), icon: FolderOpen },
+    { href: "/admin/orders", label: t("nav.orders"), icon: ShoppingBag },
+    { href: "/admin/posts", label: t("nav.posts"), icon: FileText },
+    { href: "/admin/profile", label: t("nav.profile"), icon: UserCircle },
+    { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
+  ];
 
   useEffect(() => {
     if (!isLoading && !user) {

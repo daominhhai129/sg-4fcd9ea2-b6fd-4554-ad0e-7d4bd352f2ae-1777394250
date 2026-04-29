@@ -64,17 +64,6 @@
   .gradient-accent {
     @apply bg-gradient-to-r from-accent to-[hsl(40,95%,55%)];
   }
-  .goog-te-banner-frame,
-  .skiptranslate iframe {
-    display: none !important;
-  }
-  body {
-    top: 0 !important;
-  }
-  font[style*="background-color"] {
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
 }
 
 @layer components {
