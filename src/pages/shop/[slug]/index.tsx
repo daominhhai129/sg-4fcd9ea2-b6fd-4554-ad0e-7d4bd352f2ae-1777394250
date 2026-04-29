@@ -106,6 +106,7 @@ export default function ShopPage() {
                   key={product.id}
                   product={product}
                   shopSlug={shop.slug}
+                  themeColor={shop.themeColor}
                   onAddToCart={addToCart}
                 />
               ))}
@@ -162,6 +163,7 @@ export default function ShopPage() {
                 key={product.id}
                 product={product}
                 shopSlug={shop.slug}
+                themeColor={shop.themeColor}
                 onAddToCart={addToCart}
               />
             ))}
