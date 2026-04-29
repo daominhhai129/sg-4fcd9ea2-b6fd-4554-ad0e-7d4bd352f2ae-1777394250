@@ -131,7 +131,7 @@ export default function SuperAdminPage() {
                     {filteredUsers.map((u) => {
                       const expiry = new Date(u.expiresAt);
                       const expired = expiry < new Date();
-                      const sc = u.role === "shop_owner" ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+                      const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
                       return (
                         <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors align-top">
                           <td className="px-4 py-3">
