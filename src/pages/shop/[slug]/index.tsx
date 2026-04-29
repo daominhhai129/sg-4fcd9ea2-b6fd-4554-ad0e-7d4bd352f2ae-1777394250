@@ -142,17 +142,13 @@ export default function ShopPage() {
               Tất cả
             </button>
             {shop.categories.map((cat) => (
-              <button
+              <Link
                 key={cat.id}
-                onClick={() => { setCategoryFilter(cat.id); setProductPage(1); }}
-                className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
-                  categoryFilter === cat.id
-                    ? "gradient-primary text-white shadow-md"
-                    : "bg-card text-foreground border border-border hover:border-primary"
-                }`}
+                href={`/shop/${shop.slug}/category/${cat.slug}`}
+                className="px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none bg-card text-foreground border border-border hover:border-primary"
               >
                 {cat.name}
-              </button>
+              </Link>
             ))}
           </div>
 
