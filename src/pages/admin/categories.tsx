@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { shops } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import type { ProductCategory } from "@/types";
 const shop = shops[0];
 
 export default function CategoriesPage() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<ProductCategory[]>(shop.categories);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
@@ -103,36 +105,36 @@ export default function CategoriesPage() {
 
   return (
     <>
-      <SEO title="Danh mục — Admin" />
-      <AdminLayout title="Danh mục">
+      <SEO title={t("nav.categories") + " — Admin"} />
+      <AdminLayout title={t("nav.categories")}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm text-muted-foreground">{categories.length} danh mục</p>
-            <p className="text-xs text-muted-foreground/80 mt-0.5">Kéo thả để sắp xếp thứ tự hiển thị trên storefront</p>
+            <p className="text-sm text-muted-foreground">{t("cat.count").replace("{n}", String(categories.length))}</p>
+            <p className="text-xs text-muted-foreground/80 mt-0.5">{t("cat.dragHint")}</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white border-0" onClick={() => { setEditing(null); setDialogOpen(true); }}>
                 <Plus className="w-4 h-4 mr-2" />
-                Thêm danh mục
+                {t("cat.add")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md" onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader>
-                <DialogTitle className="font-heading">{editing ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}</DialogTitle>
+                <DialogTitle className="font-heading">{editing ? t("cat.editTitle") : t("cat.addNew")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <Label className="text-sm font-semibold">Tên danh mục <span className="text-destructive">*</span></Label>
+                  <Label className="text-sm font-semibold">{t("cat.name")} <span className="text-destructive">*</span></Label>
                   <Input name="name" defaultValue={editing?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold">Mô tả</Label>
+                  <Label className="text-sm font-semibold">{t("cat.description")}</Label>
                   <Textarea name="description" defaultValue={editing?.description || ""} className="rounded-xl mt-1.5" rows={3} />
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu</Button>
+                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -145,10 +147,10 @@ export default function CategoriesPage() {
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="w-10 px-2 py-3"></th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tên danh mục</th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">Mô tả</th>
-                  <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">Sản phẩm</th>
-                  <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-32">Thao tác</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("cat.colName")}</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("cat.colDesc")}</th>
+                  <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">{t("cat.colProducts")}</th>
+                  <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-32">{t("cat.colActions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,13 +169,13 @@ export default function CategoriesPage() {
                       className={`border-b border-border/50 last:border-0 transition-all ${isDragging ? "opacity-40" : ""} ${isOver ? "bg-primary/10 border-t-2 border-t-primary" : "hover:bg-muted/30"}`}
                     >
                       <td className="px-2 py-3">
-                        <div className="cursor-grab active:cursor-grabbing flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Kéo để sắp xếp">
+                        <div className="cursor-grab active:cursor-grabbing flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title={t("cat.dragTip")}>
                           <GripVertical className="w-4 h-4" />
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm font-semibold text-foreground">{cat.name}</p>
-                        <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} sản phẩm</p>
+                        <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} {t("cat.unitProducts")}</p>
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
                         <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{cat.description}</p>
@@ -185,7 +187,7 @@ export default function CategoriesPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
-                            Sửa
+                            {t("common.edit")}
                           </Button>
                           <Button size="sm" variant="destructive" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(cat.id)}>
                             <Trash2 className="w-3.5 h-3.5" />
@@ -200,7 +202,7 @@ export default function CategoriesPage() {
             {categories.length === 0 && (
               <div className="text-center py-16">
                 <FolderOpen className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
-                <p className="text-muted-foreground">Chưa có danh mục nào.</p>
+                <p className="text-muted-foreground">{t("cat.empty")}</p>
               </div>
             )}
           </div>
