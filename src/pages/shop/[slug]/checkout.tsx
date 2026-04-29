@@ -7,7 +7,7 @@ import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { ArrowLeft, CheckCircle2, CreditCard, Truck, ShoppingBag } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,6 @@ export default function CheckoutPage() {
   const shop = shops.find((s) => s.slug === slug);
 
   const [form, setForm] = useState({ name: "", phone: "", address: "", email: "", note: "" });
-  const [payment, setPayment] = useState<"cod" | "bank">("cod");
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,7 +85,6 @@ export default function CheckoutPage() {
             <p className="text-sm text-muted-foreground mb-1">Cảm ơn {form.name} đã mua sắm tại {shop.name}.</p>
             <p className="text-sm text-muted-foreground mb-6">Mã đơn hàng: <span className="font-bold text-foreground">{orderId}</span></p>
             <div className="rounded-xl bg-muted/50 p-4 mb-6 text-left text-sm space-y-1.5">
-              <div className="flex justify-between"><span className="text-muted-foreground">Phương thức:</span><span className="font-medium">{payment === "cod" ? "Thanh toán khi nhận hàng" : "Chuyển khoản"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Số điện thoại:</span><span className="font-medium">{form.phone}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Địa chỉ:</span><span className="font-medium text-right max-w-[60%] truncate">{form.address}</span></div>
               <div className="flex justify-between border-t border-border pt-1.5 mt-1.5"><span className="font-semibold">Tổng cộng:</span><span className="font-bold text-accent">{formatPrice(totalPrice)}</span></div>
@@ -141,37 +139,6 @@ export default function CheckoutPage() {
                   <Label htmlFor="note" className="text-sm font-semibold">Ghi chú</Label>
                   <Textarea id="note" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className="mt-1.5 rounded-xl min-h-[72px]" placeholder="Lưu ý cho người giao hàng (không bắt buộc)" />
                 </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-card border border-border/50 p-5 md:p-6">
-              <h2 className="font-heading font-bold text-foreground mb-4">Phương thức thanh toán</h2>
-              <div className="space-y-3">
-                {[
-                  { id: "cod" as const, label: "Thanh toán khi nhận hàng (COD)", desc: "Trả tiền mặt khi shipper giao hàng", icon: Truck },
-                  { id: "bank" as const, label: "Chuyển khoản ngân hàng", desc: "Thông tin tài khoản sẽ được gửi sau khi đặt", icon: CreditCard },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setPayment(opt.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all",
-                      payment === opt.id ? "border-accent bg-accent/5" : "border-border hover:border-accent/50",
-                    )}
-                  >
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0", payment === opt.id ? "bg-accent text-white" : "bg-muted text-muted-foreground")}>
-                      <opt.icon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-foreground">{opt.label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
-                    </div>
-                    <div className={cn("w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center", payment === opt.id ? "border-accent" : "border-muted-foreground/30")}>
-                      {payment === opt.id && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
-                    </div>
-                  </button>
-                ))}
               </div>
             </div>
           </div>
