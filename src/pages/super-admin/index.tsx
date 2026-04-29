@@ -124,6 +124,7 @@ export default function SuperAdminPage() {
                       <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Người dùng</th>
                       <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
                       <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Cửa hàng</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Tên miền</th>
                       <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Hết hạn</th>
                       <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
                       <th className="px-4 py-3 w-10" />
@@ -142,17 +143,17 @@ export default function SuperAdminPage() {
                               <div className="min-w-0">
                                 <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
                                 <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                                {u.customDomain && (
-                                  <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
-                                    <Globe className="w-3 h-3" />{u.customDomain}
-                                  </a>
-                                )}
                                 {sc && (
                                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[11px] text-muted-foreground">
                                     <span className="inline-flex items-center gap-1"><Package className="w-3 h-3" />{sc.usage.products}/{sc.limits.products}</span>
                                     <span className="inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" />{sc.usage.categories}/{sc.limits.categories}</span>
                                     <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{sc.usage.posts}/{sc.limits.posts}</span>
                                   </div>
+                                )}
+                                {u.customDomain && (
+                                  <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="xl:hidden inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
+                                    <Globe className="w-3 h-3" />{u.customDomain}
+                                  </a>
                                 )}
                               </div>
                             </div>
@@ -165,6 +166,13 @@ export default function SuperAdminPage() {
                             ) : <span className="text-sm text-muted-foreground">—</span>}
                           </td>
                           <td className="px-4 py-3 hidden lg:table-cell"><span className="text-sm text-muted-foreground">{u.shopName || "—"}</span></td>
+                          <td className="px-4 py-3 hidden xl:table-cell">
+                            {u.customDomain ? (
+                              <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                                <Globe className="w-3.5 h-3.5" />{u.customDomain}
+                              </a>
+                            ) : <span className="text-sm text-muted-foreground">—</span>}
+                          </td>
                           <td className="px-4 py-3 hidden sm:table-cell">
                             <span className={cn("text-sm", expired ? "text-destructive font-semibold" : "text-muted-foreground")}>
                               {expiry.toLocaleDateString("vi-VN")}
@@ -226,7 +234,7 @@ export default function SuperAdminPage() {
                       );
                     })}
                     {filteredUsers.length === 0 && (
-                      <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">Không tìm thấy người dùng nào</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">Không tìm thấy người dùng nào</td></tr>
                     )}
                   </tbody>
                 </table>
