@@ -19,9 +19,10 @@ const POSTS_PER_PAGE = 8;
 
 export default function ShopPage() {
   const router = useRouter();
-  const { slug, category } = router.query;
+  const { slug } = router.query;
   const { addToCart, totalItems } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [productPage, setProductPage] = useState(1);
   const [postPage, setPostPage] = useState(1);
 
@@ -35,16 +36,15 @@ export default function ShopPage() {
   const filteredProducts = useMemo(() => {
     if (!shop) return [];
     let products = shop.products;
-    if (category) {
-      const cat = shop.categories.find((c) => c.slug === category);
-      if (cat) products = products.filter((p) => p.categoryId === cat.id);
+    if (categoryFilter !== "all") {
+      products = products.filter((p) => p.categoryId === categoryFilter);
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       products = products.filter((p) => p.name.toLowerCase().includes(q));
     }
     return products;
-  }, [shop, category, searchQuery]);
+  }, [shop, categoryFilter, searchQuery]);
 
   const productTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const paginatedProducts = useMemo(() =>
@@ -66,7 +66,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     setProductPage(1);
-  }, [category, searchQuery]);
+  }, [categoryFilter, searchQuery]);
 
   if (!shop) {
     return (
