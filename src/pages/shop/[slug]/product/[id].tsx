@@ -5,6 +5,7 @@ import Link from "next/link";
 import { shops, formatPrice } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ProductCard } from "@/components/storefront/ProductCard";
+import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
 import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight } from "lucide-react";
@@ -46,7 +47,7 @@ export default function ProductDetailPage() {
     <>
       <SEO title={product.name + " — " + shop.name} description={product.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
-      <main className="container py-8">
+      <main className="container py-8 pb-24 md:pb-8">
         <Link href={"/shop/" + shop.slug} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Quay lại
@@ -154,6 +155,7 @@ export default function ProductDetailPage() {
           </div>
         )}
       </main>
+      <ShopBottomBar shop={shop} />
     </>
   );
 }
