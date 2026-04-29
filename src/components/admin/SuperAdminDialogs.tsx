@@ -251,3 +251,41 @@ export function DomainDialog({ open, onOpenChange, userName, currentDomain, onSa
     </Dialog>
   );
 }
+
+interface EditUserDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: { id: string; name: string; email: string; phone?: string; shopName?: string } | null;
+  onSave: (input: { name: string; email: string; phone: string; shopName: string }) => void;
+}
+
+export function EditUserDialog({ open, onOpenChange, user, onSave }: EditUserDialogProps) {
+  const [form, setForm] = useState({ name: "", email: "", phone: "", shopName: "" });
+  useEffect(() => {
+    if (open && user) {
+      setForm({ name: user.name, email: user.email, phone: user.phone || "", shopName: user.shopName || "" });
+    }
+  }, [open, user]);
+  const submit = () => {
+    if (!form.name || !form.email || !form.shopName) return;
+    onSave(form);
+    onOpenChange(false);
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle className="font-heading">Sửa thông tin chủ shop</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Tên cửa hàng</Label><Input value={form.shopName} onChange={(e) => setForm({ ...form, shopName: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div className="flex gap-3 pt-2 border-t">
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

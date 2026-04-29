@@ -6,13 +6,13 @@ import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog } from "@/components/admin/SuperAdminDialogs";
+import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog, EditUserDialog } from "@/components/admin/SuperAdminDialogs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,7 +21,7 @@ export default function SuperAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, enterShopAsAdmin, setUserDomain } = useAuth();
+  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, enterShopAsAdmin, setUserDomain } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [editingShop, setEditingShop] = useState<string | null>(null);
@@ -29,6 +29,7 @@ export default function SuperAdminPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [pwdOpen, setPwdOpen] = useState(false);
   const [domainUser, setDomainUser] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
   const [orphanedImages, setOrphanedImages] = useState(23);
   const [maintenanceAction, setMaintenanceAction] = useState<"images" | "orders" | null>(null);
   const [oldOrdersDeleted, setOldOrdersDeleted] = useState(false);
@@ -56,6 +57,7 @@ export default function SuperAdminPage() {
   const editingShopConfig = shopConfigs.find((sc) => sc.shopId === editingShop);
   const extendingUserData = allUsers.find((u) => u.id === extendingUser);
   const domainUserData = allUsers.find((u) => u.id === domainUser);
+  const editingUserData = allUsers.find((u) => u.id === editingUser);
   const totalProducts = shopConfigs.reduce((sum, sc) => sum + sc.usage.products, 0);
 
   const handleResetPassword = (userId: string, name: string) => {
@@ -253,6 +255,9 @@ export default function SuperAdminPage() {
                                   <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
                                     <Copy className="w-4 h-4 mr-2" /> Copy thông tin shop
                                   </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
+                                    <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
                                     <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
                                   </DropdownMenuItem>
@@ -372,6 +377,12 @@ export default function SuperAdminPage() {
           userName={domainUserData?.name || ""}
           currentDomain={domainUserData?.customDomain}
           onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: domain ? "Đã cập nhật tên miền" : "Đã hủy liên kết", description: domain || "Tên miền riêng đã bị xóa." }); } }}
+        />
+        <EditUserDialog
+          open={!!editingUser}
+          onOpenChange={(o) => { if (!o) setEditingUser(null); }}
+          user={editingUserData || null}
+          onSave={(input) => { if (editingUser) { updateUser(editingUser, input); toast({ title: "Đã cập nhật", description: "Thông tin chủ shop đã được lưu." }); } }}
         />
         <AlertDialog open={!!maintenanceAction} onOpenChange={(o) => { if (!o) setMaintenanceAction(null); }}>
           <AlertDialogContent>

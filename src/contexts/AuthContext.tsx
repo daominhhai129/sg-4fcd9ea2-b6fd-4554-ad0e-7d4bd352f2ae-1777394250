@@ -92,6 +92,7 @@ interface AuthContextType {
   extendUserExpiry: (userId: string, days: number) => void;
   resetUserPassword: (userId: string) => void;
   createUser: (input: CreateUserInput) => void;
+  updateUser: (userId: string, input: { name: string; email: string; phone: string; shopName: string }) => void;
   updateAdminPassword: (newPassword: string) => void;
   setUserDomain: (userId: string, domain: string) => void;
 }
@@ -218,6 +219,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setShopConfigs((prev) => [...prev, { shopId, shopName: input.shopName, ownerId: id, ownerName: input.name, limits: { ...DEFAULT_LIMITS }, usage: { products: 0, categories: 0, posts: 0 } }]);
   }, []);
 
+  const updateUser = useCallback((userId: string, input: { name: string; email: string; phone: string; shopName: string }) => {
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, name: input.name, email: input.email, phone: input.phone, shopName: input.shopName } : u)));
+    setShopConfigs((prev) => prev.map((sc) => (sc.ownerId === userId ? { ...sc, ownerName: input.name, shopName: input.shopName } : sc)));
+  }, []);
+
   const updateAdminPassword = useCallback((newPassword: string) => {
     setAdmin((prev) => ({ ...prev, password: newPassword }));
   }, []);
@@ -228,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, setUserDomain }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain }}>
       {children}
     </AuthContext.Provider>
   );
