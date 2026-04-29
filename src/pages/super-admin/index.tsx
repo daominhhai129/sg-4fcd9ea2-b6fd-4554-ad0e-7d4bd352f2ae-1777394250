@@ -10,7 +10,7 @@ import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog } from
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Pencil, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SuperAdminPage() {
@@ -131,14 +131,22 @@ export default function SuperAdminPage() {
                     {filteredUsers.map((u) => {
                       const expiry = new Date(u.expiresAt);
                       const expired = expiry < new Date();
+                      const sc = u.role === "shop_owner" ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
                       return (
-                        <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                        <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors align-top">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3 min-w-0">
                               <Image src={u.avatar || ""} alt={u.name} width={36} height={36} className="rounded-full flex-shrink-0" />
                               <div className="min-w-0">
                                 <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
                                 <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                {sc && (
+                                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[11px] text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1"><Package className="w-3 h-3" />{sc.usage.products}/{sc.limits.products}</span>
+                                    <span className="inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" />{sc.usage.categories}/{sc.limits.categories}</span>
+                                    <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{sc.usage.posts}/{sc.limits.posts}</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -175,6 +183,11 @@ export default function SuperAdminPage() {
                                   <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
                                     <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
                                   </DropdownMenuItem>
+                                  {sc && (
+                                    <DropdownMenuItem onClick={() => setEditingShop(sc.shopId)}>
+                                      <SlidersHorizontal className="w-4 h-4 mr-2" /> Sửa giới hạn
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
                                     <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
                                   </DropdownMenuItem>
@@ -200,45 +213,6 @@ export default function SuperAdminPage() {
                     )}
                   </tbody>
                 </table>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-lg font-heading font-bold text-foreground mb-4">Cửa hàng & Giới hạn</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {shopConfigs.map((sc) => (
-                  <div key={sc.shopId} className="rounded-2xl bg-card border border-border/50 p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-heading font-bold text-foreground">{sc.shopName}</h3>
-                        <p className="text-xs text-muted-foreground">{sc.ownerName}</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setEditingShop(sc.shopId)}>
-                        <Pencil className="w-3.5 h-3.5 mr-1" /> Sửa limit
-                      </Button>
-                    </div>
-                    <div className="space-y-3">
-                      {[
-                        { label: "Sản phẩm", usage: sc.usage.products, limit: sc.limits.products, icon: Package },
-                        { label: "Danh mục", usage: sc.usage.categories, limit: sc.limits.categories, icon: FolderOpen },
-                        { label: "Bài viết", usage: sc.usage.posts, limit: sc.limits.posts, icon: Package },
-                      ].map((item) => {
-                        const pct = Math.min((item.usage / item.limit) * 100, 100);
-                        return (
-                          <div key={item.label} className="space-y-1.5">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="flex items-center gap-1.5 text-muted-foreground"><item.icon className="w-3.5 h-3.5" />{item.label}</span>
-                              <span className="font-semibold text-foreground">{item.usage}<span className="text-muted-foreground font-normal">/{item.limit}</span></span>
-                            </div>
-                            <div className="h-2 bg-muted rounded-full overflow-hidden">
-                              <div className={cn("h-full rounded-full transition-all", pct > 80 ? "bg-destructive" : pct > 50 ? "bg-accent" : "bg-primary")} style={{ width: `${pct}%` }} />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </main>
