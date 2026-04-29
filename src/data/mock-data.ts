@@ -8,6 +8,7 @@ export const shops: Shop[] = [
     description: "Cửa hàng công nghệ hàng đầu với các sản phẩm chính hãng, giá tốt nhất thị trường.",
     logo: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=100&h=100&fit=crop",
     banner: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop",
+    themeColor: "263 84% 58%",
     contact: {
       phone: "0901 234 567",
       email: "contact@techzone.vn",
@@ -29,6 +30,7 @@ export const shops: Shop[] = [
     description: "Thời trang cao cấp, phong cách hiện đại dành cho giới trẻ năng động.",
     logo: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100&h=100&fit=crop",
     banner: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=400&fit=crop",
+    themeColor: "340 82% 52%",
     contact: {
       phone: "0912 345 678",
       email: "hello@fashionhub.vn",
@@ -50,6 +52,7 @@ export const shops: Shop[] = [
     description: "Thực phẩm sạch, hữu cơ từ nông trại đến bàn ăn. Sức khỏe là trên hết!",
     logo: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop",
     banner: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop",
+    themeColor: "142 71% 45%",
     contact: {
       phone: "0923 456 789",
       email: "info@greengarden.vn",
