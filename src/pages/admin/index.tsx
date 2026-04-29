@@ -5,11 +5,9 @@ import {
   Package,
   ShoppingBag,
   DollarSign,
-  TrendingUp,
   ArrowUpRight,
   Clock,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 const shop = shops[0];
@@ -36,13 +34,6 @@ const stats = [
     change: "+3",
     color: "text-violet-600 bg-violet-50",
   },
-  {
-    label: "Tỷ lệ chuyển đổi",
-    value: "3.2%",
-    icon: TrendingUp,
-    change: "+0.4%",
-    color: "text-orange-600 bg-orange-50",
-  },
 ];
 
 const statusMap: Record<string, { label: string; className: string }> = {
@@ -58,7 +49,7 @@ export default function AdminDashboard() {
     <>
       <SEO title="Tổng quan — Admin" />
       <AdminLayout title="Tổng quan">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-2xl bg-card border border-border/50 p-5">
               <div className="flex items-center justify-between mb-3">
@@ -76,65 +67,39 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-2xl bg-card border border-border/50 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-heading font-bold text-foreground">Đơn hàng gần đây</h2>
-              <Link href="/admin/orders" className="text-sm text-primary hover:underline font-medium">
-                Xem tất cả
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {shop.orders.slice(0, 5).map((order) => {
-                const status = statusMap[order.status];
-                return (
-                  <div key={order.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <ShoppingBag className="w-4.5 h-4.5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{order.customerName}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {order.createdAt}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-foreground">{formatPrice(order.total)}</p>
-                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium ${status.className}`}>
-                        {status.label}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        <div className="rounded-2xl bg-card border border-border/50 p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-heading font-bold text-foreground">Đơn hàng gần đây</h2>
+            <Link href="/admin/orders" className="text-sm text-primary hover:underline font-medium">
+              Xem tất cả
+            </Link>
           </div>
-
-          <div className="rounded-2xl bg-card border border-border/50 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-heading font-bold text-foreground">Sản phẩm bán chạy</h2>
-              <Link href="/admin/products" className="text-sm text-primary hover:underline font-medium">
-                Xem tất cả
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {shop.products.slice(0, 5).map((product, i) => (
-                <div key={product.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
-                  <span className="text-sm font-bold text-muted-foreground w-6">{i + 1}</span>
-                  <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
-                    <Image src={product.images[0]} alt={product.name} width={40} height={40} className="object-cover w-full h-full" />
+          <div className="space-y-4">
+            {shop.orders.slice(0, 8).map((order) => {
+              const status = statusMap[order.status];
+              return (
+                <div key={order.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <ShoppingBag className="w-4.5 h-4.5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{order.customerName}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {order.createdAt}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{product.reviewCount} đánh giá</p>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-foreground">{formatPrice(order.total)}</p>
+                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium ${status.className}`}>
+                      {status.label}
+                    </span>
                   </div>
-                  <p className="text-sm font-bold text-accent">{formatPrice(product.salePrice || product.price)}</p>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </AdminLayout>
