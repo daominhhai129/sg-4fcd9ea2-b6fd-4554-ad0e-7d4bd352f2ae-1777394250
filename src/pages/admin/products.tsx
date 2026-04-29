@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +58,7 @@ interface ProductFormData {
 }
 
 export default function ProductsPage() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -266,20 +268,20 @@ export default function ProductsPage() {
 
   return (
     <>
-      <SEO title="Sản phẩm — Admin" />
-      <AdminLayout title="Sản phẩm">
+      <SEO title={t("nav.products") + " — Admin"} />
+      <AdminLayout title={t("nav.products")}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Tìm sản phẩm..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-xl" />
+              <Input placeholder={t("prod.searchPh")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-xl" />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-40 rounded-xl">
-                <SelectValue placeholder="Danh mục" />
+                <SelectValue placeholder={t("nav.categories")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="all">{t("common.all")}</SelectItem>
                 {shop.categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                 ))}
@@ -298,32 +300,32 @@ export default function ProductsPage() {
             <DialogTrigger asChild>
               <Button className="gradient-primary text-white border-0" onClick={openCreate}>
                 <Plus className="w-4 h-4 mr-2" />
-                Thêm sản phẩm
+                {t("prod.add")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader>
-                <DialogTitle className="font-heading">{editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</DialogTitle>
+                <DialogTitle className="font-heading">{editingProduct ? t("prod.editTitle") : t("prod.addNewTitle")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSave} className="space-y-5">
                 <div>
-                  <Label className="text-sm font-semibold">Tên sản phẩm <span className="text-destructive">*</span></Label>
+                  <Label className="text-sm font-semibold">{t("prod.name")} <span className="text-destructive">*</span></Label>
                   <Input name="name" defaultValue={editingProduct?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-semibold">Mã SKU</Label>
-                    <Input name="sku" defaultValue={(editingProduct as unknown as { sku?: string })?.sku || ""} placeholder="VD: SP-001" className="rounded-xl mt-1.5" />
+                    <Label className="text-sm font-semibold">{t("prod.sku")}</Label>
+                    <Input name="sku" defaultValue={(editingProduct as unknown as { sku?: string })?.sku || ""} placeholder={t("prod.skuPh")} className="rounded-xl mt-1.5" />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Giá (VNĐ) <span className="text-destructive">*</span></Label>
+                    <Label className="text-sm font-semibold">{t("prod.price")} <span className="text-destructive">*</span></Label>
                     <Input name="price" type="text" inputMode="numeric" value={priceInput} onChange={handlePriceChange} required placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-semibold">Danh mục</Label>
+                  <Label className="text-sm font-semibold">{t("nav.categories")}</Label>
                   <Select name="categoryId" defaultValue={editingProduct?.categoryId || shop.categories[0]?.id}>
                     <SelectTrigger className="rounded-xl mt-1.5">
                       <SelectValue />
@@ -338,17 +340,17 @@ export default function ProductsPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <Label className="text-sm font-semibold">Ảnh sản phẩm (tối đa {MAX_IMAGES})</Label>
+                    <Label className="text-sm font-semibold">{t("prod.images").replace("{n}", String(MAX_IMAGES))}</Label>
                     <span className="text-xs text-muted-foreground">{formImages.length}/{MAX_IMAGES}</span>
                   </div>
                   <div className="grid grid-cols-4 gap-3">
                     {formImages.map((img, idx) => (
                       <div key={idx} className={`relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${idx === thumbnailIndex ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`} onClick={() => setThumbnailIndex(idx)}>
-                        <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                        <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
                         {idx === thumbnailIndex && (
                           <div className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
                             <Star className="w-2.5 h-2.5 fill-current" />
-                            Thumb
+                            {t("prod.thumb")}
                           </div>
                         )}
                         <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(idx); }} className="absolute top-1 right-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80 transition-colors">
@@ -359,24 +361,24 @@ export default function ProductsPage() {
                     {formImages.length < MAX_IMAGES && (
                       <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 hover:border-primary/50 hover:bg-primary/5 transition-colors">
                         <ImagePlus className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-[10px] text-muted-foreground">Thêm ảnh</span>
+                        <span className="text-[10px] text-muted-foreground">{t("prod.addImage")}</span>
                       </button>
                     )}
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                   {formImages.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-2">Nhấn vào ảnh để chọn làm thumbnail</p>
+                    <p className="text-xs text-muted-foreground mt-2">{t("prod.thumbHint")}</p>
                   )}
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <Label className="text-sm font-semibold">Mô tả sản phẩm</Label>
+                    <Label className="text-sm font-semibold">{t("prod.desc")}</Label>
                     <span className="text-xs text-muted-foreground">{getPlainTextLength(description)}/{MAX_DESCRIPTION_LENGTH}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1.5">Có thể chèn ảnh trực tiếp vào mô tả qua thanh công cụ</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("prod.descTip")}</p>
                   <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[240px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body [&_.ql-editor_img]:rounded-lg [&_.ql-editor_img]:my-2">
-                    <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder="Nhập mô tả sản phẩm..." />
+                    <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder={t("prod.descPh")} />
                   </div>
                 </div>
 
@@ -384,7 +386,7 @@ export default function ProductsPage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Video className="w-4 h-4" />
-                      Video sản phẩm (tối đa {MAX_VIDEOS})
+                      {t("prod.video").replace("{n}", String(MAX_VIDEOS))}
                     </Label>
                   </div>
                   <div className="space-y-2">
@@ -392,7 +394,7 @@ export default function ProductsPage() {
                       <div key={idx} className="flex items-center gap-2">
                         <div className="relative flex-1">
                           <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input value={link} onChange={(e) => handleVideoLinkChange(idx, e.target.value)} placeholder="Dán link YouTube hoặc TikTok" className="pl-10 rounded-xl" />
+                          <Input value={link} onChange={(e) => handleVideoLinkChange(idx, e.target.value)} placeholder={t("prod.videoPh")} className="pl-10 rounded-xl" />
                         </div>
                         {videoLinks.length > 1 && (
                           <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVideoLink(idx)}>
@@ -404,7 +406,7 @@ export default function ProductsPage() {
                     {videoLinks.length < MAX_VIDEOS && (
                       <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVideoLink}>
                         <Plus className="w-3.5 h-3.5 mr-1.5" />
-                        Thêm video
+                        {t("prod.addVideo")}
                       </Button>
                     )}
                   </div>
@@ -413,12 +415,12 @@ export default function ProductsPage() {
                 <div>
                   <Label className="text-sm font-semibold flex items-center gap-1.5">
                     <ShoppingCart className="w-4 h-4" />
-                    Link mua hàng (Affiliate)
+                    {t("prod.affiliate")}
                   </Label>
-                  <p className="text-xs text-muted-foreground mb-1.5">Shopee, TikTok Shop, hoặc link sản phẩm bất kỳ</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("prod.affiliateTip")}</p>
                   <div className="relative">
                     <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input value={affiliateLink} onChange={(e) => setAffiliateLink(e.target.value)} placeholder="https://shopee.vn/product/... hoặc link bất kỳ" className="pl-10 rounded-xl" />
+                    <Input value={affiliateLink} onChange={(e) => setAffiliateLink(e.target.value)} placeholder={t("prod.affiliatePh")} className="pl-10 rounded-xl" />
                   </div>
                 </div>
 
@@ -426,16 +428,16 @@ export default function ProductsPage() {
                   <div className="flex items-start gap-2.5">
                     <Sparkles className="w-5 h-5 text-accent mt-0.5 shrink-0" />
                     <div>
-                      <Label className="text-sm font-semibold cursor-pointer">Sản phẩm nổi bật</Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Hiển thị ở phần đầu trang storefront</p>
+                      <Label className="text-sm font-semibold cursor-pointer">{t("prod.featured")}</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t("prod.featuredTip")}</p>
                     </div>
                   </div>
                   <Switch checked={featured} onCheckedChange={setFeatured} />
                 </div>
 
                 <div className="flex gap-3 pt-2 border-t">
-                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu sản phẩm</Button>
+                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">{t("prod.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -448,7 +450,7 @@ export default function ProductsPage() {
               <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border-2 border-foreground/15 overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer">
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                  <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-md" title="Xem trên storefront">
+                  <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-md" title={t("prod.previewTitle")}>
                     <ExternalLink className="w-4 h-4 text-foreground" />
                   </Link>
                 </div>
@@ -461,11 +463,11 @@ export default function ProductsPage() {
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => openEdit(product)}>
                       <Pencil className="w-3.5 h-3.5 mr-1" />
-                      Sửa
+                      {t("common.edit")}
                     </Button>
                     <Button variant="destructive" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => handleDelete(product.id)}>
                       <Trash2 className="w-3.5 h-3.5 mr-1" />
-                      Xóa
+                      {t("common.delete")}
                     </Button>
                   </div>
                 </div>
@@ -478,10 +480,10 @@ export default function ProductsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sản phẩm</th>
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Danh mục</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">Giá</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-[180px]">Thao tác</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("prod.colProduct")}</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">{t("prod.colCategory")}</th>
+                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">{t("prod.colPrice")}</th>
+                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-[180px]">{t("prod.colActions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -507,13 +509,13 @@ export default function ProductsPage() {
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
                           <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank">
-                            <Button variant="ghost" size="sm" className="rounded-xl h-8 w-8 p-0" title="Preview">
+                            <Button variant="ghost" size="sm" className="rounded-xl h-8 w-8 p-0" title={t("prod.previewTitle")}>
                               <ExternalLink className="w-3.5 h-3.5" />
                             </Button>
                           </Link>
                           <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
-                            Sửa
+                            {t("common.edit")}
                           </Button>
                           <Button variant="destructive" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(product.id)}>
                             <Trash2 className="w-3.5 h-3.5" />
@@ -529,18 +531,18 @@ export default function ProductsPage() {
         )}
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">Không tìm thấy sản phẩm nào.</div>
+          <div className="text-center py-16 text-muted-foreground">{t("prod.empty")}</div>
         )}
 
         {filtered.length > 0 && totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 px-1">
             <p className="text-sm text-muted-foreground text-center sm:text-left">
-              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} / {filtered.length} sản phẩm
+              {t("prod.pagination").replace("{a}", String((currentPage - 1) * ITEMS_PER_PAGE + 1)).replace("{b}", String(Math.min(currentPage * ITEMS_PER_PAGE, filtered.length))).replace("{c}", String(filtered.length))}
             </p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Trước
+                {t("prod.prev")}
               </Button>
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -554,7 +556,7 @@ export default function ProductsPage() {
                 ))}
               </div>
               <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
-                Sau
+                {t("prod.next")}
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -564,7 +566,7 @@ export default function ProductsPage() {
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
-              <DialogTitle className="font-heading">Chi tiết sản phẩm</DialogTitle>
+              <DialogTitle className="font-heading">{t("prod.detailTitle")}</DialogTitle>
             </DialogHeader>
             {viewingProduct && (
               <div className="space-y-5">
@@ -577,7 +579,7 @@ export default function ProductsPage() {
                       <div className="grid grid-cols-4 gap-2">
                         {viewingProduct.images.map((img, idx) => (
                           <button key={idx} onClick={() => setDetailImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === detailImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
-                            <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                            <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
                           </button>
                         ))}
                       </div>
@@ -589,7 +591,7 @@ export default function ProductsPage() {
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{viewingProduct.categoryName}</p>
                       <h3 className="text-xl font-heading font-bold text-foreground">{viewingProduct.name}</h3>
                       {(viewingProduct as unknown as { sku?: string }).sku && (
-                        <p className="text-xs text-muted-foreground mt-1">SKU: {(viewingProduct as unknown as { sku?: string }).sku}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t("prod.sku")}: {(viewingProduct as unknown as { sku?: string }).sku}</p>
                       )}
                     </div>
 
@@ -597,7 +599,7 @@ export default function ProductsPage() {
 
                     {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks?.length ? (
                       <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><Video className="w-4 h-4" />Video</p>
+                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><Video className="w-4 h-4" />{t("prod.videoSection")}</p>
                         <div className="space-y-1.5">
                           {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks!.map((link, idx) => (
                             <a key={idx} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
@@ -611,7 +613,7 @@ export default function ProductsPage() {
 
                     {(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink && (
                       <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" />Link mua hàng</p>
+                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" />{t("prod.affiliateSection")}</p>
                         <a href={(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
                           <Link2 className="w-3.5 h-3.5 shrink-0" />
                           <span className="truncate">{(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink}</span>
@@ -623,18 +625,18 @@ export default function ProductsPage() {
 
                 {viewingProduct.description && (
                   <div>
-                    <p className="text-sm font-semibold mb-2">Mô tả sản phẩm</p>
+                    <p className="text-sm font-semibold mb-2">{t("prod.desc")}</p>
                     <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_img]:rounded-lg [&_img]:my-3" dangerouslySetInnerHTML={{ __html: viewingProduct.description }} />
                   </div>
                 )}
 
                 <div className="flex gap-3 pt-3 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDetailOpen(false)}>
-                    Đóng
+                    {t("common.close")}
                   </Button>
                   <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
                     <Pencil className="w-4 h-4 mr-1.5" />
-                    Chỉnh sửa
+                    {t("common.edit")}
                   </Button>
                 </div>
               </div>
