@@ -7,10 +7,12 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog } from "@/components/admin/SuperAdminDialogs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SuperAdminPage() {
@@ -24,6 +26,16 @@ export default function SuperAdminPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [pwdOpen, setPwdOpen] = useState(false);
   const [domainUser, setDomainUser] = useState<string | null>(null);
+  const [orphanedImages, setOrphanedImages] = useState(23);
+  const [maintenanceAction, setMaintenanceAction] = useState<"images" | "orders" | null>(null);
+  const [oldOrdersDeleted, setOldOrdersDeleted] = useState(false);
+
+  const oldOrdersCount = useMemo(() => {
+    if (oldOrdersDeleted) return 0;
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    return mockOrders.filter((o) => new Date(o.createdAt) < sixMonthsAgo).length;
+  }, [oldOrdersDeleted]);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "super_admin")) router.replace("/login");
@@ -46,6 +58,19 @@ export default function SuperAdminPage() {
   const handleResetPassword = (userId: string, name: string) => {
     resetUserPassword(userId);
     toast({ title: "Đã reset mật khẩu", description: `Mật khẩu của ${name} đã được đặt về mặc định.` });
+  };
+
+  const confirmMaintenance = () => {
+    if (maintenanceAction === "images") {
+      const count = orphanedImages;
+      setOrphanedImages(0);
+      toast({ title: "Đã dọn dẹp", description: `Xóa ${count} ảnh dư thừa khỏi server.` });
+    } else if (maintenanceAction === "orders") {
+      const count = oldOrdersCount;
+      setOldOrdersDeleted(true);
+      toast({ title: "Đã dọn dẹp", description: `Xóa ${count} đơn hàng cũ trên 6 tháng.` });
+    }
+    setMaintenanceAction(null);
   };
 
   return (
@@ -239,6 +264,64 @@ export default function SuperAdminPage() {
                 </table>
               </div>
             </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Wrench className="w-5 h-5 text-accent" />
+                <h2 className="text-lg font-heading font-bold text-foreground">Bảo trì hệ thống</h2>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-card border border-border/50 p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <ImageIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">Asset cleanup</span>
+                  </div>
+                  <h3 className="font-heading font-bold text-foreground mb-1">Ảnh dư thừa</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Xóa toàn bộ ảnh không còn được liên kết với sản phẩm hoặc bài viết nào.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-heading font-bold text-foreground">{orphanedImages}<span className="text-sm font-medium text-muted-foreground ml-1">ảnh</span></span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl"
+                      disabled={orphanedImages === 0}
+                      onClick={() => setMaintenanceAction("images")}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1.5" /> Dọn dẹp
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-card border border-border/50 p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">Order cleanup</span>
+                  </div>
+                  <h3 className="font-heading font-bold text-foreground mb-1">Đơn hàng cũ</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Xóa các đơn hàng đã được tạo cách đây hơn 6 tháng để giảm tải hệ thống.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-heading font-bold text-foreground">{oldOrdersCount}<span className="text-sm font-medium text-muted-foreground ml-1">đơn</span></span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl"
+                      disabled={oldOrdersCount === 0}
+                      onClick={() => setMaintenanceAction("orders")}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1.5" /> Dọn dẹp
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </main>
         </div>
 
@@ -265,6 +348,21 @@ export default function SuperAdminPage() {
           currentDomain={domainUserData?.customDomain}
           onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: domain ? "Đã cập nhật tên miền" : "Đã hủy liên kết", description: domain || "Tên miền riêng đã bị xóa." }); } }}
         />
+        <AlertDialog open={!!maintenanceAction} onOpenChange={(o) => { if (!o) setMaintenanceAction(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-heading">Xác nhận dọn dẹp</AlertDialogTitle>
+              <AlertDialogDescription>
+                {maintenanceAction === "images" && `Bạn sắp xóa ${orphanedImages} ảnh dư thừa khỏi server. Hành động này không thể hoàn tác.`}
+                {maintenanceAction === "orders" && `Bạn sắp xóa ${oldOrdersCount} đơn hàng cũ trên 6 tháng. Hành động này không thể hoàn tác.`}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmMaintenance} className="rounded-xl bg-destructive hover:bg-destructive/90">Xác nhận xóa</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );
