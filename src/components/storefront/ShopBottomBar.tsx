@@ -19,23 +19,20 @@ export function ShopBottomBar({ shop }: ShopBottomBarProps) {
 
   const phoneNumber = shop.contact.phone.replace(/\s+/g, "");
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.contact.address)}`;
-  const themeStyle = shop.themeColor ? { color: `hsl(${shop.themeColor})` } : undefined;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
       <div className="container grid grid-cols-4 h-16">
         <a
           href={`tel:${phoneNumber}`}
-          className="flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80"
-          style={themeStyle}
+          className="flex flex-col items-center justify-center gap-1 text-foreground transition-opacity hover:opacity-70"
         >
           <Phone className="w-5 h-5" />
           <span className="text-[11px] font-medium">Gọi điện</span>
         </a>
         <a
           href={`sms:${phoneNumber}`}
-          className="flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80"
-          style={themeStyle}
+          className="flex flex-col items-center justify-center gap-1 text-foreground transition-opacity hover:opacity-70"
         >
           <MessageCircle className="w-5 h-5" />
           <span className="text-[11px] font-medium">Nhắn tin</span>
@@ -44,15 +41,14 @@ export function ShopBottomBar({ shop }: ShopBottomBarProps) {
           href={mapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80"
-          style={themeStyle}
+          className="flex flex-col items-center justify-center gap-1 text-foreground transition-opacity hover:opacity-70"
         >
           <MapPin className="w-5 h-5" />
           <span className="text-[11px] font-medium">Bản đồ</span>
         </a>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <button className="flex flex-col items-center justify-center gap-1 transition-opacity hover:opacity-80" style={themeStyle}>
+            <button className="flex flex-col items-center justify-center gap-1 text-foreground transition-opacity hover:opacity-70">
               <LayoutGrid className="w-5 h-5" />
               <span className="text-[11px] font-medium">Danh mục</span>
             </button>
