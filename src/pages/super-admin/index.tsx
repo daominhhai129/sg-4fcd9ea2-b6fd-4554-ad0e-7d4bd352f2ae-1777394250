@@ -120,10 +120,10 @@ export default function SuperAdminPage() {
               </div>
             </div>
             <button onClick={() => setPwdOpen(true)} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors">
-              <KeyRound className="w-4 h-4" /> Đổi mật khẩu
+              <KeyRound className="w-4 h-4" /> {t("nav.profile")}
             </button>
             <button onClick={logout} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors">
-              <LogOut className="w-4 h-4" /> Đăng xuất
+              <LogOut className="w-4 h-4" /> {t("nav.logout")}
             </button>
           </div>
         </aside>
@@ -133,7 +133,7 @@ export default function SuperAdminPage() {
         <div className="lg:pl-64">
           <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
             <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
-            <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">Quản trị hệ thống</h1>
+            <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">{t("super.title")}</h1>
           </header>
 
           <main className="p-4 lg:p-8 space-y-8">
@@ -297,7 +297,7 @@ export default function SuperAdminPage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Wrench className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-heading font-bold text-foreground">Bảo trì hệ thống</h2>
+                <h2 className="text-lg font-heading font-bold text-foreground">{t("super.maintenance")}</h2>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-card border border-border/50 p-5">
@@ -307,12 +307,10 @@ export default function SuperAdminPage() {
                     </div>
                     <span className="text-xs font-medium text-muted-foreground">Asset cleanup</span>
                   </div>
-                  <h3 className="font-heading font-bold text-foreground mb-1">Ảnh dư thừa</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Xóa toàn bộ ảnh không còn được liên kết với sản phẩm hoặc bài viết nào.
-                  </p>
+                  <h3 className="font-heading font-bold text-foreground mb-1">{t("super.orphanedImages")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t("super.orphanedImagesDesc")}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-heading font-bold text-foreground">{orphanedImages}<span className="text-sm font-medium text-muted-foreground ml-1">ảnh</span></span>
+                    <span className="text-2xl font-heading font-bold text-foreground">{orphanedImages}<span className="text-sm font-medium text-muted-foreground ml-1">{t("super.images")}</span></span>
                     <Button
                       size="sm"
                       variant="outline"
@@ -320,7 +318,7 @@ export default function SuperAdminPage() {
                       disabled={orphanedImages === 0}
                       onClick={() => setMaintenanceAction("images")}
                     >
-                      <Trash2 className="w-4 h-4 mr-1.5" /> Dọn dẹp
+                      <Trash2 className="w-4 h-4 mr-1.5" /> {t("super.cleanup")}
                     </Button>
                   </div>
                 </div>
@@ -332,12 +330,10 @@ export default function SuperAdminPage() {
                     </div>
                     <span className="text-xs font-medium text-muted-foreground">Order cleanup</span>
                   </div>
-                  <h3 className="font-heading font-bold text-foreground mb-1">Đơn hàng cũ</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Xóa các đơn hàng đã được tạo cách đây hơn 6 tháng để giảm tải hệ thống.
-                  </p>
+                  <h3 className="font-heading font-bold text-foreground mb-1">{t("super.oldOrders")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t("super.oldOrdersDesc")}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-heading font-bold text-foreground">{oldOrdersCount}<span className="text-sm font-medium text-muted-foreground ml-1">đơn</span></span>
+                    <span className="text-2xl font-heading font-bold text-foreground">{oldOrdersCount}<span className="text-sm font-medium text-muted-foreground ml-1">{t("super.orderUnit")}</span></span>
                     <Button
                       size="sm"
                       variant="outline"
@@ -345,7 +341,7 @@ export default function SuperAdminPage() {
                       disabled={oldOrdersCount === 0}
                       onClick={() => setMaintenanceAction("orders")}
                     >
-                      <Trash2 className="w-4 h-4 mr-1.5" /> Dọn dẹp
+                      <Trash2 className="w-4 h-4 mr-1.5" /> {t("super.cleanup")}
                     </Button>
                   </div>
                 </div>
