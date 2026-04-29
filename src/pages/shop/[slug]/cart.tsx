@@ -96,8 +96,8 @@ export default function CartPage() {
                     <span className="text-accent">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
-                <Button className="w-full mt-6 gradient-primary text-white border-0 h-12 text-base">
-                  Đặt hàng
+                <Button asChild className="w-full mt-6 gradient-primary text-white border-0 h-12 text-base">
+                  <Link href={"/shop/" + shop.slug + "/checkout"}>Đặt hàng</Link>
                 </Button>
                 <button onClick={clearCart} className="w-full mt-3 text-sm text-muted-foreground hover:text-destructive transition-colors text-center">
                   Xóa giỏ hàng
