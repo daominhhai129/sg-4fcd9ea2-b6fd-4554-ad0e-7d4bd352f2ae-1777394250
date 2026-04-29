@@ -1,20 +1,22 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { DollarSign, Package as PackageIcon, ShoppingBag, FolderOpen, FileText, CalendarClock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const statusMap: Record<string, { label: string; className: string }> = {
-  pending: { label: "Chờ xác nhận", className: "bg-yellow-100 text-yellow-700" },
-  confirmed: { label: "Đã xác nhận", className: "bg-green-100 text-green-700" },
-  cancelled: { label: "Đã hủy", className: "bg-red-100 text-red-700" },
-};
-
 export default function AdminDashboard() {
   const { user, getShopConfig } = useAuth();
+  const { t, lang } = useLanguage();
   const shop = shops.find((s) => s.id === user?.shopId) || shops[0];
   const shopConfig = getShopConfig(shop.id);
+
+  const statusMap: Record<string, { label: string; className: string }> = {
+    pending: { label: t("status.pending"), className: "bg-yellow-100 text-yellow-700" },
+    confirmed: { label: t("status.confirmed"), className: "bg-green-100 text-green-700" },
+    cancelled: { label: t("status.cancelled"), className: "bg-red-100 text-red-700" },
+  };
 
   const revenue = shop.orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
   const recentOrders = [...shop.orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8);
@@ -25,23 +27,23 @@ export default function AdminDashboard() {
   const expiryWarning = daysLeft !== null && daysLeft <= 30;
 
   const stats = [
-    { label: "Doanh thu", value: formatPrice(revenue), icon: DollarSign, change: "+12.5%", trend: "up", bg: "bg-green-50", iconColor: "text-green-600" },
-    { label: "Đơn hàng", value: shop.orders.length.toString(), icon: ShoppingBag, change: "+8.2%", trend: "up", bg: "bg-primary/10", iconColor: "text-primary" },
-    { label: "Sản phẩm", value: shop.products.length.toString(), icon: PackageIcon, change: "+3", trend: "up", bg: "bg-accent/10", iconColor: "text-accent" },
+    { label: t("dashboard.revenue"), value: formatPrice(revenue), icon: DollarSign, change: "+12.5%", trend: "up", bg: "bg-green-50", iconColor: "text-green-600" },
+    { label: t("dashboard.orders"), value: shop.orders.length.toString(), icon: ShoppingBag, change: "+8.2%", trend: "up", bg: "bg-primary/10", iconColor: "text-primary" },
+    { label: t("dashboard.products"), value: shop.products.length.toString(), icon: PackageIcon, change: "+3", trend: "up", bg: "bg-accent/10", iconColor: "text-accent" },
   ];
 
   const limits = shopConfig
     ? [
-        { label: "Sản phẩm", icon: PackageIcon, usage: shopConfig.usage.products, limit: shopConfig.limits.products },
-        { label: "Danh mục", icon: FolderOpen, usage: shopConfig.usage.categories, limit: shopConfig.limits.categories },
-        { label: "Bài viết", icon: FileText, usage: shopConfig.usage.posts, limit: shopConfig.limits.posts },
+        { label: t("dashboard.products"), icon: PackageIcon, usage: shopConfig.usage.products, limit: shopConfig.limits.products },
+        { label: t("dashboard.categories"), icon: FolderOpen, usage: shopConfig.usage.categories, limit: shopConfig.limits.categories },
+        { label: t("dashboard.posts"), icon: FileText, usage: shopConfig.usage.posts, limit: shopConfig.limits.posts },
       ]
     : [];
 
   return (
     <>
-      <SEO title="Tổng quan" description="Bảng điều khiển quản trị" />
-      <AdminLayout title="Tổng quan" shopName={shop.name}>
+      <SEO title={t("nav.dashboard")} description="Bảng điều khiển quản trị" />
+      <AdminLayout title={t("nav.dashboard")} shopName={shop.name}>
         <div className="space-y-6">
           {expiry && (
             <div className={cn("rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3", expiryWarning ? "bg-yellow-50 border-yellow-200" : "bg-card border-border/50")}>
@@ -50,11 +52,11 @@ export default function AdminDashboard() {
                   {expiryWarning ? <AlertTriangle className="w-5 h-5" /> : <CalendarClock className="w-5 h-5" />}
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Hạn sử dụng tài khoản</p>
+                  <p className="text-sm text-muted-foreground">{t("dashboard.expiry")}</p>
                   <p className="font-heading font-bold text-foreground">
-                    {expiry.toLocaleDateString("vi-VN")}
+                    {expiry.toLocaleDateString(lang === "en" ? "en-US" : "vi-VN")}
                     <span className={cn("ml-2 text-sm font-medium", expiryWarning ? "text-yellow-700" : "text-muted-foreground")}>
-                      ({daysLeft !== null && daysLeft >= 0 ? `còn ${daysLeft} ngày` : "đã hết hạn"})
+                      ({daysLeft !== null && daysLeft >= 0 ? t("dashboard.daysLeft").replace("{n}", String(daysLeft)) : t("dashboard.expired")})
                     </span>
                   </p>
                 </div>
@@ -79,7 +81,7 @@ export default function AdminDashboard() {
 
           {limits.length > 0 && (
             <div className="rounded-2xl bg-card border border-border/50 p-5">
-              <h2 className="font-heading font-bold text-foreground mb-4">Giới hạn sử dụng</h2>
+              <h2 className="font-heading font-bold text-foreground mb-4">{t("dashboard.usageLimits")}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {limits.map((item) => {
                   const pct = Math.min((item.usage / item.limit) * 100, 100);
@@ -101,7 +103,7 @@ export default function AdminDashboard() {
 
           <div className="rounded-2xl bg-card border border-border/50 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading font-bold text-foreground">Đơn hàng gần đây</h2>
+              <h2 className="font-heading font-bold text-foreground">{t("dashboard.recentOrders")}</h2>
             </div>
             <div className="space-y-2">
               {recentOrders.map((order) => {
@@ -114,7 +116,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-sm text-foreground truncate">{order.customerName}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "vi-VN")}</p>
                       </div>
                     </div>
                     <div className="flex items-end sm:items-center gap-2 sm:gap-3 flex-shrink-0 flex-col sm:flex-row">
