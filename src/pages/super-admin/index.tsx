@@ -12,7 +12,7 @@ import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2 } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SuperAdminPage() {
@@ -58,6 +58,26 @@ export default function SuperAdminPage() {
   const handleResetPassword = (userId: string, name: string) => {
     resetUserPassword(userId);
     toast({ title: "Đã reset mật khẩu", description: `Mật khẩu của ${name} đã được đặt về mặc định.` });
+  };
+
+  const handleCopyShopInfo = (userId: string) => {
+    const u = allUsers.find((x) => x.id === userId);
+    if (!u) return;
+    const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+    const lines = [
+      `Cửa hàng: ${u.shopName || "—"}`,
+      `Chủ shop: ${u.name}`,
+      `Email đăng nhập: ${u.email}`,
+      `Mật khẩu mặc định: iLoveProID@`,
+      u.phone ? `SĐT: ${u.phone}` : null,
+      u.customDomain ? `Tên miền riêng: ${u.customDomain}` : null,
+      `Hết hạn: ${new Date(u.expiresAt).toLocaleDateString("vi-VN")}`,
+      sc ? `Giới hạn: ${sc.limits.products} sản phẩm · ${sc.limits.categories} danh mục · ${sc.limits.posts} bài viết` : null,
+    ].filter(Boolean).join("\n");
+    navigator.clipboard.writeText(lines).then(
+      () => toast({ title: "Đã sao chép", description: "Thông tin shop đã được copy vào clipboard." }),
+      () => toast({ title: "Không thể sao chép", description: "Trình duyệt từ chối truy cập clipboard.", variant: "destructive" })
+    );
   };
 
   const confirmMaintenance = () => {
@@ -224,6 +244,9 @@ export default function SuperAdminPage() {
                                       <LogIn className="w-4 h-4 mr-2" /> Vào dashboard
                                     </DropdownMenuItem>
                                   )}
+                                  <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
+                                    <Copy className="w-4 h-4 mr-2" /> Copy thông tin shop
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
                                     <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
                                   </DropdownMenuItem>
