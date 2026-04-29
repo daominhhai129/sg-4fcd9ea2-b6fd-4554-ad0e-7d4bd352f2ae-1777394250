@@ -211,3 +211,43 @@ export function AdminPasswordDialog({ open, onOpenChange, onSave }: AdminPasswor
     </Dialog>
   );
 }
+
+interface DomainDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userName: string;
+  currentDomain?: string;
+  onSave: (domain: string) => void;
+}
+
+export function DomainDialog({ open, onOpenChange, userName, currentDomain, onSave }: DomainDialogProps) {
+  const [domain, setDomain] = useState("");
+  useEffect(() => { if (open) setDomain(currentDomain || ""); }, [open, currentDomain]);
+  const submit = () => {
+    onSave(domain);
+    onOpenChange(false);
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader><DialogTitle className="font-heading">Liên kết tên miền cho {userName}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-sm font-semibold">Tên miền riêng</Label>
+            <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="vd: shop.example.com" className="rounded-xl mt-1.5" />
+            <p className="text-xs text-muted-foreground mt-1.5">Nhập domain không kèm http(s)://. Để trống để hủy liên kết.</p>
+          </div>
+          <div className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
+            <p className="font-semibold text-foreground">Hướng dẫn DNS:</p>
+            <p>• Trỏ bản ghi <code className="text-foreground">CNAME</code> tới <code className="text-foreground">cname.platform.vn</code></p>
+            <p>• Hoặc bản ghi <code className="text-foreground">A</code> tới <code className="text-foreground">76.76.21.21</code></p>
+          </div>
+          <div className="flex gap-3 pt-2 border-t">
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

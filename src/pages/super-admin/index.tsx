@@ -6,23 +6,24 @@ import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog } from "@/components/admin/SuperAdminDialogs";
+import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog } from "@/components/admin/SuperAdminDialogs";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SuperAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, enterShopAsAdmin } = useAuth();
+  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, enterShopAsAdmin, setUserDomain } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [editingShop, setEditingShop] = useState<string | null>(null);
   const [extendingUser, setExtendingUser] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [pwdOpen, setPwdOpen] = useState(false);
+  const [domainUser, setDomainUser] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "super_admin")) router.replace("/login");
@@ -40,6 +41,7 @@ export default function SuperAdminPage() {
 
   const editingShopConfig = shopConfigs.find((sc) => sc.shopId === editingShop);
   const extendingUserData = allUsers.find((u) => u.id === extendingUser);
+  const domainUserData = allUsers.find((u) => u.id === domainUser);
   const totalProducts = shopConfigs.reduce((sum, sc) => sum + sc.usage.products, 0);
 
   const handleResetPassword = (userId: string, name: string) => {
@@ -140,6 +142,11 @@ export default function SuperAdminPage() {
                               <div className="min-w-0">
                                 <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
                                 <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                {u.customDomain && (
+                                  <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
+                                    <Globe className="w-3 h-3" />{u.customDomain}
+                                  </a>
+                                )}
                                 {sc && (
                                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[11px] text-muted-foreground">
                                     <span className="inline-flex items-center gap-1"><Package className="w-3 h-3" />{sc.usage.products}/{sc.limits.products}</span>
@@ -193,6 +200,11 @@ export default function SuperAdminPage() {
                                       <SlidersHorizontal className="w-4 h-4 mr-2" /> Sửa giới hạn
                                     </DropdownMenuItem>
                                   )}
+                                  {sc && (
+                                    <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
+                                      <Globe className="w-4 h-4 mr-2" /> Tên miền riêng
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
                                     <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
                                   </DropdownMenuItem>
@@ -239,6 +251,13 @@ export default function SuperAdminPage() {
         />
         <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={createUser} />
         <AdminPasswordDialog open={pwdOpen} onOpenChange={setPwdOpen} onSave={(pwd) => { updateAdminPassword(pwd); toast({ title: "Đã đổi mật khẩu", description: "Mật khẩu mới đã được lưu." }); }} />
+        <DomainDialog
+          open={!!domainUser}
+          onOpenChange={(o) => { if (!o) setDomainUser(null); }}
+          userName={domainUserData?.name || ""}
+          currentDomain={domainUserData?.customDomain}
+          onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: domain ? "Đã cập nhật tên miền" : "Đã hủy liên kết", description: domain || "Tên miền riêng đã bị xóa." }); } }}
+        />
       </div>
     </>
   );

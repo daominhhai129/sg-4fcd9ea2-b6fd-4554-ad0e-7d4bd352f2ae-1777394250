@@ -24,6 +24,7 @@ export interface AppUser {
   status: UserStatus;
   expiresAt: string;
   password: string;
+  customDomain?: string;
 }
 
 export interface ShopConfig {
@@ -92,6 +93,7 @@ interface AuthContextType {
   resetUserPassword: (userId: string) => void;
   createUser: (input: CreateUserInput) => void;
   updateAdminPassword: (newPassword: string) => void;
+  setUserDomain: (userId: string, domain: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -220,8 +222,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAdmin((prev) => ({ ...prev, password: newPassword }));
   }, []);
 
+  const setUserDomain = useCallback((userId: string, domain: string) => {
+    const cleaned = domain.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, customDomain: cleaned || undefined } : u)));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateAdminPassword, setUserDomain }}>
       {children}
     </AuthContext.Provider>
   );
