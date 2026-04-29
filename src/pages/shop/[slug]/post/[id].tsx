@@ -83,15 +83,10 @@ export default function PostDetailPage() {
             {post.excerpt}
           </p>
 
-          <div className="prose prose-slate max-w-none mt-8 text-foreground/90 leading-relaxed whitespace-pre-line">
-            {post.content.split("\n").map((para, idx) => (
-              para.trim() ? (
-                <p key={idx} className="mb-4 text-base md:text-[17px] leading-[1.8]">
-                  {para}
-                </p>
-              ) : null
-            ))}
-          </div>
+          <div
+            className="prose prose-slate max-w-none mt-8 text-foreground/90 leading-relaxed prose-headings:font-heading prose-headings:font-bold prose-headings:text-foreground prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:text-base prose-p:leading-[1.8] prose-p:mb-4 prose-ul:my-4 prose-li:my-1 prose-strong:text-foreground prose-img:rounded-xl prose-img:my-6 prose-a:text-primary"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           {post.images && post.images.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
