@@ -141,9 +141,9 @@ export default function SuperAdminPage() {
           <main className="p-4 lg:p-8 space-y-8">
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { label: "Cửa hàng", value: shopConfigs.length, icon: Store, color: "text-primary bg-primary/10" },
-                { label: "Người dùng", value: allUsers.length, icon: Users, color: "text-accent bg-accent/10" },
-                { label: "Tổng sản phẩm", value: totalProducts, icon: Package, color: "text-emerald-600 bg-emerald-50" },
+                { label: t("super.statShops"), value: shopConfigs.length, icon: Store, color: "text-primary bg-primary/10" },
+                { label: t("super.statUsers"), value: allUsers.length, icon: Users, color: "text-accent bg-accent/10" },
+                { label: t("super.statProducts"), value: totalProducts, icon: Package, color: "text-emerald-600 bg-emerald-50" },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl bg-card border border-border/50 p-5">
                   <div className="flex items-center justify-between mb-3">
@@ -157,14 +157,14 @@ export default function SuperAdminPage() {
 
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <h2 className="text-lg font-heading font-bold text-foreground">Người dùng</h2>
+                <h2 className="text-lg font-heading font-bold text-foreground">{t("super.usersTitle")}</h2>
                 <div className="flex gap-2">
                   <div className="relative flex-1 sm:w-72">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Tìm theo tên, email, SĐT..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-xl" />
+                    <Input placeholder={t("super.searchPh")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-xl" />
                   </div>
                   <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}>
-                    <UserPlus className="w-4 h-4 mr-1.5" /> Tạo mới
+                    <UserPlus className="w-4 h-4 mr-1.5" /> {t("super.create")}
                   </Button>
                 </div>
               </div>
@@ -173,12 +173,12 @@ export default function SuperAdminPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Người dùng</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Cửa hàng</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Tên miền</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Hết hạn</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colUser")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("super.colPhone")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">{t("super.colShop")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">{t("super.colDomain")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">{t("super.colExpiry")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colStatus")}</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
@@ -232,7 +232,7 @@ export default function SuperAdminPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", u.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
-                              {u.status === "active" ? "Hoạt động" : "Đã khóa"}
+                              {u.status === "active" ? t("super.statusActive") : t("super.statusLocked")}
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -244,44 +244,44 @@ export default function SuperAdminPage() {
                                 <DropdownMenuContent align="end" className="w-48">
                                   {u.phone && (
                                     <DropdownMenuItem asChild>
-                                      <a href={"tel:" + u.phone}><Phone className="w-4 h-4 mr-2" /> Gọi điện</a>
+                                      <a href={"tel:" + u.phone}><Phone className="w-4 h-4 mr-2" /> {t("super.menuCall")}</a>
                                     </DropdownMenuItem>
                                   )}
                                   {sc && (
                                     <DropdownMenuItem onClick={() => enterShopAsAdmin(u.id)}>
-                                      <LogIn className="w-4 h-4 mr-2" /> Vào dashboard
+                                      <LogIn className="w-4 h-4 mr-2" /> {t("super.menuDashboard")}
                                     </DropdownMenuItem>
                                   )}
                                   <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
-                                    <Copy className="w-4 h-4 mr-2" /> Copy thông tin shop
+                                    <Copy className="w-4 h-4 mr-2" /> {t("super.menuCopy")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
-                                    <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                    <Pencil className="w-4 h-4 mr-2" /> {t("super.menuEdit")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
-                                    <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
+                                    <CalendarClock className="w-4 h-4 mr-2" /> {t("super.menuExtend")}
                                   </DropdownMenuItem>
                                   {sc && (
                                     <DropdownMenuItem onClick={() => setEditingShop(sc.shopId)}>
-                                      <SlidersHorizontal className="w-4 h-4 mr-2" /> Sửa giới hạn
+                                      <SlidersHorizontal className="w-4 h-4 mr-2" /> {t("super.menuLimit")}
                                     </DropdownMenuItem>
                                   )}
                                   {sc && (
                                     <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
-                                      <Globe className="w-4 h-4 mr-2" /> Tên miền riêng
+                                      <Globe className="w-4 h-4 mr-2" /> {t("super.menuDomain")}
                                     </DropdownMenuItem>
                                   )}
                                   <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
-                                    <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
+                                    <RefreshCw className="w-4 h-4 mr-2" /> {t("super.menuReset")}
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                   {u.status === "active" ? (
                                     <DropdownMenuItem onClick={() => lockUser(u.id)} className="text-destructive focus:text-destructive">
-                                      <Lock className="w-4 h-4 mr-2" /> Khóa người dùng
+                                      <Lock className="w-4 h-4 mr-2" /> {t("super.menuLock")}
                                     </DropdownMenuItem>
                                   ) : (
                                     <DropdownMenuItem onClick={() => unlockUser(u.id)}>
-                                      <Unlock className="w-4 h-4 mr-2" /> Mở khóa
+                                      <Unlock className="w-4 h-4 mr-2" /> {t("super.menuUnlock")}
                                     </DropdownMenuItem>
                                   )}
                                 </DropdownMenuContent>
@@ -292,7 +292,7 @@ export default function SuperAdminPage() {
                       );
                     })}
                     {filteredUsers.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">Không tìm thấy người dùng nào</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">{t("super.empty")}</td></tr>
                     )}
                   </tbody>
                 </table>
