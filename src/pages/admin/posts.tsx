@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,19 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, FileText, Calendar, ImagePlus, X, Star, Search, Package, Eye, ChevronLeft, ChevronRight, Store, ShoppingCart } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import NextDynamic from "next/dynamic";
 import type { Post } from "@/types";
 
@@ -46,6 +36,7 @@ const quillModules = {
 };
 
 export default function PostsPage() {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>(shop.posts);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -150,11 +141,11 @@ export default function PostsPage() {
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (images.length < MIN_IMAGES) {
-      alert(`Vui lòng up tối thiểu ${MIN_IMAGES} ảnh`);
+      alert(t("post.alertImages").replace("{n}", String(MIN_IMAGES)));
       return;
     }
     if (productIds.length < MIN_PRODUCTS) {
-      alert(`Vui lòng chọn tối thiểu ${MIN_PRODUCTS} sản phẩm`);
+      alert(t("post.alertProducts").replace("{n}", String(MIN_PRODUCTS)));
       return;
     }
 
@@ -216,13 +207,13 @@ export default function PostsPage() {
 
   return (
     <>
-      <SEO title="Bài viết — Admin" />
-      <AdminLayout title="Bài viết">
+      <SEO title={t("nav.posts") + " — Admin"} />
+      <AdminLayout title={t("nav.posts")}>
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-muted-foreground">{posts.length} bài viết</p>
+          <p className="text-sm text-muted-foreground">{t("post.count").replace("{n}", String(posts.length))}</p>
           <Button className="gradient-primary text-white border-0" onClick={openCreate}>
             <Plus className="w-4 h-4 mr-2" />
-            Viết bài mới
+            {t("post.writeNew")}
           </Button>
         </div>
 
@@ -238,7 +229,7 @@ export default function PostsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <Badge variant={post.status === "published" ? "default" : "secondary"} className="text-xs">
-                      {post.status === "published" ? "Đã xuất bản" : "Nháp"}
+                      {post.status === "published" ? t("post.published") : t("post.draft")}
                     </Badge>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="w-3 h-3" />
@@ -246,11 +237,11 @@ export default function PostsPage() {
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <ImagePlus className="w-3 h-3" />
-                      {imageCount} ảnh
+                      {t("post.imagesCount").replace("{n}", String(imageCount))}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Package className="w-3 h-3" />
-                      {productCount} sản phẩm
+                      {t("post.productsCount").replace("{n}", String(productCount))}
                     </span>
                   </div>
                   <h3 className="font-heading font-bold text-foreground mb-1">{post.title}</h3>
@@ -258,15 +249,15 @@ export default function PostsPage() {
                   <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => openPreview(post)}>
                       <Eye className="w-3 h-3 mr-1" />
-                      Xem trước
+                      {t("post.preview")}
                     </Button>
                     <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => openEdit(post)}>
                       <Pencil className="w-3 h-3 mr-1" />
-                      Sửa
+                      {t("common.edit")}
                     </Button>
                     <Button size="sm" variant="outline" className="rounded-xl text-xs text-destructive hover:text-destructive" onClick={() => handleDelete(post.id)}>
                       <Trash2 className="w-3 h-3 mr-1" />
-                      Xóa
+                      {t("common.delete")}
                     </Button>
                   </div>
                 </div>
@@ -276,7 +267,7 @@ export default function PostsPage() {
           {posts.length === 0 && (
             <div className="text-center py-16">
               <FileText className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">Chưa có bài viết nào.</p>
+              <p className="text-muted-foreground">{t("post.empty")}</p>
             </div>
           )}
         </div>
@@ -284,12 +275,12 @@ export default function PostsPage() {
         {posts.length > 0 && totalPages > 1 && (
           <div className="flex items-center justify-between mt-6 px-1">
             <p className="text-sm text-muted-foreground">
-              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, posts.length)} / {posts.length} bài viết
+              {t("post.pagination").replace("{a}", String((currentPage - 1) * ITEMS_PER_PAGE + 1)).replace("{b}", String(Math.min(currentPage * ITEMS_PER_PAGE, posts.length))).replace("{c}", String(posts.length))}
             </p>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Trước
+                {t("prod.prev")}
               </Button>
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -303,7 +294,7 @@ export default function PostsPage() {
                 ))}
               </div>
               <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
-                Sau
+                {t("prod.next")}
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -315,14 +306,14 @@ export default function PostsPage() {
             <DialogHeader>
               <DialogTitle className="font-heading flex items-center gap-2">
                 <Eye className="w-5 h-5" />
-                Chi tiết bài viết
+                {t("post.detailTitle")}
               </DialogTitle>
             </DialogHeader>
             {viewing && (
               <div className="space-y-5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant={viewing.status === "published" ? "default" : "secondary"}>
-                    {viewing.status === "published" ? "Đã xuất bản" : "Nháp"}
+                    {viewing.status === "published" ? t("post.published") : t("post.draft")}
                   </Badge>
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
@@ -344,7 +335,7 @@ export default function PostsPage() {
                       <div className="grid grid-cols-5 gap-2">
                         {viewing.images!.map((img, idx) => (
                           <button key={idx} onClick={() => setDetailImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === detailImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
-                            <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                            <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
                           </button>
                         ))}
                       </div>
@@ -354,7 +345,7 @@ export default function PostsPage() {
 
                 {viewing.content && (
                   <div>
-                    <p className="text-sm font-semibold mb-2">Nội dung</p>
+                    <p className="text-sm font-semibold mb-2">{t("post.content")}</p>
                     <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-2 [&_ul]:my-2 [&_ol]:my-2 [&_img]:rounded-lg [&_img]:my-3" dangerouslySetInnerHTML={{ __html: viewing.content }} />
                   </div>
                 )}
@@ -363,7 +354,7 @@ export default function PostsPage() {
                   <div>
                     <p className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                       <Package className="w-4 h-4" />
-                      Sản phẩm liên kết ({viewing.productIds!.length})
+                      {t("post.linkedProducts").replace("{n}", String(viewing.productIds!.length))}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {viewing.productIds!.map((pid) => {
@@ -388,15 +379,15 @@ export default function PostsPage() {
 
                 <div className="flex gap-3 pt-3 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDetailOpen(false)}>
-                    Đóng
+                    {t("common.close")}
                   </Button>
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => { setDetailOpen(false); openPreview(viewing); }}>
                     <Eye className="w-4 h-4 mr-1.5" />
-                    Xem trước
+                    {t("post.preview")}
                   </Button>
                   <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
                     <Pencil className="w-4 h-4 mr-1.5" />
-                    Chỉnh sửa
+                    {t("common.edit")}
                   </Button>
                 </div>
               </div>
@@ -407,7 +398,7 @@ export default function PostsPage() {
         <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
           <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 gap-0">
             <DialogHeader className="sr-only">
-              <DialogTitle>Xem trước bài viết</DialogTitle>
+              <DialogTitle>{t("post.preview")}</DialogTitle>
             </DialogHeader>
             {previewing && (
               <div className="bg-background">
@@ -418,7 +409,7 @@ export default function PostsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-foreground leading-tight">{shop.name}</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">Chế độ xem trước · Khách truy cập</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{t("post.previewMode")}</p>
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setPreviewOpen(false)}>
@@ -447,7 +438,7 @@ export default function PostsPage() {
                         <div className="grid grid-cols-5 gap-2">
                           {previewing.images!.map((img, idx) => (
                             <button key={idx} onClick={() => setPreviewImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === previewImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
-                              <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                              <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
                             </button>
                           ))}
                         </div>
@@ -463,7 +454,7 @@ export default function PostsPage() {
                     <div className="mt-10 pt-8 border-t border-border">
                       <h2 className="text-xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
                         <Package className="w-5 h-5 text-primary" />
-                        Sản phẩm trong bài viết
+                        {t("post.productsInPost")}
                       </h2>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {previewing.productIds!.map((pid) => {
@@ -475,7 +466,7 @@ export default function PostsPage() {
                               <div className="relative aspect-square overflow-hidden bg-muted">
                                 <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform" />
                                 {hasSale && (
-                                  <span className="absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-md">Giảm giá</span>
+                                  <span className="absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-md">{t("post.sale")}</span>
                                 )}
                               </div>
                               <div className="p-3">
@@ -489,7 +480,7 @@ export default function PostsPage() {
                                 </div>
                                 <Button size="sm" className="w-full rounded-lg gradient-primary text-white border-0 text-xs h-8">
                                   <ShoppingCart className="w-3 h-3 mr-1" />
-                                  Xem sản phẩm
+                                  {t("post.viewProduct")}
                                 </Button>
                               </div>
                             </div>
@@ -507,35 +498,35 @@ export default function PostsPage() {
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-heading">{editing ? "Chỉnh sửa bài viết" : "Viết bài mới"}</DialogTitle>
+              <DialogTitle className="font-heading">{editing ? t("post.editTitle") : t("post.writeNew")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSave} className="space-y-5">
               <div>
-                <Label className="text-sm font-semibold">Tiêu đề <span className="text-destructive">*</span></Label>
+                <Label className="text-sm font-semibold">{t("post.title")} <span className="text-destructive">*</span></Label>
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} required className="rounded-xl mt-1.5" />
               </div>
 
               <div>
-                <Label className="text-sm font-semibold">Tóm tắt</Label>
+                <Label className="text-sm font-semibold">{t("post.excerpt")}</Label>
                 <Textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className="rounded-xl mt-1.5" rows={2} />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <Label className="text-sm font-semibold">
-                    Ảnh bài viết <span className="text-destructive">*</span>
-                    <span className="text-xs text-muted-foreground font-normal ml-1">(tối thiểu {MIN_IMAGES}, tối đa {MAX_IMAGES})</span>
+                    {t("post.postImages")} <span className="text-destructive">*</span>
+                    <span className="text-xs text-muted-foreground font-normal ml-1">{t("post.minMax").replace("{min}", String(MIN_IMAGES)).replace("{max}", String(MAX_IMAGES))}</span>
                   </Label>
                   <span className="text-xs text-muted-foreground">{images.length}/{MAX_IMAGES}</span>
                 </div>
                 <div className="grid grid-cols-5 gap-3">
                   {images.map((img, idx) => (
                     <div key={idx} className={`relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${idx === thumbIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`} onClick={() => setThumbIdx(idx)}>
-                      <Image src={img} alt={`Ảnh ${idx + 1}`} fill className="object-cover" />
+                      <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
                       {idx === thumbIdx && (
                         <div className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
                           <Star className="w-2.5 h-2.5 fill-current" />
-                          Bìa
+                          {t("post.coverBadge")}
                         </div>
                       )}
                       <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(idx); }} className="absolute top-1 right-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80">
@@ -546,35 +537,35 @@ export default function PostsPage() {
                   {images.length < MAX_IMAGES && (
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 hover:border-primary/50 hover:bg-primary/5 transition-colors">
                       <ImagePlus className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">Thêm ảnh</span>
+                      <span className="text-[10px] text-muted-foreground">{t("prod.addImage")}</span>
                     </button>
                   )}
                 </div>
                 <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                 {images.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-2">Nhấn vào ảnh để chọn làm ảnh bìa</p>
+                  <p className="text-xs text-muted-foreground mt-2">{t("post.coverPickHint")}</p>
                 )}
               </div>
 
               <div>
-                <Label className="text-sm font-semibold">Nội dung bài viết</Label>
-                <p className="text-xs text-muted-foreground mb-1.5">Có thể chèn ảnh trực tiếp vào nội dung qua thanh công cụ</p>
+                <Label className="text-sm font-semibold">{t("post.content")}</Label>
+                <p className="text-xs text-muted-foreground mb-1.5">{t("post.contentEditorTip")}</p>
                 <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:max-h-[400px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body">
-                  <ReactQuill theme="snow" value={content} onChange={setContent} modules={quillModules} placeholder="Nhập nội dung bài viết..." />
+                  <ReactQuill theme="snow" value={content} onChange={setContent} modules={quillModules} placeholder={t("post.contentPh")} />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <Label className="text-sm font-semibold">
-                    Sản phẩm liên kết <span className="text-destructive">*</span>
-                    <span className="text-xs text-muted-foreground font-normal ml-1">(tối thiểu {MIN_PRODUCTS}, tối đa {MAX_PRODUCTS})</span>
+                    {t("post.linkedLabel")} <span className="text-destructive">*</span>
+                    <span className="text-xs text-muted-foreground font-normal ml-1">{t("post.minMax").replace("{min}", String(MIN_PRODUCTS)).replace("{max}", String(MAX_PRODUCTS))}</span>
                   </Label>
                   <span className="text-xs text-muted-foreground">{productIds.length}/{MAX_PRODUCTS}</span>
                 </div>
                 <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Tìm sản phẩm..." value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="pl-10 rounded-xl" />
+                  <Input placeholder={t("prod.searchPh")} value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="pl-10 rounded-xl" />
                 </div>
                 <div className="rounded-xl border border-border max-h-64 overflow-y-auto divide-y divide-border">
                   {filteredProducts.map((p) => {
@@ -603,27 +594,27 @@ export default function PostsPage() {
                     );
                   })}
                   {filteredProducts.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-6">Không tìm thấy sản phẩm.</p>
+                    <p className="text-sm text-muted-foreground text-center py-6">{t("post.noProducts")}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm font-semibold">Trạng thái</Label>
+                <Label className="text-sm font-semibold">{t("post.status")}</Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as Post["status"])}>
                   <SelectTrigger className="rounded-xl mt-1.5">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="published">Xuất bản</SelectItem>
-                    <SelectItem value="draft">Nháp</SelectItem>
+                    <SelectItem value="published">{t("post.publish")}</SelectItem>
+                    <SelectItem value="draft">{t("post.draft")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex gap-3 pt-3 border-t">
-                <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>Hủy</Button>
-                <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">Lưu bài viết</Button>
+                <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
+                <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">{t("post.save")}</Button>
               </div>
             </form>
           </DialogContent>
