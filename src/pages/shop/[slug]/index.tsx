@@ -130,23 +130,29 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-6">
-            <Badge
-              variant={!category ? "default" : "outline"}
-              className={"cursor-pointer " + (!category ? "gradient-primary text-white border-0" : "")}
-              onClick={() => router.push("/shop/" + shop.slug, undefined, { shallow: true })}
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 select-none">
+            <button
+              onClick={() => { setCategoryFilter("all"); setProductPage(1); }}
+              className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
+                categoryFilter === "all"
+                  ? "gradient-primary text-white shadow-md"
+                  : "bg-card text-foreground border border-border hover:border-primary"
+              }`}
             >
               Tất cả
-            </Badge>
+            </button>
             {shop.categories.map((cat) => (
-              <Badge
+              <button
                 key={cat.id}
-                variant={category === cat.slug ? "default" : "outline"}
-                className={"cursor-pointer " + (category === cat.slug ? "gradient-primary text-white border-0" : "")}
-                onClick={() => router.push("/shop/" + shop.slug + "?category=" + cat.slug, undefined, { shallow: true })}
+                onClick={() => { setCategoryFilter(cat.id); setProductPage(1); }}
+                className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
+                  categoryFilter === cat.id
+                    ? "gradient-primary text-white shadow-md"
+                    : "bg-card text-foreground border border-border hover:border-primary"
+                }`}
               >
                 {cat.name}
-              </Badge>
+              </button>
             ))}
           </div>
 
