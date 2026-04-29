@@ -149,11 +149,12 @@ interface CreateUserDialogProps {
 }
 
 export function CreateUserDialog({ open, onOpenChange, onCreate }: CreateUserDialogProps) {
-  const [form, setForm] = useState<CreateUserInput>({ name: "", email: "", phone: "", shopName: "", expiryDays: 90 });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", shopName: "", expiryDays: 90 });
   useEffect(() => { if (open) setForm({ name: "", email: "", phone: "", shopName: "", expiryDays: 90 }); }, [open]);
   const submit = () => {
     if (!form.name || !form.email || !form.shopName) return;
-    onCreate(form);
+    const expiresAt = new Date(Date.now() + form.expiryDays * 86400000).toISOString();
+    onCreate({ name: form.name, email: form.email, phone: form.phone, shopName: form.shopName, password: "iLoveProID@", expiresAt });
     onOpenChange(false);
   };
   return (

@@ -46,7 +46,7 @@ export default function SuperAdminPage() {
   }, [user, isLoading, router]);
 
   const filteredUsers = allUsers
-    .filter((u) => u.role === "user")
+    .filter((u) => u.role === "shop_owner")
     .filter((u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()) || (u.shopName || "").toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt));
 
@@ -69,13 +69,14 @@ export default function SuperAdminPage() {
     const u = allUsers.find((x) => x.id === userId);
     if (!u) return;
     const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+    const customDomain = sc?.customDomain;
     const lines = [
       `Cửa hàng: ${u.shopName || "—"}`,
       `Chủ shop: ${u.name}`,
       `Email đăng nhập: ${u.email}`,
       `Mật khẩu mặc định: iLoveProID@`,
       u.phone ? `SĐT: ${u.phone}` : null,
-      u.customDomain ? `Tên miền riêng: ${u.customDomain}` : null,
+      customDomain ? `Tên miền riêng: ${customDomain}` : null,
       `Hết hạn: ${new Date(u.expiresAt).toLocaleDateString("vi-VN")}`,
       sc ? `Giới hạn: ${sc.limits.products} sản phẩm · ${sc.limits.categories} danh mục · ${sc.limits.posts} bài viết` : null,
     ].filter(Boolean).join("\n");
@@ -187,6 +188,7 @@ export default function SuperAdminPage() {
                       const expiry = new Date(u.expiresAt);
                       const expired = expiry < new Date();
                       const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+                      const customDomain = sc?.customDomain;
                       return (
                         <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors align-top">
                           <td className="px-4 py-3">
@@ -202,9 +204,9 @@ export default function SuperAdminPage() {
                                     <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{sc.usage.posts}/{sc.limits.posts}</span>
                                   </div>
                                 )}
-                                {u.customDomain && (
-                                  <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="xl:hidden inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
-                                    <Globe className="w-3 h-3" />{u.customDomain}
+                                {customDomain && (
+                                  <a href={"https://" + customDomain} target="_blank" rel="noopener noreferrer" className="xl:hidden inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
+                                    <Globe className="w-3 h-3" />{customDomain}
                                   </a>
                                 )}
                               </div>
@@ -219,9 +221,9 @@ export default function SuperAdminPage() {
                           </td>
                           <td className="px-4 py-3 hidden lg:table-cell"><span className="text-sm text-muted-foreground">{u.shopName || "—"}</span></td>
                           <td className="px-4 py-3 hidden xl:table-cell">
-                            {u.customDomain ? (
-                              <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-                                <Globe className="w-3.5 h-3.5" />{u.customDomain}
+                            {customDomain ? (
+                              <a href={"https://" + customDomain} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                                <Globe className="w-3.5 h-3.5" />{customDomain}
                               </a>
                             ) : <span className="text-sm text-muted-foreground">—</span>}
                           </td>
@@ -360,7 +362,7 @@ export default function SuperAdminPage() {
           onOpenChange={(o) => { if (!o) setEditingShop(null); }}
           initialValue={editingShopConfig?.limits.products || 200}
           shopName={editingShopConfig?.shopName || ""}
-          onSave={(value) => { if (editingShop) setShopLimit(editingShop, value); }}
+          onSave={(value) => { if (editingShop) setShopLimit(editingShop, { products: value, categories: value, posts: value, storage: value * 5 }); }}
         />
         <ExtendDialog
           open={!!extendingUser}
@@ -375,7 +377,7 @@ export default function SuperAdminPage() {
           open={!!domainUser}
           onOpenChange={(o) => { if (!o) setDomainUser(null); }}
           userName={domainUserData?.name || ""}
-          currentDomain={domainUserData?.customDomain}
+          currentDomain={domainUserData?.shopId ? shopConfigs.find((s) => s.shopId === domainUserData.shopId)?.customDomain : undefined}
           onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: domain ? "Đã cập nhật tên miền" : "Đã hủy liên kết", description: domain || "Tên miền riêng đã bị xóa." }); } }}
         />
         <EditUserDialog
