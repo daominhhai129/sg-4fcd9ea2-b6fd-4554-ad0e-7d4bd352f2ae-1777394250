@@ -301,7 +301,7 @@ export default function ProductsPage() {
                 Thêm sản phẩm
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader>
                 <DialogTitle className="font-heading">{editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</DialogTitle>
               </DialogHeader>
@@ -459,12 +459,12 @@ export default function ProductsPage() {
                     <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => openEdit(product)}>
-                      <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                    <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => openEdit(product)}>
+                      <Pencil className="w-3.5 h-3.5 mr-1" />
                       Sửa
                     </Button>
-                    <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => handleDelete(product.id)}>
-                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    <Button variant="destructive" size="sm" className="flex-1 min-w-0 rounded-xl px-2" onClick={() => handleDelete(product.id)}>
+                      <Trash2 className="w-3.5 h-3.5 mr-1" />
                       Xóa
                     </Button>
                   </div>
@@ -562,7 +562,7 @@ export default function ProductsPage() {
         )}
 
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle className="font-heading">Chi tiết sản phẩm</DialogTitle>
             </DialogHeader>
