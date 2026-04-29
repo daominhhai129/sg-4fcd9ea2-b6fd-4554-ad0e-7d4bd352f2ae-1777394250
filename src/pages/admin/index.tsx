@@ -117,9 +117,9 @@ export default function AdminDashboard() {
                         <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("vi-VN")}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="font-bold text-sm text-foreground">{formatPrice(order.total)}</span>
-                      <span className={cn("px-2 py-1 rounded-lg text-xs font-semibold", status.className)}>{status.label}</span>
+                    <div className="flex items-end sm:items-center gap-2 sm:gap-3 flex-shrink-0 flex-col sm:flex-row">
+                      <span className="font-bold text-sm text-foreground whitespace-nowrap">{formatPrice(order.total)}</span>
+                      <span className={cn("px-2 py-1 rounded-lg text-xs font-semibold whitespace-nowrap", status.className)}>{status.label}</span>
                     </div>
                   </div>
                 );
