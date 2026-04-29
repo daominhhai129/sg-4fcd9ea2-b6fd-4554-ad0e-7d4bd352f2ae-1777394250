@@ -64,7 +64,7 @@ export default function PostDetailPage() {
             <Image src={post.coverImage} alt={post.title} fill className="object-cover" priority />
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-heading font-extrabold text-foreground leading-tight">
+          <h1 className="text-xl md:text-2xl font-heading font-extrabold text-foreground leading-snug">
             {post.title}
           </h1>
 
