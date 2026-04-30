@@ -1,13 +1,23 @@
+import { useState } from "react";
 import Image from "next/image";
-import { MapPin, Phone, Mail, Download } from "lucide-react";
+import { MapPin, Phone, Mail, Download, QrCode, X } from "lucide-react";
 import type { Shop } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface ShopBannerProps {
   shop: Shop;
 }
 
 export function ShopBanner({ shop }: ShopBannerProps) {
+  const [qrOpen, setQrOpen] = useState(false);
+
+  const shopUrl = typeof window !== "undefined" 
+    ? `${window.location.origin}/shop/${shop.slug}` 
+    : `/shop/${shop.slug}`;
+
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shopUrl)}`;
+
   const handleSaveContact = () => {
     const vcard = [
       "BEGIN:VCARD",
@@ -51,18 +61,53 @@ export function ShopBanner({ shop }: ShopBannerProps) {
               <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-primary" />{shop.contact.phone}</span>
               <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary" />{shop.contact.email}</span>
             </div>
-            <Button
-              onClick={handleSaveContact}
-              size="sm"
-              className="mt-4 text-white border-0 rounded-xl hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: `hsl(${shop.themeColor})` }}
-            >
-              <Download className="w-4 h-4 mr-1.5" />
-              Lưu danh bạ
-            </Button>
+            <div className="flex items-center gap-2 mt-4">
+              <Button
+                onClick={handleSaveContact}
+                size="sm"
+                className="text-white border-0 rounded-xl hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: `hsl(${shop.themeColor})` }}
+              >
+                <Download className="w-4 h-4 mr-1.5" />
+                Lưu danh bạ
+              </Button>
+              <Button
+                onClick={() => setQrOpen(true)}
+                size="sm"
+                variant="outline"
+                className="rounded-xl"
+              >
+                <QrCode className="w-4 h-4 mr-1.5" />
+                QR Code
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-center">Mã QR cửa hàng</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="bg-white p-4 rounded-xl shadow-inner">
+              <Image
+                src={qrCodeUrl}
+                alt="QR Code"
+                width={200}
+                height={200}
+                className="rounded-lg"
+                unoptimized
+              />
+            </div>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">
+              Quét mã QR để truy cập cửa hàng <span className="font-semibold text-foreground">{shop.name}</span>
+            </p>
+            <p className="text-xs text-muted-foreground/70 break-all text-center px-4">{shopUrl}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
