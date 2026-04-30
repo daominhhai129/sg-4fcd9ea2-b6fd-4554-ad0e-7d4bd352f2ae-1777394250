@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
-import { DollarSign, Package as PackageIcon, ShoppingBag, FolderOpen, FileText, CalendarClock, AlertTriangle } from "lucide-react";
+import { Package as PackageIcon, ShoppingBag, FolderOpen, FileText, CalendarClock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
@@ -18,19 +18,12 @@ export default function AdminDashboard() {
     cancelled: { label: t("status.cancelled"), className: "bg-red-100 text-red-700" },
   };
 
-  const revenue = shop.orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
   const recentOrders = [...shop.orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8);
 
   const expiry = user?.expiresAt ? new Date(user.expiresAt) : null;
   const today = new Date();
   const daysLeft = expiry ? Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
   const expiryWarning = daysLeft !== null && daysLeft <= 30;
-
-  const stats = [
-    { label: t("dashboard.revenue"), value: formatPrice(revenue), icon: DollarSign, change: "+12.5%", trend: "up", bg: "bg-green-50", iconColor: "text-green-600" },
-    { label: t("dashboard.orders"), value: shop.orders.length.toString(), icon: ShoppingBag, change: "+8.2%", trend: "up", bg: "bg-primary/10", iconColor: "text-primary" },
-    { label: t("dashboard.products"), value: shop.products.length.toString(), icon: PackageIcon, change: "+3", trend: "up", bg: "bg-accent/10", iconColor: "text-accent" },
-  ];
 
   const limits = shopConfig
     ? [
@@ -63,21 +56,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-card border border-border/50 p-5 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center", stat.bg)}>
-                    <stat.icon className={cn("w-5 h-5", stat.iconColor)} />
-                  </div>
-                  <span className="text-xs font-semibold text-green-600">↗ {stat.change}</span>
-                </div>
-                <p className="text-2xl font-heading font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
 
           {limits.length > 0 && (
             <div className="rounded-2xl bg-card border border-border/50 p-5">
