@@ -122,7 +122,7 @@ export default function SuperAdminPage() {
               </div>
             </div>
             <button onClick={() => setPwdOpen(true)} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors">
-              <KeyRound className="w-4 h-4" /> {t("nav.profile")}
+              <KeyRound className="w-4 h-4" /> {t("settings.changePwd")}
             </button>
             <button onClick={logout} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors">
               <LogOut className="w-4 h-4" /> {t("nav.logout")}
