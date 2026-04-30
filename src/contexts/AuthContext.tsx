@@ -20,6 +20,7 @@ export interface AppUser {
   role: UserRole;
   shopId?: string;
   shopName?: string;
+  shopSlug?: string;
   avatar?: string;
   status: UserStatus;
   expiresAt: string;
