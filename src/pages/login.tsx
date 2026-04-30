@@ -67,6 +67,11 @@ export default function LoginPage() {
             <div>
               <h2 className="text-2xl font-heading font-bold text-foreground">Đăng nhập</h2>
               <p className="text-muted-foreground mt-1">Nhập thông tin để truy cập dashboard</p>
+              <div className="mt-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                <p className="text-xs text-foreground/80 leading-relaxed">
+                  💡 <span className="font-semibold">Đăng nhập lần đầu?</span> Vui lòng nhập email đăng ký, bấm <span className="font-semibold text-primary">"Tự điền"</span> để điền mật khẩu mặc định, rồi chọn <span className="font-semibold text-primary">Đăng nhập</span>.
+                </p>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
