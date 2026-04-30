@@ -12,7 +12,7 @@ import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -83,6 +83,37 @@ export default function SuperAdminPage() {
       () => toast({ title: "Đã sao chép", description: "Thông tin shop đã được copy vào clipboard." }),
       () => toast({ title: "Không thể sao chép", description: "Trình duyệt từ chối truy cập clipboard.", variant: "destructive" })
     );
+  };
+
+  const handleExportCSV = () => {
+    const shopUsers = allUsers.filter((u) => u.role === "user");
+    const headers = ["Tên", "Email", "SĐT", "Cửa hàng", "Tên miền", "Hết hạn", "Trạng thái", "Sản phẩm", "Danh mục", "Bài viết"];
+    const rows = shopUsers.map((u) => {
+      const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+      return [
+        u.name,
+        u.email,
+        u.phone || "",
+        u.shopName || "",
+        u.customDomain || "",
+        new Date(u.expiresAt).toLocaleDateString("vi-VN"),
+        u.status === "active" ? "Hoạt động" : "Đã khóa",
+        sc ? `${sc.usage.products}/${sc.limits.products}` : "",
+        sc ? `${sc.usage.categories}/${sc.limits.categories}` : "",
+        sc ? `${sc.usage.posts}/${sc.limits.posts}` : "",
+      ];
+    });
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `shop-users-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ title: t("super.exportSuccess"), description: t("super.exportDesc") });
   };
 
   const confirmMaintenance = () => {
@@ -163,6 +194,9 @@ export default function SuperAdminPage() {
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <Input placeholder={t("super.searchPh")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-xl" />
                   </div>
+                  <Button variant="outline" className="rounded-xl" onClick={handleExportCSV}>
+                    <FileSpreadsheet className="w-4 h-4 mr-1.5" /> {t("super.export")}
+                  </Button>
                   <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}>
                     <UserPlus className="w-4 h-4 mr-1.5" /> {t("super.create")}
                   </Button>
