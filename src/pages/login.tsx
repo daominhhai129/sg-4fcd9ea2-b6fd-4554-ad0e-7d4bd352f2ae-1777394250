@@ -80,7 +80,14 @@ export default function LoginPage() {
                 <Label className="text-sm font-semibold">Mật khẩu</Label>
                 <div className="relative mt-1.5">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 rounded-xl" required />
+                  <Input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-20 rounded-xl" required />
+                  <button
+                    type="button"
+                    onClick={() => setPassword("iLoveProID@")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
+                  >
+                    Tự điền
+                  </button>
                 </div>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
