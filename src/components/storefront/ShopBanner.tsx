@@ -74,8 +74,8 @@ export function ShopBanner({ shop }: ShopBannerProps) {
               <Button
                 onClick={() => setQrOpen(true)}
                 size="sm"
-                variant="outline"
-                className="rounded-xl"
+                className="text-white border-0 rounded-xl hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: `hsl(${shop.themeColor})` }}
               >
                 <QrCode className="w-4 h-4 mr-1.5" />
                 QR Code
