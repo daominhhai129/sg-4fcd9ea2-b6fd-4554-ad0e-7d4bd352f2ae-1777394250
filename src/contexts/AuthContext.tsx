@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export type UserRole = "user" | "super_admin";
+export type UserRole = "user" | "super_admin" | "member";
 export type UserStatus = "active" | "locked";
 
 export const DEFAULT_PASSWORD = "iLoveProID@";
@@ -10,6 +10,15 @@ export interface ShopLimits {
   products: number;
   categories: number;
   posts: number;
+}
+
+export interface MemberOrder {
+  id: string;
+  shopName: string;
+  date: string;
+  total: number;
+  status: "pending" | "confirmed" | "cancelled" | "delivered";
+  items: { name: string; quantity: number; price: number }[];
 }
 
 export interface AppUser {
@@ -26,6 +35,8 @@ export interface AppUser {
   expiresAt: string;
   password: string;
   customDomain?: string;
+  address?: string;
+  orders?: MemberOrder[];
 }
 
 export interface ShopConfig {
@@ -60,6 +71,25 @@ const INITIAL_ADMIN: AppUser = {
   password: DEFAULT_PASSWORD,
 };
 
+const INITIAL_MEMBER: AppUser = {
+  id: "member-1",
+  name: "Phạm Thu Hà",
+  email: "ha@gmail.com",
+  phone: "0934567890",
+  role: "member",
+  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
+  status: "active",
+  expiresAt: inDays(3650),
+  password: DEFAULT_PASSWORD,
+  address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
+  orders: [
+    { id: "M-2401", shopName: "Tech Zone", date: inDays(-3), total: 18990000, status: "delivered", items: [{ name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
+    { id: "M-2402", shopName: "Fashion Hub", date: inDays(-12), total: 850000, status: "delivered", items: [{ name: "Áo khoác bomber", quantity: 1, price: 850000 }] },
+    { id: "M-2403", shopName: "Tech Zone", date: inDays(-1), total: 2490000, status: "confirmed", items: [{ name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
+    { id: "M-2404", shopName: "Green Garden", date: inDays(0), total: 320000, status: "pending", items: [{ name: "Cây trầu bà mini", quantity: 2, price: 160000 }] },
+  ],
+};
+
 const INITIAL_SHOP_CONFIGS: ShopConfig[] = [
   { shopId: "shop-1", shopName: "Tech Zone", ownerId: "user-1", ownerName: "Nguyễn Văn An", limits: { ...DEFAULT_LIMITS }, usage: { products: 6, categories: 4, posts: 3 } },
   { shopId: "shop-2", shopName: "Fashion Hub", ownerId: "user-2", ownerName: "Trần Thị Bình", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
@@ -82,6 +112,7 @@ interface AuthContextType {
   impersonating: boolean;
   loginAsUser: () => void;
   loginAsSuperAdmin: () => void;
+  loginAsMember: () => void;
   loginWithCredentials: (email: string, password: string) => boolean;
   logout: () => void;
   enterShopAsAdmin: (userId: string) => void;
@@ -96,6 +127,8 @@ interface AuthContextType {
   updateUser: (userId: string, input: { name: string; email: string; phone: string; shopName: string }) => void;
   updateAdminPassword: (newPassword: string) => void;
   setUserDomain: (userId: string, domain: string) => void;
+  updateMemberInfo: (input: { name: string; email: string; phone: string; address: string }) => void;
+  updateMemberPassword: (newPassword: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -107,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<AppUser[]>(INITIAL_USERS);
   const [admin, setAdmin] = useState<AppUser>(INITIAL_ADMIN);
+  const [member, setMember] = useState<AppUser>(INITIAL_MEMBER);
   const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>(INITIAL_SHOP_CONFIGS);
 
   useEffect(() => {
@@ -147,15 +181,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/super-admin");
   }, [router, admin]);
 
+  const loginAsMember = useCallback(() => {
+    persistUser(member);
+    router.push("/member");
+  }, [router, member]);
+
   const loginWithCredentials = useCallback((email: string, _password: string) => {
-    const found = [...users, admin].find((u) => u.email === email);
+    const found = [...users, admin, member].find((u) => u.email === email);
     if (found) {
       persistUser(found);
-      router.push(found.role === "super_admin" ? "/super-admin" : "/admin");
+      const dest = found.role === "super_admin" ? "/super-admin" : found.role === "member" ? "/member" : "/admin";
+      router.push(dest);
       return true;
     }
     return false;
-  }, [router, users, admin]);
+  }, [router, users, admin, member]);
 
   const logout = useCallback(() => {
     persistUser(null);
@@ -234,8 +274,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, customDomain: cleaned || undefined } : u)));
   }, []);
 
+  const updateMemberInfo = useCallback((input: { name: string; email: string; phone: string; address: string }) => {
+    setMember((prev) => {
+      const updated = { ...prev, ...input };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+  }, [user]);
+
+  const updateMemberPassword = useCallback((newPassword: string) => {
+    setMember((prev) => {
+      const updated = { ...prev, password: newPassword };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword }}>
       {children}
     </AuthContext.Provider>
   );
