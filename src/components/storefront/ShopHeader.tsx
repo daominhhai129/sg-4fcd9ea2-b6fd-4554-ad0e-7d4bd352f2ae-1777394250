@@ -15,12 +15,12 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/50">
-      <div className="container flex items-center justify-between h-16">
-        <Link href={"/shop/" + shop.slug} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border">
-            <Image src={shop.logo} alt={shop.name} width={40} height={40} className="object-cover w-full h-full" />
+      <div className="container flex items-center justify-between h-14">
+        <Link href={"/shop/" + shop.slug} className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
+            <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
           </div>
-          <span className="font-heading text-lg font-bold text-foreground">{shop.name}</span>
+          <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
@@ -38,33 +38,33 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Link
             href="/login"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             <LogIn className="w-4 h-4" />
             <span>Đăng nhập</span>
           </Link>
           <Link
             href="/register"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
           >
             <UserPlus className="w-4 h-4" />
             <span>Đăng ký</span>
           </Link>
           <Link
             href={"/shop/" + shop.slug + "/cart"}
-            className="relative p-2 rounded-xl hover:bg-muted transition-colors"
+            className="relative p-1.5 rounded-lg hover:bg-muted transition-colors"
           >
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-semibold">
                 {cartCount}
               </span>
             )}
           </Link>
-          <button className="md:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="md:hidden p-1.5 text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
