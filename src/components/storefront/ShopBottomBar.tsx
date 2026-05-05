@@ -65,37 +65,37 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-auto pointer-events-none">
-      <div className="bg-card/95 backdrop-blur-lg border-t md:border border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] md:shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:rounded-full pointer-events-auto">
-        <div className="container md:container-none md:max-w-none md:w-auto md:px-2 grid grid-cols-4 md:flex md:gap-1 h-16 md:h-14">
+    <div className="fixed bottom-0 left-0 right-0 z-40 md:bottom-auto md:left-auto md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-auto pointer-events-none">
+      <div className="bg-card/95 backdrop-blur-lg border-t md:border border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] md:shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:rounded-2xl pointer-events-auto">
+        <div className="grid grid-cols-4 md:grid-cols-1 md:flex md:flex-col md:gap-1 md:p-2 h-16 md:h-auto">
           <a
             href={`tel:${phoneNumber}`}
-            className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 md:px-5 md:rounded-full text-foreground transition-all hover:bg-muted/60"
+            className="flex flex-col items-center justify-center gap-1 md:gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60"
           >
-            <Phone className="w-5 h-5 md:w-4 md:h-4" />
-            <span className="text-[11px] md:text-sm font-medium">Gọi điện</span>
+            <Phone className="w-5 h-5" />
+            <span className="text-[11px] md:text-[10px] font-medium">Gọi điện</span>
           </a>
           <a
             href={`sms:${phoneNumber}`}
-            className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 md:px-5 md:rounded-full text-foreground transition-all hover:bg-muted/60"
+            className="flex flex-col items-center justify-center gap-1 md:gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60"
           >
-            <MessageCircle className="w-5 h-5 md:w-4 md:h-4" />
-            <span className="text-[11px] md:text-sm font-medium">Nhắn tin</span>
+            <MessageCircle className="w-5 h-5" />
+            <span className="text-[11px] md:text-[10px] font-medium">Nhắn tin</span>
           </a>
           <a
             href={mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 md:px-5 md:rounded-full text-foreground transition-all hover:bg-muted/60"
+            className="flex flex-col items-center justify-center gap-1 md:gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60"
           >
-            <MapPin className="w-5 h-5 md:w-4 md:h-4" />
-            <span className="text-[11px] md:text-sm font-medium">Bản đồ</span>
+            <MapPin className="w-5 h-5" />
+            <span className="text-[11px] md:text-[10px] font-medium">Bản đồ</span>
           </a>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <button className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 md:px-5 md:rounded-full text-foreground transition-all hover:bg-muted/60">
-                <LayoutGrid className="w-5 h-5 md:w-4 md:h-4" />
-                <span className="text-[11px] md:text-sm font-medium">Danh mục</span>
+              <button className="flex flex-col items-center justify-center gap-1 md:gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60">
+                <LayoutGrid className="w-5 h-5" />
+                <span className="text-[11px] md:text-[10px] font-medium">Danh mục</span>
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh]">
