@@ -154,6 +154,7 @@ interface AuthContextType {
   updateMemberInfo: (input: { name: string; email: string; phone: string }) => void;
   updateMemberPassword: (newPassword: string) => void;
   addMemberAddress: (input: { recipientName: string; recipientPhone: string; address: string }) => boolean;
+  updateMemberAddress: (id: string, input: { recipientName: string; recipientPhone: string; address: string }) => void;
   deleteMemberAddress: (id: string) => void;
   setDefaultMemberAddress: (id: string) => void;
 }
@@ -337,6 +338,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return success;
   }, [user]);
 
+  const updateMemberAddress = useCallback((id: string, input: { recipientName: string; recipientPhone: string; address: string }) => {
+    setMember((prev) => {
+      const next = (prev.addresses || []).map((a) => (a.id === id ? { ...a, recipientName: input.recipientName, recipientPhone: input.recipientPhone, address: input.address } : a));
+      const updated = { ...prev, addresses: next, address: syncDefaultAddress(next) };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+  }, [user]);
+
   const deleteMemberAddress = useCallback((id: string) => {
     setMember((prev) => {
       const list = prev.addresses || [];
@@ -361,7 +371,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, deleteMemberAddress, setDefaultMemberAddress }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress }}>
       {children}
     </AuthContext.Provider>
   );

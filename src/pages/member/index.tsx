@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   Package, MapPin, User as UserIcon, Lock, LogOut, ShoppingBag, Calendar,
   CheckCircle2, Clock, XCircle, ArrowLeft, Save, Eye, EyeOff, Check, AlertCircle,
-  Plus, Trash2, Star,
+  Plus, Trash2, Star, Pencil,
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ const statusConfig = {
 
 export default function MemberDashboard() {
   const router = useRouter();
-  const { user, logout, updateMemberInfo, updateMemberPassword, addMemberAddress, deleteMemberAddress, setDefaultMemberAddress } = useAuth();
+  const { user, logout, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress } = useAuth();
   const { toast } = useToast();
 
   const [name, setName] = useState("");
@@ -46,6 +46,7 @@ export default function MemberDashboard() {
   const [newRecipient, setNewRecipient] = useState("");
   const [newRecipientPhone, setNewRecipientPhone] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
@@ -86,6 +87,14 @@ export default function MemberDashboard() {
       toast({ variant: "destructive", title: "Thiếu thông tin", description: "Vui lòng nhập đủ họ tên, SĐT và địa chỉ." });
       return;
     }
+    if (editingId) {
+      updateMemberAddress(editingId, { recipientName: newRecipient.trim(), recipientPhone: newRecipientPhone.trim(), address: newAddress.trim() });
+      setEditingId(null);
+      setNewRecipient(""); setNewRecipientPhone(""); setNewAddress("");
+      setShowAddForm(false);
+      toast({ variant: "success", title: "Đã cập nhật địa chỉ" });
+      return;
+    }
     if (addresses.length >= MAX_ADDRESSES) {
       toast({ variant: "destructive", title: "Đã đạt giới hạn", description: "Tối đa " + MAX_ADDRESSES + " địa chỉ." });
       return;
@@ -96,6 +105,22 @@ export default function MemberDashboard() {
       setShowAddForm(false);
       toast({ variant: "success", title: "Đã thêm địa chỉ" });
     }
+  };
+
+  const handleStartEdit = (id: string) => {
+    const a = addresses.find((x) => x.id === id);
+    if (!a) return;
+    setEditingId(id);
+    setNewRecipient(a.recipientName || "");
+    setNewRecipientPhone(a.recipientPhone || "");
+    setNewAddress(a.address || "");
+    setShowAddForm(true);
+  };
+
+  const handleCancelForm = () => {
+    setShowAddForm(false);
+    setEditingId(null);
+    setNewRecipient(""); setNewRecipientPhone(""); setNewAddress("");
   };
 
   const handlePwdSave = (e: React.FormEvent) => {
@@ -275,7 +300,13 @@ export default function MemberDashboard() {
                         {addr.isDefault && <Check className="w-3 h-3 text-white" />}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">{addr.recipientName} <span className="text-muted-foreground font-normal">· {addr.recipientPhone}</span></p>
+                        {(addr.recipientName || addr.recipientPhone) && (
+                          <p className="text-sm font-semibold text-foreground">
+                            {addr.recipientName}
+                            {addr.recipientName && addr.recipientPhone && <span className="text-muted-foreground font-normal"> · </span>}
+                            {addr.recipientPhone && <span className="text-muted-foreground font-normal">{addr.recipientPhone}</span>}
+                          </p>
+                        )}
                         <p className="text-sm text-foreground/80 mt-0.5">{addr.address}</p>
                         {addr.isDefault && (
                           <span className="inline-flex items-center gap-1 text-xs text-primary font-semibold mt-1">
@@ -283,20 +314,31 @@ export default function MemberDashboard() {
                           </span>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => deleteMemberAddress(addr.id)}
-                        className="text-muted-foreground hover:text-destructive transition-colors p-1"
-                        title="Xóa"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleStartEdit(addr.id)}
+                          className="text-muted-foreground hover:text-primary transition-colors p-1"
+                          title="Sửa"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteMemberAddress(addr.id)}
+                          className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                          title="Xóa"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
 
                 {showAddForm ? (
                   <div className="mt-4 p-4 rounded-xl border border-dashed border-primary/40 space-y-3">
+                    <p className="text-sm font-semibold text-foreground">{editingId ? "Sửa địa chỉ" : "Thêm địa chỉ mới"}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs font-semibold">Họ và tên người nhận</Label>
@@ -318,9 +360,9 @@ export default function MemberDashboard() {
                     </div>
                     <div className="flex gap-2">
                       <Button type="button" onClick={handleAddAddress} size="sm" className="rounded-xl">
-                        <Save className="w-4 h-4 mr-1.5" /> Lưu địa chỉ
+                        <Save className="w-4 h-4 mr-1.5" /> {editingId ? "Lưu thay đổi" : "Lưu địa chỉ"}
                       </Button>
-                      <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddForm(false); setNewRecipient(""); setNewRecipientPhone(""); setNewAddress(""); }} className="rounded-xl">
+                      <Button type="button" variant="outline" size="sm" onClick={handleCancelForm} className="rounded-xl">
                         Hủy
                       </Button>
                     </div>
