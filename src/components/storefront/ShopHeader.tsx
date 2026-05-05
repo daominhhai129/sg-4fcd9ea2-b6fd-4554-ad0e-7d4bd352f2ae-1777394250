@@ -89,9 +89,6 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/50">
       <div className="container flex items-center justify-between h-14">
         <div className="flex items-center gap-2">
-          <button className="md:hidden p-1.5 -ml-1.5 text-foreground" onClick={() => setMobileOpen(true)} aria-label="Menu">
-            <Menu className="w-5 h-5" />
-          </button>
           <Link href={"/shop/" + shop.slug} className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
               <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
@@ -148,6 +145,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
                 {cartCount}
               </span>
             )}
+          </button>
+          <button className="md:hidden p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" onClick={() => setMobileOpen(true)} aria-label="Menu">
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </div>
