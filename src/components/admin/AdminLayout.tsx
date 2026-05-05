@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { shops } from "@/data/mock-data";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -41,12 +42,15 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
 
+  const currentShop = shops.find((s) => s.id === user?.shopId);
+  const themeColor = currentShop?.themeColor;
+
   const navItems = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/admin/products", label: t("nav.products"), icon: Package },
     { href: "/admin/categories", label: t("nav.categories"), icon: FolderOpen },
     { href: "/admin/orders", label: t("nav.orders"), icon: ShoppingBag },
-    { href: "/admin/customers", label: "Khách hàng", icon: Users },
+    { href: "/admin/customers", label: t("nav.customers"), icon: Users },
     { href: "/admin/posts", label: t("nav.posts"), icon: FileText },
     { href: "/admin/profile", label: t("nav.profile"), icon: UserCircle },
     { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
@@ -92,9 +96,10 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
                   isActive
-                    ? "gradient-primary text-white"
+                    ? "text-white"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
+                style={isActive && themeColor ? { backgroundColor: `hsl(${themeColor})` } : undefined}
                 onClick={() => setSidebarOpen(false)}
               >
                 <item.icon className="w-4.5 h-4.5" />
