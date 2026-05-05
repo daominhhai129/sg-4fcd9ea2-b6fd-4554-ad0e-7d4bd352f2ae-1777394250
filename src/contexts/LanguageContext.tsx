@@ -26,7 +26,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: TranslationKey, vars?: Record<string, string | number>): string => {
-    let str = translations[language][key] ?? translations.vi[key] ?? key;
+    let str: string = (translations[language][key] ?? translations.vi[key] ?? key) as string;
     if (vars) {
       for (const k in vars) {
         str = str.replace(new RegExp("\\{" + k + "\\}", "g"), String(vars[k]));
