@@ -7,7 +7,7 @@ interface LanguageContextValue {
   language: Language;
   lang: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -25,8 +25,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("dashboard-lang", lang);
   };
 
-  const t = (key: TranslationKey): string => {
-    return translations[language][key] ?? translations.vi[key] ?? key;
+  const t = (key: TranslationKey, vars?: Record<string, string | number>): string => {
+    let str = translations[language][key] ?? translations.vi[key] ?? key;
+    if (vars) {
+      for (const k in vars) {
+        str = str.replace(new RegExp("\\{" + k + "\\}", "g"), String(vars[k]));
+      }
+    }
+    return str;
   };
 
   return (
