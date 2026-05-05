@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { UserPlus, User, Mail, Phone, MapPin, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { loginAsMember } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -23,9 +25,16 @@ export default function RegisterPage() {
     if (!fullName || !email || !phone || !address) return;
     setIsSubmitting(true);
     setTimeout(() => {
-      toast({ variant: "success", title: "Đăng ký thành công", description: "Chào mừng " + fullName + "! Vui lòng đăng nhập để tiếp tục." });
+      let dest = "/";
+      if (typeof window !== "undefined") {
+        try {
+          const slug = localStorage.getItem("lastShopSlug");
+          if (slug) dest = "/shop/" + slug;
+        } catch {}
+      }
+      toast({ variant: "success", title: "Đăng ký thành công", description: "Chào mừng " + fullName + "! Tiếp tục mua sắm nhé." });
+      loginAsMember(dest);
       setIsSubmitting(false);
-      router.push("/login");
     }, 600);
   };
 

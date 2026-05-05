@@ -136,7 +136,7 @@ interface AuthContextType {
   impersonating: boolean;
   loginAsUser: () => void;
   loginAsSuperAdmin: () => void;
-  loginAsMember: () => void;
+  loginAsMember: (redirectTo?: string) => void;
   loginWithCredentials: (email: string, password: string) => boolean;
   logout: () => void;
   enterShopAsAdmin: (userId: string) => void;
@@ -209,9 +209,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/super-admin");
   }, [router, admin]);
 
-  const loginAsMember = useCallback(() => {
+  const loginAsMember = useCallback((redirectTo?: string) => {
     persistUser(member);
-    router.push("/member");
+    router.push(redirectTo || "/member");
   }, [router, member]);
 
   const loginWithCredentials = useCallback((email: string, _password: string) => {
