@@ -216,9 +216,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         <div className="absolute inset-0 bg-black/50" />
       </div>
       <aside
-        className={`md:hidden fixed top-0 left-0 bottom-0 z-[70] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out flex flex-col ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`md:hidden fixed top-0 left-0 bottom-0 z-[70] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex items-center justify-between px-4 h-14 border-b border-border flex-shrink-0">
+        <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 border-b border-border bg-card z-10">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
               <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
@@ -230,7 +230,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto bg-card">
           <Link
             href={"/shop/" + shop.slug}
             onClick={closeMobile}
