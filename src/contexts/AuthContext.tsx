@@ -15,10 +15,11 @@ export interface ShopLimits {
 export interface MemberOrder {
   id: string;
   shopName: string;
+  shopSlug: string;
   date: string;
   total: number;
   status: "pending" | "confirmed" | "cancelled";
-  items: { name: string; quantity: number; price: number }[];
+  items: { productId: string; name: string; quantity: number; price: number }[];
 }
 
 export interface AppUser {
@@ -83,10 +84,18 @@ const INITIAL_MEMBER: AppUser = {
   password: DEFAULT_PASSWORD,
   address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
   orders: [
-    { id: "M-2401", shopName: "Tech Zone", date: inDays(-3), total: 18990000, status: "confirmed", items: [{ name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
-    { id: "M-2402", shopName: "Fashion Hub", date: inDays(-12), total: 850000, status: "confirmed", items: [{ name: "Áo khoác bomber", quantity: 1, price: 850000 }] },
-    { id: "M-2403", shopName: "Tech Zone", date: inDays(-1), total: 2490000, status: "pending", items: [{ name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
-    { id: "M-2404", shopName: "Green Garden", date: inDays(-20), total: 320000, status: "cancelled", items: [{ name: "Cây trầu bà mini", quantity: 2, price: 160000 }] },
+    { id: "M-2412", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-1), total: 2490000, status: "pending", items: [{ productId: "p2", name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
+    { id: "M-2411", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-3), total: 18990000, status: "confirmed", items: [{ productId: "p1", name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
+    { id: "M-2410", shopName: "Fashion Hub", shopSlug: "fashion-hub", date: inDays(-7), total: 850000, status: "confirmed", items: [{ productId: "p7", name: "Áo khoác bomber", quantity: 1, price: 850000 }] },
+    { id: "M-2409", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-10), total: 1290000, status: "confirmed", items: [{ productId: "p3", name: "Sạc nhanh 30W", quantity: 1, price: 1290000 }] },
+    { id: "M-2408", shopName: "Green Garden", shopSlug: "green-garden", date: inDays(-12), total: 450000, status: "confirmed", items: [{ productId: "p8", name: "Cây kim tiền", quantity: 1, price: 450000 }] },
+    { id: "M-2407", shopName: "Fashion Hub", shopSlug: "fashion-hub", date: inDays(-15), total: 590000, status: "confirmed", items: [{ productId: "p7", name: "Áo thun basic", quantity: 2, price: 295000 }] },
+    { id: "M-2406", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-18), total: 4990000, status: "confirmed", items: [{ productId: "p4", name: "Apple Watch Series 9", quantity: 1, price: 4990000 }] },
+    { id: "M-2405", shopName: "Green Garden", shopSlug: "green-garden", date: inDays(-20), total: 320000, status: "cancelled", items: [{ productId: "p8", name: "Cây trầu bà mini", quantity: 2, price: 160000 }] },
+    { id: "M-2404", shopName: "Fashion Hub", shopSlug: "fashion-hub", date: inDays(-25), total: 1250000, status: "confirmed", items: [{ productId: "p7", name: "Quần jeans slim fit", quantity: 1, price: 1250000 }] },
+    { id: "M-2403", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-30), total: 890000, status: "confirmed", items: [{ productId: "p5", name: "Cáp USB-C 2m", quantity: 1, price: 890000 }] },
+    { id: "M-2402", shopName: "Green Garden", shopSlug: "green-garden", date: inDays(-40), total: 280000, status: "confirmed", items: [{ productId: "p9", name: "Đất trồng dinh dưỡng", quantity: 4, price: 70000 }] },
+    { id: "M-2401", shopName: "Fashion Hub", shopSlug: "fashion-hub", date: inDays(-50), total: 720000, status: "confirmed", items: [{ productId: "p7", name: "Mũ lưỡi trai", quantity: 2, price: 360000 }] },
   ],
 };
 

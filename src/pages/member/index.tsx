@@ -79,7 +79,7 @@ export default function MemberDashboard() {
     toast({ variant: "success", title: "Đã đổi mật khẩu thành công" });
   };
 
-  const orders = user.orders || [];
+  const orders = (user.orders || []).slice(0, 10);
   const totalSpent = orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
   const recentShopName = orders[0]?.shopName;
   const recentShop = shops.find((s) => s.name === recentShopName) || shops[0];
@@ -152,7 +152,10 @@ export default function MemberDashboard() {
                             <div className="space-y-0.5">
                               {o.items.map((it, idx) => (
                                 <p key={idx} className="text-sm text-foreground/80">
-                                  {it.name} <span className="text-muted-foreground">× {it.quantity}</span>
+                                  <Link href={"/shop/" + o.shopSlug + "/product/" + it.productId} className="hover:text-primary hover:underline transition-colors">
+                                    {it.name}
+                                  </Link>
+                                  <span className="text-muted-foreground"> × {it.quantity}</span>
                                 </p>
                               ))}
                             </div>
