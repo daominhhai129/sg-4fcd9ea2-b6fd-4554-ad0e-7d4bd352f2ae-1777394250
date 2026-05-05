@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { shops, formatPrice } from "@/data/mock-data";
@@ -8,9 +8,10 @@ import { ProductCard } from "@/components/storefront/ProductCard";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 
 export default function ProductDetailPage() {
   const router = useRouter();
@@ -18,9 +19,30 @@ export default function ProductDetailPage() {
   const { addToCart, totalItems } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [api, setApi] = useState<CarouselApi | undefined>(undefined);
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
+
+  const mediaItems = product
+    ? [
+        ...product.images.map((src) => ({ type: "image" as const, src })),
+        ...(product.videoUrl ? [{ type: "video" as const, src: product.videoUrl }] : []),
+      ]
+    : [];
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setActiveImage(api.selectedScrollSnap());
+    onSelect();
+    api.on("select", onSelect);
+    return () => { api.off("select", onSelect); };
+  }, [api]);
+
+  const goToSlide = (i: number) => {
+    setActiveImage(i);
+    api?.scrollTo(i);
+  };
 
   if (!shop || !product) {
     return (
@@ -62,18 +84,42 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
-              <Image src={product.images[activeImage]} alt={product.name} fill className="object-cover" />
-            </div>
-            {product.images.length > 1 && (
-              <div className="flex gap-3">
-                {product.images.map((img, i) => (
+            <Carousel setApi={setApi} className="w-full" opts={{ loop: false }}>
+              <CarouselContent className="-ml-0">
+                {mediaItems.map((item, i) => (
+                  <CarouselItem key={i} className="pl-0">
+                    <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
+                      {item.type === "image" ? (
+                        <Image src={item.src} alt={product.name} fill className="object-cover" />
+                      ) : (
+                        <iframe
+                          src={item.src}
+                          title={product.name}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="absolute inset-0 w-full h-full"
+                        />
+                      )}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+            {mediaItems.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {mediaItems.map((item, i) => (
                   <button
                     key={i}
-                    onClick={() => setActiveImage(i)}
-                    className={"w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors " + (i === activeImage ? "border-primary" : "border-border")}
+                    onClick={() => goToSlide(i)}
+                    className={"relative shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors " + (i === activeImage ? "border-primary" : "border-border")}
                   >
-                    <Image src={img} alt="" width={80} height={80} className="object-cover w-full h-full" />
+                    {item.type === "image" ? (
+                      <Image src={item.src} alt="" width={80} height={80} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full bg-black flex items-center justify-center">
+                        <Play className="w-6 h-6 text-white fill-white" />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -124,21 +170,6 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
-
-        {product.videoUrl && (
-          <div className="mt-12">
-            <h2 className="text-xl font-heading font-bold text-foreground mb-4">Video sản phẩm</h2>
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg">
-              <iframe
-                src={product.videoUrl}
-                title={product.name}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              />
-            </div>
-          </div>
-        )}
 
         {product.longDescription && (
           <div className="mt-12">
