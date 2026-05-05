@@ -39,7 +39,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
         </Link>
 
         <div className="mt-2">
-          <span className="text-base font-bold text-accent">
+          <span className="text-sm font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
         </div>
