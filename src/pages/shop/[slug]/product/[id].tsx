@@ -107,12 +107,21 @@ export default function ProductDetailPage() {
             <div className="flex gap-3">
               <Button
                 size="lg"
-                className="flex-1 text-white border-0 h-12 hover:opacity-90 transition-opacity"
-                style={shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                variant="outline"
+                className="flex-1 h-12 font-semibold"
+                style={shop.themeColor ? { borderColor: `hsl(${shop.themeColor})`, color: `hsl(${shop.themeColor})` } : undefined}
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Thêm vào giỏ hàng
+              </Button>
+              <Button
+                size="lg"
+                className="flex-1 text-white border-0 h-12 hover:opacity-90 transition-opacity"
+                style={shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                onClick={handleBuyNow}
+              >
+                Mua ngay
               </Button>
             </div>
           </div>
