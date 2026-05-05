@@ -19,7 +19,6 @@ const formatDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   pending: { label: "Chờ xác nhận", cls: "bg-yellow-100 text-yellow-700 border-yellow-200" },
   confirmed: { label: "Đã xác nhận", cls: "bg-blue-100 text-blue-700 border-blue-200" },
-  delivered: { label: "Đã giao", cls: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   cancelled: { label: "Đã hủy", cls: "bg-red-100 text-red-700 border-red-200" },
 };
 
@@ -80,7 +79,7 @@ export default function MemberDashboard() {
   };
 
   const orders = user.orders || [];
-  const totalSpent = orders.filter((o) => o.status === "delivered").reduce((s, o) => s + o.total, 0);
+  const totalSpent = orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
 
   return (
     <>
@@ -132,9 +131,9 @@ export default function MemberDashboard() {
             <div className="bg-card border border-border/50 rounded-2xl p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                 <ShoppingBag className="w-4 h-4" />
-                Đã hoàn tất
+                Đã xác nhận
               </div>
-              <p className="text-2xl font-heading font-bold text-emerald-600">{orders.filter((o) => o.status === "delivered").length}</p>
+              <p className="text-2xl font-heading font-bold text-emerald-600">{orders.filter((o) => o.status === "confirmed").length}</p>
             </div>
             <div className="bg-card border border-border/50 rounded-2xl p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">

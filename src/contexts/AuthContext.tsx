@@ -17,7 +17,7 @@ export interface MemberOrder {
   shopName: string;
   date: string;
   total: number;
-  status: "pending" | "confirmed" | "cancelled" | "delivered";
+  status: "pending" | "confirmed" | "cancelled";
   items: { name: string; quantity: number; price: number }[];
 }
 
@@ -83,10 +83,10 @@ const INITIAL_MEMBER: AppUser = {
   password: DEFAULT_PASSWORD,
   address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
   orders: [
-    { id: "M-2401", shopName: "Tech Zone", date: inDays(-3), total: 18990000, status: "delivered", items: [{ name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
-    { id: "M-2402", shopName: "Fashion Hub", date: inDays(-12), total: 850000, status: "delivered", items: [{ name: "Áo khoác bomber", quantity: 1, price: 850000 }] },
-    { id: "M-2403", shopName: "Tech Zone", date: inDays(-1), total: 2490000, status: "confirmed", items: [{ name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
-    { id: "M-2404", shopName: "Green Garden", date: inDays(0), total: 320000, status: "pending", items: [{ name: "Cây trầu bà mini", quantity: 2, price: 160000 }] },
+    { id: "M-2401", shopName: "Tech Zone", date: inDays(-3), total: 18990000, status: "confirmed", items: [{ name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
+    { id: "M-2402", shopName: "Fashion Hub", date: inDays(-12), total: 850000, status: "confirmed", items: [{ name: "Áo khoác bomber", quantity: 1, price: 850000 }] },
+    { id: "M-2403", shopName: "Tech Zone", date: inDays(-1), total: 2490000, status: "pending", items: [{ name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
+    { id: "M-2404", shopName: "Green Garden", date: inDays(-20), total: 320000, status: "cancelled", items: [{ name: "Cây trầu bà mini", quantity: 2, price: 160000 }] },
   ],
 };
 
