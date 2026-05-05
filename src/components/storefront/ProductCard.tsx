@@ -16,7 +16,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
   const displayPrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
 
   return (
-    <div className="group rounded-2xl bg-card border border-border/50 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+    <div className="group rounded-xl bg-card border border-border/50 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
       <Link href={"/shop/" + shopSlug + "/product/" + product.id} className="block relative aspect-square overflow-hidden">
         <Image
           src={product.images[0]}
@@ -31,7 +31,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
         )}
       </Link>
 
-      <div className="p-4">
+      <div className="p-3">
         <Link href={"/shop/" + shopSlug + "/product/" + product.id}>
           <h3 className="font-medium text-foreground line-clamp-2 text-sm leading-snug group-hover:text-primary transition-colors min-h-[2.5rem]">
             {product.name}
