@@ -247,28 +247,28 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         {parents.map((parent) => {
           const kids = childrenByParent[parent.id] || [];
           const isExpanded = expandedParent === parent.id;
+          const hasKids = kids.length > 0;
           return (
             <div key={parent.id} className="border-b border-border/40">
-              <div className="flex items-stretch">
+              {hasKids ? (
+                <button
+                  onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
+                  className="w-full flex items-center px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  aria-expanded={isExpanded}
+                >
+                  <span className="flex-1 text-left">{parent.name}</span>
+                  <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                </button>
+              ) : (
                 <Link
                   href={"/shop/" + shop.slug + "/category/" + parent.slug}
                   onClick={closeMobile}
-                  className="flex-1 px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  className="flex items-center px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
                 >
                   {parent.name}
                 </Link>
-                {kids.length > 0 && (
-                  <button
-                    onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
-                    className="px-4 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
-                    aria-label={isExpanded ? "Thu gọn" : "Mở rộng"}
-                    aria-expanded={isExpanded}
-                  >
-                    <ChevronRight className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
-                  </button>
-                )}
-              </div>
-              {kids.length > 0 && (
+              )}
+              {hasKids && (
                 <div
                   className={`overflow-hidden transition-all duration-300 ease-out ${isExpanded ? "max-h-96" : "max-h-0"}`}
                   style={{ backgroundColor: `hsl(${shop.themeColor} / 0.04)` }}
