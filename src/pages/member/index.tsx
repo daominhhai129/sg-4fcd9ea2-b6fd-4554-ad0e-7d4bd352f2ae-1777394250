@@ -40,6 +40,7 @@ export default function MemberDashboard() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [defaultAddress, setDefaultAddress] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
 
   const [newAddress, setNewAddress] = useState("");
@@ -69,6 +70,8 @@ export default function MemberDashboard() {
     setName(user.name);
     setEmail(user.email);
     setPhone(user.phone || "");
+    const def = (user.addresses || []).find((a) => a.isDefault) || (user.addresses || [])[0];
+    setDefaultAddress(def?.address || "");
   }, [user, router]);
 
   useEffect(() => {
@@ -88,6 +91,17 @@ export default function MemberDashboard() {
   const handleProfileSave = (e: React.FormEvent) => {
     e.preventDefault();
     updateMemberInfo({ name, email, phone });
+    const trimmedAddr = defaultAddress.trim();
+    if (trimmedAddr) {
+      const def = addresses.find((a) => a.isDefault) || addresses[0];
+      if (def) {
+        if (def.address !== trimmedAddr) {
+          updateMemberAddress(def.id, { recipientName: def.recipientName || name, recipientPhone: def.recipientPhone || phone, address: trimmedAddr });
+        }
+      } else {
+        addMemberAddress({ recipientName: name, recipientPhone: phone, address: trimmedAddr });
+      }
+    }
     setProfileSaved(true);
     toast({ variant: "success", title: "Đã cập nhật thông tin" });
     setTimeout(() => setProfileSaved(false), 2000);
@@ -273,6 +287,16 @@ export default function MemberDashboard() {
                       <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-xl mt-1.5" />
                     </div>
                   </div>
+                  <div>
+                    <Label className="text-sm font-semibold">Địa chỉ nhận hàng</Label>
+                    <Textarea
+                      value={defaultAddress}
+                      onChange={(e) => setDefaultAddress(e.target.value)}
+                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                      className="rounded-xl mt-1.5 min-h-[70px]"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Đây là địa chỉ nhận hàng mặc định của bạn</p>
+                  </div>
 
                   {profileSaved && (
                     <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-xl">
@@ -284,43 +308,17 @@ export default function MemberDashboard() {
                     <Save className="w-4 h-4 mr-1.5" /> Lưu thay đổi
                   </Button>
                 </form>
-
-                {(() => {
-                  const def = addresses.find((a) => a.isDefault) || addresses[0];
-                  return (
-                    <div className="mt-6 pt-6 border-t border-border/50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <p className="text-sm font-semibold text-foreground">Địa chỉ nhận hàng mặc định</p>
-                      </div>
-                      {def ? (
-                        <div className="rounded-xl bg-primary/5 border border-primary/20 p-3">
-                          {(def.recipientName || def.recipientPhone) && (
-                            <p className="text-sm font-semibold text-foreground">
-                              {def.recipientName}
-                              {def.recipientName && def.recipientPhone && <span className="text-muted-foreground font-normal"> · </span>}
-                              {def.recipientPhone && <span className="text-muted-foreground font-normal">{def.recipientPhone}</span>}
-                            </p>
-                          )}
-                          <p className="text-sm text-foreground/80 mt-0.5">{def.address}</p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">Chưa có địa chỉ. Thêm bên dưới.</p>
-                      )}
-                    </div>
-                  );
-                })()}
               </div>
 
               <div className="bg-card border border-border/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-1">
                   <h2 className="font-heading font-bold text-lg flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-primary" />
-                    Địa chỉ nhận hàng
+                    Địa chỉ nhận hàng khác
                   </h2>
                   <Badge variant="outline" className="rounded-full">{addresses.length}/{MAX_ADDRESSES}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mb-5">Chọn địa chỉ mặc định để dùng cho đơn hàng. Tối đa {MAX_ADDRESSES} địa chỉ.</p>
+                <p className="text-xs text-muted-foreground mb-5">Thêm địa chỉ phụ để đặt hàng hộ người thân, bạn bè. Tối đa {MAX_ADDRESSES} địa chỉ (bao gồm cả địa chỉ mặc định).</p>
 
                 <div className="space-y-2">
                   {addresses.length === 0 && (
