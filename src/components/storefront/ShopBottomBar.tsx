@@ -20,11 +20,11 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
         <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pointer-events-auto">
           <div className="grid grid-cols-4 h-16">
-            <a href={`tel:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-white bg-green-600 hover:bg-green-700 transition-all">
+            <a href={`tel:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
               <Phone className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">Gọi</span>
             </a>
-            <a href={`sms:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-white bg-blue-600 hover:bg-blue-700 transition-all">
+            <a href={`sms:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
               <MessageCircle className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">Nhắn tin</span>
             </a>
