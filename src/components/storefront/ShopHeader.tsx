@@ -15,7 +15,7 @@ interface ShopHeaderProps {
 const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";
 
 export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
-  const { totalPrice } = useCart();
+  const { totalPrice, openPreview } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -141,7 +141,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <UserPlus className="w-4 h-4" />
             <span>Đăng ký</span>
           </Link>
-          <Link href={"/shop/" + shop.slug + "/cart"} className="relative flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors">
+          <button onClick={openPreview} className="relative flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Giỏ hàng">
             <div className="relative">
               <ShoppingCart className="w-5 h-5 text-foreground" />
               {cartCount > 0 && (
@@ -151,11 +151,11 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
               )}
             </div>
             {cartCount > 0 && (
-              <span className="hidden sm:inline text-xs font-bold text-accent whitespace-nowrap">
+              <span className="text-xs font-bold text-accent whitespace-nowrap">
                 {new Intl.NumberFormat("vi-VN").format(totalPrice)}đ
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </div>
 
