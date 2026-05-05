@@ -37,7 +37,7 @@ export function CartPreview() {
         onClick={closePreview}
       />
       <aside
-        className={`fixed top-0 right-0 bottom-0 z-[130] w-full sm:w-[420px] max-w-full bg-card shadow-2xl transition-transform duration-300 ease-out flex flex-col ${previewOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 bottom-0 z-[130] w-[80%] sm:w-[420px] max-w-full bg-card shadow-2xl transition-transform duration-300 ease-out flex flex-col ${previewOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex items-center justify-between px-5 h-14 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-2">
