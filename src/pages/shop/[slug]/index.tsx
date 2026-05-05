@@ -141,7 +141,7 @@ export default function ShopPage() {
           </div>
         )}
 
-        <div className="container mt-10">
+        <div id="products" className="container mt-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-xl font-heading font-bold text-foreground">Sản phẩm</h2>
@@ -275,7 +275,7 @@ export default function ShopPage() {
         </div>
 
         {publishedPosts.length > 0 && (
-          <div className="container mt-16">
+          <div id="blog" className="container mt-16">
             <div className="flex items-center gap-2 mb-6">
               <FileText className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-heading font-bold text-foreground">Bài viết & Tin tức</h2>
