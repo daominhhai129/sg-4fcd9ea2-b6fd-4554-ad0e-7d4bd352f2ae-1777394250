@@ -21,6 +21,7 @@ import {
   HeadphonesIcon,
   Phone,
   MessageCircle,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,6 +46,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
     { href: "/admin/products", label: t("nav.products"), icon: Package },
     { href: "/admin/categories", label: t("nav.categories"), icon: FolderOpen },
     { href: "/admin/orders", label: t("nav.orders"), icon: ShoppingBag },
+    { href: "/admin/customers", label: "Khách hàng", icon: Users },
     { href: "/admin/posts", label: t("nav.posts"), icon: FileText },
     { href: "/admin/profile", label: t("nav.profile"), icon: UserCircle },
     { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
