@@ -141,18 +141,11 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <UserPlus className="w-4 h-4" />
             <span>Đăng ký</span>
           </Link>
-          <button onClick={openPreview} className="relative flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Giỏ hàng">
-            <div className="relative">
-              <ShoppingCart className="w-5 h-5 text-foreground" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-semibold">
-                  {cartCount}
-                </span>
-              )}
-            </div>
+          <button onClick={openPreview} className="relative p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Giỏ hàng">
+            <ShoppingCart className="w-5 h-5 text-foreground" />
             {cartCount > 0 && (
-              <span className="text-xs font-bold text-accent whitespace-nowrap">
-                {new Intl.NumberFormat("vi-VN").format(totalPrice)}đ
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-semibold">
+                {cartCount}
               </span>
             )}
           </button>
