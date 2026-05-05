@@ -6,8 +6,9 @@ import { shops, formatPrice } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { SEO } from "@/components/SEO";
-import { ArrowLeft, CheckCircle2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +19,17 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { slug } = router.query;
   const { items, totalItems, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const shop = shops.find((s) => s.slug === slug);
 
-  const [form, setForm] = useState({ name: "", phone: "", address: "", email: "", note: "" });
+  const isMember = user?.role === "member";
+  const [form, setForm] = useState({
+    name: isMember ? user!.name : "",
+    phone: isMember ? user!.phone || "" : "",
+    address: isMember ? user!.address || "" : "",
+    email: isMember ? user!.email : "",
+    note: "",
+  });
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -110,6 +119,18 @@ export default function CheckoutPage() {
         </Link>
 
         <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-foreground mb-8">Thanh toán</h1>
+
+        {isMember && (
+          <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <div className="text-sm">
+              <p className="font-semibold text-emerald-900">Đã đăng nhập với {user!.name}</p>
+              <p className="text-emerald-700/80 text-xs">Thông tin nhận hàng đã được tự điền — bạn có thể chỉnh sửa nếu cần.</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">

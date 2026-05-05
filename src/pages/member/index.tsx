@@ -99,6 +99,9 @@ export default function MemberDashboard() {
                 <p className="text-sm font-semibold leading-tight">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
+              <Button asChild size="sm" className="rounded-xl">
+                <Link href="/"><ShoppingBag className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Tiếp tục mua sắm</span></Link>
+              </Button>
               <Button variant="outline" size="sm" onClick={logout} className="rounded-xl">
                 <LogOut className="w-4 h-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Đăng xuất</span>
