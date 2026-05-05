@@ -30,7 +30,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { product, quantity: 1 }];
     });
-    toast({ title: "Đã thêm vào giỏ hàng", description: product.name });
+    toast({ variant: "success", title: "Đã thêm vào giỏ hàng", description: product.name });
   }, [toast]);
 
   const removeFromCart = useCallback((productId: string) => {
