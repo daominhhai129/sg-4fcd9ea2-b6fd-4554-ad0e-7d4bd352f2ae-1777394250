@@ -124,30 +124,6 @@ export default function MemberDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <Package className="w-4 h-4" />
-                Tổng đơn hàng
-              </div>
-              <p className="text-2xl font-heading font-bold">{orders.length}</p>
-            </div>
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <ShoppingBag className="w-4 h-4" />
-                Đã xác nhận
-              </div>
-              <p className="text-2xl font-heading font-bold text-emerald-600">{orders.filter((o) => o.status === "confirmed").length}</p>
-            </div>
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <span className="text-base">💰</span>
-                Tổng chi tiêu
-              </div>
-              <p className="text-2xl font-heading font-bold text-primary">{formatPrice(totalSpent)}</p>
-            </div>
-          </div>
-
           <Tabs defaultValue="orders">
             <TabsList className="bg-muted/60 rounded-xl p-1 grid grid-cols-3 sm:flex sm:w-auto">
               <TabsTrigger value="orders" className="rounded-lg gap-1.5 text-xs sm:text-sm"><Package className="w-4 h-4" /><span className="hidden sm:inline">Đơn hàng</span><span className="sm:hidden">Đơn</span></TabsTrigger>
