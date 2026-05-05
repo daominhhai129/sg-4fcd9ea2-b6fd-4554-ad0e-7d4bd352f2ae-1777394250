@@ -48,7 +48,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
               className="flex flex-col items-center justify-center gap-0.5 px-1 text-primary hover:bg-primary/5 transition-all border-l border-border"
             >
               <ShoppingCart className="w-5 h-5 shrink-0" />
-              <span className="text-[10px] font-semibold leading-tight truncate max-w-full">Vào giỏ</span>
+              <span className="text-[10px] font-semibold leading-tight truncate max-w-full">Thêm vào giỏ</span>
             </button>
             <button
               onClick={onBuyNow}
