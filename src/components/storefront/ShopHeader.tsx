@@ -125,10 +125,10 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <button onClick={openSearch} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tìm kiếm">
+          <button onClick={openSearch} className="hidden sm:block p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tìm kiếm">
             <Search className="w-5 h-5" />
           </button>
-          <Link href="/member" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tài khoản">
+          <Link href="/member" className="hidden sm:block p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tài khoản">
             <User className="w-5 h-5" />
           </Link>
           <Link href="/login" className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
