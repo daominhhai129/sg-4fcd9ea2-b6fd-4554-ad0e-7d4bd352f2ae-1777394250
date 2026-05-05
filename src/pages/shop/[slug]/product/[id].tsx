@@ -43,6 +43,13 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleBuyNow = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+    router.push("/shop/" + shop.slug + "/checkout");
+  };
+
   return (
     <>
       <SEO title={product.name + " — " + shop.name} description={product.description} />
@@ -155,7 +162,7 @@ export default function ProductDetailPage() {
           </div>
         )}
       </main>
-      <ShopBottomBar shop={shop} />
+      <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
     </>
   );
 }

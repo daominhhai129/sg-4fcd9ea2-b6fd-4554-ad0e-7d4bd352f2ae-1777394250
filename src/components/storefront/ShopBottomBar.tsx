@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { Phone, MessageCircle, MapPin, LayoutGrid } from "lucide-react";
+import { Phone, MessageCircle, MapPin, LayoutGrid, ShoppingCart, Zap } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -8,17 +8,61 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import type { Shop } from "@/types";
+import type { Shop, Product } from "@/types";
 
 interface ShopBottomBarProps {
   shop: Shop;
+  product?: Product;
+  onAddToCart?: () => void;
+  onBuyNow?: () => void;
 }
 
-export function ShopBottomBar({ shop }: ShopBottomBarProps) {
+export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBottomBarProps) {
   const [open, setOpen] = useState(false);
 
   const phoneNumber = shop.contact.phone.replace(/\s+/g, "");
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.contact.address)}`;
+  const themeBg = shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined;
+
+  if (product) {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
+        <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pointer-events-auto">
+          <div className="grid grid-cols-4 h-16">
+            <a
+              href={`tel:${phoneNumber}`}
+              className="flex flex-col items-center justify-center gap-0.5 text-foreground hover:bg-muted/60 transition-all"
+            >
+              <Phone className="w-5 h-5" />
+              <span className="text-[11px] font-medium">Gọi</span>
+            </a>
+            <a
+              href={`sms:${phoneNumber}`}
+              className="flex flex-col items-center justify-center gap-0.5 text-foreground hover:bg-muted/60 transition-all"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-[11px] font-medium">Nhắn tin</span>
+            </a>
+            <button
+              onClick={onAddToCart}
+              className="flex flex-col items-center justify-center gap-0.5 text-primary hover:bg-primary/5 transition-all border-l border-border"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              <span className="text-[11px] font-semibold">Thêm vào giỏ</span>
+            </button>
+            <button
+              onClick={onBuyNow}
+              style={themeBg}
+              className="flex flex-col items-center justify-center gap-0.5 text-white bg-accent hover:opacity-90 transition-all"
+            >
+              <Zap className="w-5 h-5" />
+              <span className="text-[11px] font-semibold">Mua ngay</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-auto pointer-events-none">
