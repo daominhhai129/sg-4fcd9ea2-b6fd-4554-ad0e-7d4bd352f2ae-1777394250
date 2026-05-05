@@ -114,28 +114,12 @@ export default function CustomersPage() {
       <SEO title="Quản lý khách hàng — Admin" />
       <AdminLayout title="Quản lý khách hàng" shopName={shop.name}>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <Users className="w-4 h-4" />
-                Tổng khách hàng
-              </div>
-              <p className="text-2xl font-heading font-bold">{customers.length}</p>
+          <div className="bg-card border border-border/50 rounded-2xl p-5 max-w-xs">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
+              <Users className="w-4 h-4" />
+              Tổng khách hàng
             </div>
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <ShoppingBag className="w-4 h-4" />
-                Tổng số đơn
-              </div>
-              <p className="text-2xl font-heading font-bold text-emerald-600">{totalOrders}</p>
-            </div>
-            <div className="bg-card border border-border/50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <span className="text-base">💰</span>
-                Tổng doanh thu
-              </div>
-              <p className="text-2xl font-heading font-bold text-primary">{formatPrice(totalSpent)}</p>
-            </div>
+            <p className="text-2xl font-heading font-bold">{customers.length}</p>
           </div>
 
           <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
