@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ interface CustomerRow {
 }
 
 const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 
 function escapeCsv(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -75,7 +73,7 @@ export default function CustomersPage() {
         });
       }
     });
-    return Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent);
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "vi"));
   }, [shop.id]);
 
   const filtered = useMemo(() => {
@@ -88,8 +86,8 @@ export default function CustomersPage() {
     );
   }, [customers, query]);
 
-  const totalSpent = filtered.reduce((s, c) => s + c.totalSpent, 0);
-  const totalOrders = filtered.reduce((s, c) => s + c.totalOrders, 0);
+  const totalSpent = customers.reduce((s, c) => s + c.totalSpent, 0);
+  const totalOrders = customers.reduce((s, c) => s + c.totalOrders, 0);
 
   const handleExport = () => {
     if (filtered.length === 0) {
@@ -97,16 +95,13 @@ export default function CustomersPage() {
       return;
     }
     const rows: string[][] = [
-      ["STT", "Họ tên", "Email", "Số điện thoại", "Địa chỉ", "Số đơn", "Tổng chi tiêu (đ)", "Đơn gần nhất"],
+      ["STT", "Họ tên", "Email", "Số điện thoại", "Địa chỉ"],
       ...filtered.map((c, i) => [
         String(i + 1),
         c.name,
         c.email,
         c.phone,
         c.address,
-        String(c.totalOrders),
-        String(c.totalSpent),
-        formatDate(c.lastOrderDate),
       ]),
     ];
     const date = new Date().toISOString().slice(0, 10);
@@ -173,9 +168,6 @@ export default function CustomersPage() {
                         <th className="text-left px-5 py-3 font-semibold">Khách hàng</th>
                         <th className="text-left px-5 py-3 font-semibold">Liên hệ</th>
                         <th className="text-left px-5 py-3 font-semibold">Địa chỉ</th>
-                        <th className="text-center px-5 py-3 font-semibold">Số đơn</th>
-                        <th className="text-right px-5 py-3 font-semibold">Tổng chi tiêu</th>
-                        <th className="text-right px-5 py-3 font-semibold">Đơn gần nhất</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -187,9 +179,6 @@ export default function CustomersPage() {
                           </td>
                           <td className="px-5 py-3 text-muted-foreground">{c.phone}</td>
                           <td className="px-5 py-3 text-muted-foreground max-w-xs truncate">{c.address}</td>
-                          <td className="px-5 py-3 text-center font-semibold text-foreground">{c.totalOrders}</td>
-                          <td className="px-5 py-3 text-right font-heading font-bold text-primary">{formatPrice(c.totalSpent)}</td>
-                          <td className="px-5 py-3 text-right text-muted-foreground">{formatDate(c.lastOrderDate)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -199,16 +188,8 @@ export default function CustomersPage() {
                 <div className="md:hidden divide-y divide-border">
                   {filtered.map((c) => (
                     <div key={c.email} className="p-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-foreground truncate">{c.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{c.email}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-heading font-bold text-primary">{formatPrice(c.totalSpent)}</p>
-                          <p className="text-xs text-muted-foreground">{c.totalOrders} đơn</p>
-                        </div>
-                      </div>
+                      <p className="font-semibold text-foreground truncate">{c.name}</p>
+                      <p className="text-xs text-muted-foreground truncate mb-2">{c.email}</p>
                       <div className="text-xs text-muted-foreground space-y-1">
                         <p className="flex items-center gap-1.5"><Phone className="w-3 h-3" />{c.phone}</p>
                         <p className="flex items-start gap-1.5"><MapPin className="w-3 h-3 mt-0.5" />{c.address}</p>
