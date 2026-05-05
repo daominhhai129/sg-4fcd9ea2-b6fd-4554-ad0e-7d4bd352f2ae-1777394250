@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo, useEffect } from "react";
-import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { Shop } from "@/types";
@@ -16,13 +16,38 @@ const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "�
 export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try { localStorage.setItem("lastShopSlug", shop.slug); } catch {}
     }
   }, [shop.slug]);
+
+  const parents = useMemo(() => shop.categories.filter((c) => !c.parentId), [shop.categories]);
+  const childrenByParent = useMemo(() => {
+    const map: Record<string, typeof shop.categories> = {};
+    shop.categories.forEach((c) => {
+      if (c.parentId) {
+        if (!map[c.parentId]) map[c.parentId] = [];
+        map[c.parentId].push(c);
+      }
+    });
+    return map;
+  }, [shop.categories]);
+
+  const featuredForMega = useMemo(() => shop.products.filter((p) => p.featured).slice(0, 3), [shop.products]);
+
+  const openMega = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setMegaOpen(true);
+  };
+  const scheduleClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setMegaOpen(false), 150);
+  };
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -32,10 +57,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
       .slice(0, 10);
   }, [query, shop.products]);
 
-  const openSearch = () => {
-    setQuery("");
-    setSearchOpen(true);
-  };
+  const openSearch = () => { setQuery(""); setSearchOpen(true); };
 
   return (
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/50">
@@ -51,50 +73,44 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           <Link href={"/shop/" + shop.slug} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Trang chủ
           </Link>
-          {shop.categories.slice(0, 4).map((cat) => (
-            <Link
-              key={cat.id}
-              href={"/shop/" + shop.slug + "/category/" + cat.slug}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          <div
+            className="relative"
+            onMouseEnter={openMega}
+            onMouseLeave={scheduleClose}
+          >
+            <button
+              className={`text-sm font-medium transition-colors inline-flex items-center gap-1 ${megaOpen ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              aria-expanded={megaOpen}
+              aria-haspopup="true"
             >
-              {cat.name}
-            </Link>
-          ))}
+              Danh mục
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+          <Link href={"/shop/" + shop.slug + "#products"} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Sản phẩm
+          </Link>
+          <Link href={"/shop/" + shop.slug + "#blog"} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Bài viết
+          </Link>
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={openSearch}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground"
-            aria-label="Tìm kiếm sản phẩm"
-          >
+          <button onClick={openSearch} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tìm kiếm">
             <Search className="w-5 h-5" />
           </button>
-          <Link
-            href="/member"
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground"
-            aria-label="Tài khoản thành viên"
-          >
+          <Link href="/member" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tài khoản">
             <User className="w-5 h-5" />
           </Link>
-          <Link
-            href="/login"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
-          >
+          <Link href="/login" className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
             <LogIn className="w-4 h-4" />
             <span>Đăng nhập</span>
           </Link>
-          <Link
-            href="/register"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
-          >
+          <Link href="/register" className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors">
             <UserPlus className="w-4 h-4" />
             <span>Đăng ký</span>
           </Link>
-          <Link
-            href={"/shop/" + shop.slug + "/cart"}
-            className="relative p-1.5 rounded-lg hover:bg-muted transition-colors"
-          >
+          <Link href={"/shop/" + shop.slug + "/cart"} className="relative p-1.5 rounded-lg hover:bg-muted transition-colors">
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {cartCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-semibold">
@@ -108,21 +124,110 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         </div>
       </div>
 
+      {megaOpen && (
+        <div
+          className="hidden md:block absolute left-0 right-0 top-full bg-card border-b border-border shadow-xl"
+          onMouseEnter={openMega}
+          onMouseLeave={scheduleClose}
+        >
+          <div className="container py-6">
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-9 grid grid-cols-3 gap-x-6 gap-y-5">
+                {parents.map((parent) => {
+                  const kids = childrenByParent[parent.id] || [];
+                  return (
+                    <div key={parent.id} className="space-y-2">
+                      <Link
+                        href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                        onClick={() => setMegaOpen(false)}
+                        className="block font-heading font-bold text-foreground hover:text-primary transition-colors"
+                        style={{ color: `hsl(${shop.themeColor})` }}
+                      >
+                        {parent.name}
+                      </Link>
+                      {kids.length > 0 ? (
+                        <ul className="space-y-1.5">
+                          {kids.map((child) => (
+                            <li key={child.id}>
+                              <Link
+                                href={"/shop/" + shop.slug + "/category/" + child.slug}
+                                onClick={() => setMegaOpen(false)}
+                                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                {child.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">{parent.description}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="col-span-3 border-l border-border pl-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Nổi bật</p>
+                <div className="space-y-3">
+                  {featuredForMega.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={"/shop/" + shop.slug + "/product/" + p.id}
+                      onClick={() => setMegaOpen(false)}
+                      className="flex items-center gap-3 group"
+                    >
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border border-border flex-shrink-0 bg-muted">
+                        <Image src={p.images[0]} alt={p.name} width={48} height={48} className="object-cover w-full h-full group-hover:scale-105 transition-transform" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{p.name}</p>
+                        <p className="text-xs font-bold" style={{ color: `hsl(${shop.themeColor})` }}>
+                          {formatPrice(p.salePrice || p.price)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-card px-4 pb-4 space-y-2">
+        <div className="md:hidden border-t border-border bg-card px-4 pb-4 space-y-2 max-h-[70vh] overflow-y-auto">
           <Link href={"/shop/" + shop.slug} className="block py-2 text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>
             Trang chủ
           </Link>
-          {shop.categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={"/shop/" + shop.slug + "/category/" + cat.slug}
-              className="block py-2 text-sm font-medium text-muted-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
-              {cat.name}
-            </Link>
-          ))}
+          {parents.map((parent) => {
+            const kids = childrenByParent[parent.id] || [];
+            return (
+              <div key={parent.id} className="border-t border-border/50 pt-2">
+                <Link
+                  href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                  className="block py-1.5 text-sm font-bold text-foreground"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {parent.name}
+                </Link>
+                {kids.length > 0 && (
+                  <div className="pl-3 space-y-1">
+                    {kids.map((child) => (
+                      <Link
+                        key={child.id}
+                        href={"/shop/" + shop.slug + "/category/" + child.slug}
+                        className="block py-1 text-sm text-muted-foreground"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {child.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
           <Link href="/login" className="flex items-center gap-2 py-2 text-sm font-medium text-primary border-t border-border pt-3 mt-2" onClick={() => setMobileOpen(false)}>
             <LogIn className="w-4 h-4" />
             Đăng nhập
