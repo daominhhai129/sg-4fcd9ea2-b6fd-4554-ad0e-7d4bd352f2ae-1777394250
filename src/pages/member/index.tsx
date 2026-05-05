@@ -12,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, Package, MapPin, Lock, LogOut, ArrowLeft, User as UserIcon, Mail, Phone, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { shops } from "@/data/mock-data";
 
 const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -80,6 +81,9 @@ export default function MemberDashboard() {
 
   const orders = user.orders || [];
   const totalSpent = orders.filter((o) => o.status === "confirmed").reduce((s, o) => s + o.total, 0);
+  const recentShopName = orders[0]?.shopName;
+  const recentShop = shops.find((s) => s.name === recentShopName) || shops[0];
+  const continueShopHref = "/shop/" + recentShop.slug;
 
   return (
     <>
@@ -100,7 +104,7 @@ export default function MemberDashboard() {
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
               <Button asChild size="sm" className="rounded-xl">
-                <Link href="/"><ShoppingBag className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Tiếp tục mua sắm</span></Link>
+                <Link href={continueShopHref}><ShoppingBag className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Tiếp tục mua sắm</span></Link>
               </Button>
               <Button variant="outline" size="sm" onClick={logout} className="rounded-xl">
                 <LogOut className="w-4 h-4 sm:mr-1.5" />
