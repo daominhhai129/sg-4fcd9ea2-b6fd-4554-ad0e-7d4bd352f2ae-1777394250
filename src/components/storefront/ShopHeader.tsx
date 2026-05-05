@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User, ChevronDown, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useCart } from "@/contexts/CartContext";
 import type { Shop } from "@/types";
 
 interface ShopHeaderProps {
@@ -14,6 +15,7 @@ interface ShopHeaderProps {
 const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";
 
 export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
+  const { totalPrice } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
