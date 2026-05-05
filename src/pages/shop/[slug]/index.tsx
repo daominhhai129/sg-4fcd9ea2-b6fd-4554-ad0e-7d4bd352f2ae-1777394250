@@ -29,6 +29,30 @@ export default function ShopPage() {
 
   const shop = shops.find((s) => s.slug === slug);
 
+  const parentCategories = useMemo(() => {
+    if (!shop) return [];
+    return shop.categories.filter((c) => !c.parentId);
+  }, [shop]);
+
+  const childrenByParent = useMemo(() => {
+    const map: Record<string, typeof shop.categories> = {};
+    if (!shop) return map;
+    shop.categories.forEach((c) => {
+      if (c.parentId) {
+        if (!map[c.parentId]) map[c.parentId] = [];
+        map[c.parentId].push(c);
+      }
+    });
+    return map;
+  }, [shop]);
+
+  const activeParentId = useMemo(() => {
+    if (!shop || categoryFilter === "all") return null;
+    const cat = shop.categories.find((c) => c.id === categoryFilter);
+    if (!cat) return null;
+    return cat.parentId || cat.id;
+  }, [shop, categoryFilter]);
+
   const featuredProducts = useMemo(() => {
     if (!shop) return [];
     return shop.products.filter((p) => p.featured);
@@ -38,14 +62,16 @@ export default function ShopPage() {
     if (!shop) return [];
     let products = shop.products;
     if (categoryFilter !== "all") {
-      products = products.filter((p) => p.categoryId === categoryFilter);
+      const children = childrenByParent[categoryFilter] || [];
+      const ids = new Set<string>([categoryFilter, ...children.map((c) => c.id)]);
+      products = products.filter((p) => ids.has(p.categoryId));
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       products = products.filter((p) => p.name.toLowerCase().includes(q));
     }
     return products;
-  }, [shop, categoryFilter, searchQuery]);
+  }, [shop, categoryFilter, searchQuery, childrenByParent]);
 
   const productTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const paginatedProducts = useMemo(() =>
@@ -132,7 +158,7 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 select-none">
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1 select-none">
             <button
               onClick={() => { setCategoryFilter("all"); setProductPage(1); }}
               style={categoryFilter === "all" ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
@@ -144,21 +170,60 @@ export default function ShopPage() {
             >
               Tất cả
             </button>
-            {shop.categories.map((cat) => (
+            {parentCategories.map((cat) => {
+              const isActive = categoryFilter === cat.id || activeParentId === cat.id;
+              const hasChildren = (childrenByParent[cat.id] || []).length > 0;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => { setCategoryFilter(cat.id); setProductPage(1); }}
+                  style={isActive ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none inline-flex items-center gap-1.5 ${
+                    isActive
+                      ? "text-white shadow-md border-0"
+                      : "bg-card text-foreground border border-border hover:border-primary"
+                  }`}
+                >
+                  {cat.name}
+                  {hasChildren && <ChevronRight className={`w-3.5 h-3.5 transition-transform ${activeParentId === cat.id ? "rotate-90" : ""}`} />}
+                </button>
+              );
+            })}
+          </div>
+
+          {activeParentId && (childrenByParent[activeParentId] || []).length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1 select-none border-l-2 ml-2 pl-3" style={{ borderColor: `hsl(${shop.themeColor} / 0.3)` }}>
               <button
-                key={cat.id}
-                onClick={() => { setCategoryFilter(cat.id); setProductPage(1); }}
-                style={categoryFilter === cat.id ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
-                className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all select-none ${
-                  categoryFilter === cat.id
-                    ? "text-white shadow-md border-0"
-                    : "bg-card text-foreground border border-border hover:border-primary"
+                onClick={() => { setCategoryFilter(activeParentId); setProductPage(1); }}
+                style={categoryFilter === activeParentId ? { backgroundColor: `hsl(${shop.themeColor} / 0.15)`, color: `hsl(${shop.themeColor})` } : undefined}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all select-none ${
+                  categoryFilter === activeParentId
+                    ? "border border-transparent"
+                    : "bg-muted text-muted-foreground border border-transparent hover:text-foreground"
                 }`}
               >
-                {cat.name}
+                Tất cả
               </button>
-            ))}
-          </div>
+              {(childrenByParent[activeParentId] || []).map((child) => {
+                const isActive = categoryFilter === child.id;
+                return (
+                  <button
+                    key={child.id}
+                    onClick={() => { setCategoryFilter(child.id); setProductPage(1); }}
+                    style={isActive ? { backgroundColor: `hsl(${shop.themeColor} / 0.15)`, color: `hsl(${shop.themeColor})` } : undefined}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all select-none ${
+                      isActive
+                        ? "border border-transparent"
+                        : "bg-muted text-muted-foreground border border-transparent hover:text-foreground"
+                    }`}
+                  >
+                    {child.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {!activeParentId && <div className="mb-3" />}
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-3">
             {paginatedProducts.map((product) => (
