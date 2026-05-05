@@ -96,10 +96,9 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
                   isActive
-                    ? "text-white"
+                    ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-md"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
-                style={isActive && themeColor ? { backgroundColor: `hsl(${themeColor})` } : undefined}
                 onClick={() => setSidebarOpen(false)}
               >
                 <item.icon className="w-4.5 h-4.5" />
