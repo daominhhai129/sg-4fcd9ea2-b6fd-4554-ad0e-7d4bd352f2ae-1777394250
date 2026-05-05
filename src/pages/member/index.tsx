@@ -284,6 +284,32 @@ export default function MemberDashboard() {
                     <Save className="w-4 h-4 mr-1.5" /> Lưu thay đổi
                   </Button>
                 </form>
+
+                {(() => {
+                  const def = addresses.find((a) => a.isDefault) || addresses[0];
+                  return (
+                    <div className="mt-6 pt-6 border-t border-border/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <p className="text-sm font-semibold text-foreground">Địa chỉ nhận hàng mặc định</p>
+                      </div>
+                      {def ? (
+                        <div className="rounded-xl bg-primary/5 border border-primary/20 p-3">
+                          {(def.recipientName || def.recipientPhone) && (
+                            <p className="text-sm font-semibold text-foreground">
+                              {def.recipientName}
+                              {def.recipientName && def.recipientPhone && <span className="text-muted-foreground font-normal"> · </span>}
+                              {def.recipientPhone && <span className="text-muted-foreground font-normal">{def.recipientPhone}</span>}
+                            </p>
+                          )}
+                          <p className="text-sm text-foreground/80 mt-0.5">{def.address}</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">Chưa có địa chỉ. Thêm bên dưới.</p>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="bg-card border border-border/50 rounded-2xl p-6">
