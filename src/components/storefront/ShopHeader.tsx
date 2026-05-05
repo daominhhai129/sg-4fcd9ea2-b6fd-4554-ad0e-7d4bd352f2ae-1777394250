@@ -72,6 +72,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
   };
 
   return (
+    <>
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/50">
       <div className="container flex items-center justify-between h-14">
         <div className="flex items-center gap-2">
@@ -208,191 +209,193 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           </div>
         </div>
       )}
+    </header>
 
+    {mobileOpen && (
       <div
-        className={`md:hidden fixed inset-0 z-[60] transition-opacity duration-300 ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className="md:hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={closeMobile}
-      >
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
-      <aside
-        className={`md:hidden fixed top-0 left-0 bottom-0 z-[70] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 border-b border-border bg-card z-10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
-              <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
-            </div>
-            <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
-          </div>
-          <button className="p-1.5 text-foreground" onClick={closeMobile} aria-label="Đóng">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+      />
+    )}
 
-        <div className="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto bg-card">
-          <Link
-            href={"/shop/" + shop.slug}
-            onClick={closeMobile}
-            className="flex items-center px-4 py-3 text-sm font-semibold text-foreground border-b border-border/60 hover:bg-muted transition-colors"
-          >
-            Trang chủ
-          </Link>
-          <div className="px-4 pt-3 pb-1">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Danh mục</p>
+    <aside
+      className={`md:hidden fixed top-0 left-0 bottom-0 z-[110] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+    >
+      <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 border-b border-border bg-card z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
+            <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
           </div>
-          {parents.map((parent) => {
-            const kids = childrenByParent[parent.id] || [];
-            const isExpanded = expandedParent === parent.id;
-            return (
-              <div key={parent.id} className="border-b border-border/40">
-                <div className="flex items-stretch">
+          <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
+        </div>
+        <button className="p-1.5 text-foreground" onClick={closeMobile} aria-label="Đóng">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="absolute top-14 left-0 right-0 bottom-0 overflow-y-auto bg-card">
+        <Link
+          href={"/shop/" + shop.slug}
+          onClick={closeMobile}
+          className="flex items-center px-4 py-3 text-sm font-semibold text-foreground border-b border-border/60 hover:bg-muted transition-colors"
+        >
+          Trang chủ
+        </Link>
+        <div className="px-4 pt-3 pb-1">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Danh mục</p>
+        </div>
+        {parents.map((parent) => {
+          const kids = childrenByParent[parent.id] || [];
+          const isExpanded = expandedParent === parent.id;
+          return (
+            <div key={parent.id} className="border-b border-border/40">
+              <div className="flex items-stretch">
+                <Link
+                  href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                  onClick={closeMobile}
+                  className="flex-1 px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                >
+                  {parent.name}
+                </Link>
+                {kids.length > 0 && (
+                  <button
+                    onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
+                    className="px-4 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+                    aria-label={isExpanded ? "Thu gọn" : "Mở rộng"}
+                    aria-expanded={isExpanded}
+                  >
+                    <ChevronRight className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                  </button>
+                )}
+              </div>
+              {kids.length > 0 && (
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-out ${isExpanded ? "max-h-96" : "max-h-0"}`}
+                  style={{ backgroundColor: `hsl(${shop.themeColor} / 0.04)` }}
+                >
                   <Link
                     href={"/shop/" + shop.slug + "/category/" + parent.slug}
                     onClick={closeMobile}
-                    className="flex-1 px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                    className="block px-8 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                    style={{ color: `hsl(${shop.themeColor})` }}
                   >
-                    {parent.name}
+                    Tất cả {parent.name}
                   </Link>
-                  {kids.length > 0 && (
-                    <button
-                      onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
-                      className="px-4 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
-                      aria-label={isExpanded ? "Thu gọn" : "Mở rộng"}
-                      aria-expanded={isExpanded}
-                    >
-                      <ChevronRight className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
-                    </button>
-                  )}
-                </div>
-                {kids.length > 0 && (
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-out ${isExpanded ? "max-h-96" : "max-h-0"}`}
-                    style={{ backgroundColor: `hsl(${shop.themeColor} / 0.04)` }}
-                  >
+                  {kids.map((child) => (
                     <Link
-                      href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                      key={child.id}
+                      href={"/shop/" + shop.slug + "/category/" + child.slug}
                       onClick={closeMobile}
-                      className="block px-8 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
-                      style={{ color: `hsl(${shop.themeColor})` }}
+                      className="block px-8 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     >
-                      Tất cả {parent.name}
+                      {child.name}
                     </Link>
-                    {kids.map((child) => (
-                      <Link
-                        key={child.id}
-                        href={"/shop/" + shop.slug + "/category/" + child.slug}
-                        onClick={closeMobile}
-                        className="block px-8 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      >
-                        {child.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
-          <div className="px-4 pt-4 pb-1">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Khám phá</p>
-          </div>
-          <Link href={"/shop/" + shop.slug + "#products"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
-            Sản phẩm
-          </Link>
-          <Link href={"/shop/" + shop.slug + "#blog"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
-            Bài viết
-          </Link>
+        <div className="px-4 pt-4 pb-1">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Khám phá</p>
+        </div>
+        <Link href={"/shop/" + shop.slug + "#products"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
+          Sản phẩm
+        </Link>
+        <Link href={"/shop/" + shop.slug + "#blog"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
+          Bài viết
+        </Link>
 
-          <div className="p-4 space-y-2">
-            <Link
-              href="/login"
-              onClick={closeMobile}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-foreground border border-border hover:bg-muted transition-colors"
-            >
-              <LogIn className="w-4 h-4" />
-              Đăng nhập
-            </Link>
-            <Link
-              href="/register"
-              onClick={closeMobile}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
-            >
-              <UserPlus className="w-4 h-4" />
-              Đăng ký
-            </Link>
+        <div className="p-4 space-y-2">
+          <Link
+            href="/login"
+            onClick={closeMobile}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-foreground border border-border hover:bg-muted transition-colors"
+          >
+            <LogIn className="w-4 h-4" />
+            Đăng nhập
+          </Link>
+          <Link
+            href="/register"
+            onClick={closeMobile}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+          >
+            <UserPlus className="w-4 h-4" />
+            Đăng ký
+          </Link>
+        </div>
+      </div>
+    </aside>
+
+    <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl">
+        <DialogHeader className="px-5 pt-5 pb-3">
+          <DialogTitle className="font-heading flex items-center gap-2 text-base">
+            <Search className="w-5 h-5 text-primary" />
+            Tìm kiếm sản phẩm
+          </DialogTitle>
+        </DialogHeader>
+        <div className="px-5 pb-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Nhập tên sản phẩm..."
+              className="pl-10 rounded-xl h-11"
+              autoFocus
+            />
           </div>
         </div>
-      </aside>
-
-      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl">
-          <DialogHeader className="px-5 pt-5 pb-3">
-            <DialogTitle className="font-heading flex items-center gap-2 text-base">
-              <Search className="w-5 h-5 text-primary" />
-              Tìm kiếm sản phẩm
-            </DialogTitle>
-          </DialogHeader>
-          <div className="px-5 pb-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Nhập tên sản phẩm..."
-                className="pl-10 rounded-xl h-11"
-                autoFocus
-              />
+        <div className="max-h-[60vh] overflow-y-auto border-t border-border">
+          {!query.trim() ? (
+            <div className="px-5 py-10 text-center text-sm text-muted-foreground">
+              Bắt đầu nhập để tìm sản phẩm trong {shop.name}
             </div>
-          </div>
-          <div className="max-h-[60vh] overflow-y-auto border-t border-border">
-            {!query.trim() ? (
-              <div className="px-5 py-10 text-center text-sm text-muted-foreground">
-                Bắt đầu nhập để tìm sản phẩm trong {shop.name}
-              </div>
-            ) : results.length === 0 ? (
-              <div className="px-5 py-10 text-center text-sm text-muted-foreground">
-                Không tìm thấy sản phẩm phù hợp với <span className="font-semibold text-foreground">&quot;{query}&quot;</span>
-              </div>
-            ) : (
-              <ul className="divide-y divide-border">
-                {results.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      href={"/shop/" + shop.slug + "/product/" + p.id}
-                      onClick={() => setSearchOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 hover:bg-muted/60 transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-xl overflow-hidden border border-border flex-shrink-0 bg-muted">
-                        <Image src={p.images[0]} alt={p.name} width={48} height={48} className="object-cover w-full h-full" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{p.description}</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        {p.salePrice ? (
-                          <>
-                            <p className="text-sm font-heading font-bold text-accent">{formatPrice(p.salePrice)}</p>
-                            <p className="text-xs text-muted-foreground line-through">{formatPrice(p.price)}</p>
-                          </>
-                        ) : (
-                          <p className="text-sm font-heading font-bold text-accent">{formatPrice(p.price)}</p>
-                        )}
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          {query.trim() && results.length > 0 && (
-            <div className="px-5 py-2.5 border-t border-border text-xs text-muted-foreground bg-muted/30">
-              Hiển thị {results.length} kết quả{results.length === 10 ? " (top 10)" : ""}
+          ) : results.length === 0 ? (
+            <div className="px-5 py-10 text-center text-sm text-muted-foreground">
+              Không tìm thấy sản phẩm phù hợp với <span className="font-semibold text-foreground">&quot;{query}&quot;</span>
             </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {results.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={"/shop/" + shop.slug + "/product/" + p.id}
+                    onClick={() => setSearchOpen(false)}
+                    className="flex items-center gap-3 px-5 py-3 hover:bg-muted/60 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-border flex-shrink-0 bg-muted">
+                      <Image src={p.images[0]} alt={p.name} width={48} height={48} className="object-cover w-full h-full" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{p.description}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      {p.salePrice ? (
+                        <>
+                          <p className="text-sm font-heading font-bold text-accent">{formatPrice(p.salePrice)}</p>
+                          <p className="text-xs text-muted-foreground line-through">{formatPrice(p.price)}</p>
+                        </>
+                      ) : (
+                        <p className="text-sm font-heading font-bold text-accent">{formatPrice(p.price)}</p>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
-        </DialogContent>
-      </Dialog>
-    </header>
-  );
+        </div>
+        {query.trim() && results.length > 0 && (
+          <div className="px-5 py-2.5 border-t border-border text-xs text-muted-foreground bg-muted/30">
+            Hiển thị {results.length} kết quả{results.length === 10 ? " (top 10)" : ""}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  </>
+);
 }
