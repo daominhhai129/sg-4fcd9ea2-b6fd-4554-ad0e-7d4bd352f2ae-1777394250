@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from "@/contexts/CartContext";
+import { CartPreview } from "@/components/storefront/CartPreview";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import "@/styles/globals.css";
@@ -11,6 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <AuthProvider>
         <CartProvider>
           <Component {...pageProps} />
+          <CartPreview />
           <Toaster />
         </CartProvider>
       </AuthProvider>
