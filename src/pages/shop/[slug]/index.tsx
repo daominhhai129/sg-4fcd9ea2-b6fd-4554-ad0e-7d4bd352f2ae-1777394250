@@ -55,12 +55,12 @@ export default function ShopPage() {
 
   const featuredProducts = useMemo(() => {
     if (!shop) return [];
-    return shop.products.filter((p) => p.featured);
+    return shop.products.filter((p) => p.featured && !p.isHidden);
   }, [shop]);
 
   const filteredProducts = useMemo(() => {
     if (!shop) return [];
-    let products = shop.products;
+    let products = shop.products.filter((p) => !p.isHidden);
     if (categoryFilter !== "all") {
       const children = childrenByParent[categoryFilter] || [];
       const ids = new Set<string>([categoryFilter, ...children.map((c) => c.id)]);

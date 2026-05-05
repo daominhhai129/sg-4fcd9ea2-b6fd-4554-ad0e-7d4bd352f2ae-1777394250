@@ -27,7 +27,7 @@ export default function CategoryPage() {
     if (!shop || !category) return [];
     const childIds = shop.categories.filter((c) => c.parentId === category.id).map((c) => c.id);
     const ids = new Set<string>([category.id, ...childIds]);
-    let products = shop.products.filter((p) => ids.has(p.categoryId));
+    let products = shop.products.filter((p) => ids.has(p.categoryId) && !p.isHidden);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       products = products.filter((p) => p.name.toLowerCase().includes(q));
