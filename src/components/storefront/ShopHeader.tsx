@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, ShoppingCart, LogIn } from "lucide-react";
+import { Menu, X, ShoppingCart, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Shop } from "@/types";
 
@@ -47,6 +47,13 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <span>Đăng nhập</span>
           </Link>
           <Link
+            href="/login"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Đăng ký</span>
+          </Link>
+          <Link
             href={"/shop/" + shop.slug + "/cart"}
             className="relative p-2 rounded-xl hover:bg-muted transition-colors"
           >
@@ -81,6 +88,10 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           <Link href="/login" className="flex items-center gap-2 py-2 text-sm font-medium text-primary border-t border-border pt-3 mt-2" onClick={() => setMobileOpen(false)}>
             <LogIn className="w-4 h-4" />
             Đăng nhập
+          </Link>
+          <Link href="/login" className="flex items-center gap-2 py-2 text-sm font-medium text-white bg-primary px-3 rounded-xl" onClick={() => setMobileOpen(false)}>
+            <UserPlus className="w-4 h-4" />
+            Đăng ký
           </Link>
         </div>
       )}
