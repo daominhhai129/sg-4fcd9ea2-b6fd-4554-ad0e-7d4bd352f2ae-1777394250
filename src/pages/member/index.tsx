@@ -96,9 +96,6 @@ export default function MemberDashboard() {
               <span className="hidden sm:inline">Về trang chủ</span>
             </Link>
             <div className="flex items-center gap-3">
-              {user.avatar && (
-                <Image src={user.avatar} alt={user.name} width={36} height={36} className="rounded-full object-cover w-9 h-9 border-2 border-border" />
-              )}
               <div className="hidden sm:block">
                 <p className="text-sm font-semibold leading-tight">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
