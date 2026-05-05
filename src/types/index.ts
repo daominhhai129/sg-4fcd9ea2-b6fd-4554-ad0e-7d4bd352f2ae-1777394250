@@ -62,6 +62,7 @@ export interface Product {
   createdAt: string;
   status: "active" | "draft" | "outOfStock";
   featured?: boolean;
+  isHidden?: boolean;
 }
 
 export interface Order {

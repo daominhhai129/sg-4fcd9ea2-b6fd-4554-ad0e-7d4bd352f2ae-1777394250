@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -61,6 +61,7 @@ export default function ProductsPage() {
   const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<"all" | "visible" | "hidden">("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [products, setProducts] = useState<Product[]>(shop.products);
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,19 +90,21 @@ export default function ProductsPage() {
     if (categoryFilter !== "all") {
       result = result.filter((p) => p.categoryId === categoryFilter);
     }
+    if (visibilityFilter === "visible") result = result.filter((p) => !p.isHidden);
+    if (visibilityFilter === "hidden") result = result.filter((p) => p.isHidden);
     return [...result].sort((a, b) => {
       const dateA = (a as unknown as { updatedAt?: string }).updatedAt || a.createdAt;
       const dateB = (b as unknown as { updatedAt?: string }).updatedAt || b.createdAt;
       return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
-  }, [products, search, categoryFilter]);
+  }, [products, search, categoryFilter, visibilityFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = useMemo(() => filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filtered, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoryFilter]);
+  }, [search, categoryFilter, visibilityFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -109,6 +112,10 @@ export default function ProductsPage() {
 
   const handleDelete = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const toggleHidden = (id: string) => {
+    setProducts((prev) => prev.map((p) => p.id === id ? { ...p, isHidden: !p.isHidden } : p));
   };
 
   const resetForm = () => {
@@ -287,6 +294,16 @@ export default function ProductsPage() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={visibilityFilter} onValueChange={(v) => setVisibilityFilter(v as "all" | "visible" | "hidden")}>
+              <SelectTrigger className="w-36 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="visible">Đang hiển thị</SelectItem>
+                <SelectItem value="hidden">Đã ẩn</SelectItem>
+              </SelectContent>
+            </Select>
             <div className="flex items-center border border-border rounded-xl overflow-hidden">
               <button onClick={() => setViewMode("grid")} className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}>
                 <LayoutGrid className="w-4 h-4" />
@@ -447,9 +464,15 @@ export default function ProductsPage() {
         {viewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {paginated.map((product) => (
-              <div key={product.id} onClick={() => openDetail(product)} className="rounded-2xl bg-card border-2 border-foreground/15 overflow-hidden hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer">
+              <div key={product.id} onClick={() => openDetail(product)} className={`rounded-2xl bg-card border-2 overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${product.isHidden ? "border-muted-foreground/20 opacity-60" : "border-foreground/15 hover:border-primary/50"}`}>
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {product.isHidden && (
+                    <div className="absolute top-2 left-2 bg-foreground/80 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                      <EyeOff className="w-3 h-3" />
+                      Đã ẩn
+                    </div>
+                  )}
                   <Link href={`/shop/${shop.slug}/product/${product.id}`} target="_blank" onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-md" title={t("prod.previewTitle")}>
                     <ExternalLink className="w-4 h-4 text-foreground" />
                   </Link>
@@ -460,10 +483,13 @@ export default function ProductsPage() {
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
-                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2 border-2 text-foreground border-border hover:bg-muted hover:text-foreground" onClick={() => openEdit(product)}>
                       <Pencil className="w-3.5 h-3.5 mr-1" />
                       {t("common.edit")}
+                    </Button>
+                    <Button variant="outline" size="icon" className="rounded-xl shrink-0 border-2" onClick={() => toggleHidden(product.id)} title={product.isHidden ? "Hiện sản phẩm" : "Ẩn sản phẩm"}>
+                      {product.isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </Button>
                     <Button variant="destructive" size="icon" className="rounded-xl shrink-0" onClick={() => handleDelete(product.id)} title={t("common.delete")}>
                       <Trash2 className="w-4 h-4" />
@@ -487,14 +513,17 @@ export default function ProductsPage() {
                 </thead>
                 <tbody>
                   {paginated.map((product) => (
-                    <tr key={product.id} onClick={() => openDetail(product)} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer">
+                    <tr key={product.id} onClick={() => openDetail(product)} className={`border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer ${product.isHidden ? "opacity-60" : ""}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-border/50">
                             <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">{product.name}</p>
+                            <p className="text-sm font-semibold text-foreground truncate flex items-center gap-1.5">
+                              {product.name}
+                              {product.isHidden && <EyeOff className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+                            </p>
                             <p className="text-xs text-muted-foreground sm:hidden">{product.categoryName}</p>
                           </div>
                         </div>
@@ -515,6 +544,9 @@ export default function ProductsPage() {
                           <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
                             {t("common.edit")}
+                          </Button>
+                          <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => toggleHidden(product.id)} title={product.isHidden ? "Hiện sản phẩm" : "Ẩn sản phẩm"}>
+                            {product.isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                           </Button>
                           <Button variant="destructive" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(product.id)}>
                             <Trash2 className="w-3.5 h-3.5" />
