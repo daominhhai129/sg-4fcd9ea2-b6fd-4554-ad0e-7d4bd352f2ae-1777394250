@@ -19,7 +19,11 @@ export function ShopFooter({ shop }: ShopFooterProps) {
     }
   }, [shop.slug]);
 
-  const themeBg = shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor} / 0.06)` } : undefined;
+  const themeBg = info?.footerColor
+    ? { backgroundColor: info.footerColor + "1A" }
+    : shop.themeColor
+    ? { backgroundColor: `hsl(${shop.themeColor} / 0.06)` }
+    : undefined;
 
   return (
     <footer className="mt-16 border-t border-border" style={themeBg}>

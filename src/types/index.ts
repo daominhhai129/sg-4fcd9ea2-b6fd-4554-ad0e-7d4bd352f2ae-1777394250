@@ -23,6 +23,7 @@ export interface ShopBusinessInfo {
   taxCode?: string;
   ownerName?: string;
   note?: string;
+  footerColor?: string;
 }
 
 export interface ShopContact {
