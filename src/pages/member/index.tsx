@@ -55,6 +55,8 @@ export default function MemberDashboard() {
   const [pwdError, setPwdError] = useState("");
   const [pwdSaved, setPwdSaved] = useState(false);
 
+  const [continueHref, setContinueHref] = useState("/");
+
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -68,6 +70,15 @@ export default function MemberDashboard() {
     setEmail(user.email);
     setPhone(user.phone || "");
   }, [user, router]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const slug = localStorage.getItem("lastShopSlug");
+        if (slug) setContinueHref("/shop/" + slug);
+      } catch {}
+    }
+  }, []);
 
   if (!user || user.role !== "member") return null;
 
@@ -155,7 +166,7 @@ export default function MemberDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <header className="bg-card/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+            <Link href={continueHref} className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
               <ShoppingBag className="w-4 h-4" />
               <span>Tiếp tục mua sắm</span>
             </Link>

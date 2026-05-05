@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Menu, X, ShoppingCart, LogIn, UserPlus, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,12 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try { localStorage.setItem("lastShopSlug", shop.slug); } catch {}
+    }
+  }, [shop.slug]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
