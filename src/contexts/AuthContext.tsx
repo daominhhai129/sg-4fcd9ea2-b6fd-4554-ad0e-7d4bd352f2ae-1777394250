@@ -22,6 +22,14 @@ export interface MemberOrder {
   items: { productId: string; name: string; quantity: number; price: number }[];
 }
 
+export interface ShippingAddress {
+  id: string;
+  address: string;
+  isDefault: boolean;
+}
+
+export const MAX_ADDRESSES = 5;
+
 export interface AppUser {
   id: string;
   name: string;
@@ -37,6 +45,7 @@ export interface AppUser {
   password: string;
   customDomain?: string;
   address?: string;
+  addresses?: ShippingAddress[];
   orders?: MemberOrder[];
 }
 
@@ -83,6 +92,10 @@ const INITIAL_MEMBER: AppUser = {
   expiresAt: inDays(3650),
   password: DEFAULT_PASSWORD,
   address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
+  addresses: [
+    { id: "addr-1", address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh", isDefault: true },
+    { id: "addr-2", address: "456 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh", isDefault: false },
+  ],
   orders: [
     { id: "M-2412", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-1), total: 2490000, status: "pending", items: [{ productId: "p2", name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
     { id: "M-2411", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-3), total: 18990000, status: "confirmed", items: [{ productId: "p1", name: "iPhone 15 Pro Max", quantity: 1, price: 18990000 }] },
@@ -136,8 +149,11 @@ interface AuthContextType {
   updateUser: (userId: string, input: { name: string; email: string; phone: string; shopName: string }) => void;
   updateAdminPassword: (newPassword: string) => void;
   setUserDomain: (userId: string, domain: string) => void;
-  updateMemberInfo: (input: { name: string; email: string; phone: string; address: string }) => void;
+  updateMemberInfo: (input: { name: string; email: string; phone: string }) => void;
   updateMemberPassword: (newPassword: string) => void;
+  addMemberAddress: (address: string) => boolean;
+  deleteMemberAddress: (id: string) => void;
+  setDefaultMemberAddress: (id: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -283,7 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, customDomain: cleaned || undefined } : u)));
   }, []);
 
-  const updateMemberInfo = useCallback((input: { name: string; email: string; phone: string; address: string }) => {
+  const updateMemberInfo = useCallback((input: { name: string; email: string; phone: string }) => {
     setMember((prev) => {
       const updated = { ...prev, ...input };
       if (user?.role === "member") persistUser(updated);
@@ -299,8 +315,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [user]);
 
+  const syncDefaultAddress = (addrs: ShippingAddress[]): string | undefined => {
+    return addrs.find((a) => a.isDefault)?.address || addrs[0]?.address;
+  };
+
+  const addMemberAddress = useCallback((address: string) => {
+    let success = false;
+    setMember((prev) => {
+      const list = prev.addresses || [];
+      if (list.length >= MAX_ADDRESSES) return prev;
+      success = true;
+      const newAddr: ShippingAddress = { id: "addr-" + Date.now(), address, isDefault: list.length === 0 };
+      const next = [...list, newAddr];
+      const updated = { ...prev, addresses: next, address: syncDefaultAddress(next) };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+    return success;
+  }, [user]);
+
+  const deleteMemberAddress = useCallback((id: string) => {
+    setMember((prev) => {
+      const list = prev.addresses || [];
+      const target = list.find((a) => a.id === id);
+      let next = list.filter((a) => a.id !== id);
+      if (target?.isDefault && next.length > 0) {
+        next = next.map((a, i) => ({ ...a, isDefault: i === 0 }));
+      }
+      const updated = { ...prev, addresses: next, address: syncDefaultAddress(next) };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+  }, [user]);
+
+  const setDefaultMemberAddress = useCallback((id: string) => {
+    setMember((prev) => {
+      const next = (prev.addresses || []).map((a) => ({ ...a, isDefault: a.id === id }));
+      const updated = { ...prev, addresses: next, address: syncDefaultAddress(next) };
+      if (user?.role === "member") persistUser(updated);
+      return updated;
+    });
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, deleteMemberAddress, setDefaultMemberAddress }}>
       {children}
     </AuthContext.Provider>
   );
