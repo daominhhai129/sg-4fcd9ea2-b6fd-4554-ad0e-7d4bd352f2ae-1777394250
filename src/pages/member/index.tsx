@@ -43,6 +43,8 @@ export default function MemberDashboard() {
   const [profileSaved, setProfileSaved] = useState(false);
 
   const [newAddress, setNewAddress] = useState("");
+  const [newRecipient, setNewRecipient] = useState("");
+  const [newRecipientPhone, setNewRecipientPhone] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
 
   const [currentPwd, setCurrentPwd] = useState("");
@@ -80,14 +82,17 @@ export default function MemberDashboard() {
   };
 
   const handleAddAddress = () => {
-    if (!newAddress.trim()) return;
+    if (!newRecipient.trim() || !newRecipientPhone.trim() || !newAddress.trim()) {
+      toast({ variant: "destructive", title: "Thiếu thông tin", description: "Vui lòng nhập đủ họ tên, SĐT và địa chỉ." });
+      return;
+    }
     if (addresses.length >= MAX_ADDRESSES) {
       toast({ variant: "destructive", title: "Đã đạt giới hạn", description: "Tối đa " + MAX_ADDRESSES + " địa chỉ." });
       return;
     }
-    const ok = addMemberAddress(newAddress.trim());
+    const ok = addMemberAddress({ recipientName: newRecipient.trim(), recipientPhone: newRecipientPhone.trim(), address: newAddress.trim() });
     if (ok) {
-      setNewAddress("");
+      setNewRecipient(""); setNewRecipientPhone(""); setNewAddress("");
       setShowAddForm(false);
       toast({ variant: "success", title: "Đã thêm địa chỉ" });
     }
@@ -270,7 +275,8 @@ export default function MemberDashboard() {
                         {addr.isDefault && <Check className="w-3 h-3 text-white" />}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground">{addr.address}</p>
+                        <p className="text-sm font-semibold text-foreground">{addr.recipientName} <span className="text-muted-foreground font-normal">· {addr.recipientPhone}</span></p>
+                        <p className="text-sm text-foreground/80 mt-0.5">{addr.address}</p>
                         {addr.isDefault && (
                           <span className="inline-flex items-center gap-1 text-xs text-primary font-semibold mt-1">
                             <Star className="w-3 h-3 fill-current" /> Mặc định
@@ -290,19 +296,31 @@ export default function MemberDashboard() {
                 </div>
 
                 {showAddForm ? (
-                  <div className="mt-4 p-3 rounded-xl border border-dashed border-primary/40 space-y-3">
-                    <Textarea
-                      value={newAddress}
-                      onChange={(e) => setNewAddress(e.target.value)}
-                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
-                      className="rounded-xl min-h-[70px]"
-                      autoFocus
-                    />
+                  <div className="mt-4 p-4 rounded-xl border border-dashed border-primary/40 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs font-semibold">Họ và tên người nhận</Label>
+                        <Input value={newRecipient} onChange={(e) => setNewRecipient(e.target.value)} placeholder="Nguyễn Văn A" className="rounded-xl mt-1" autoFocus />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold">Số điện thoại</Label>
+                        <Input value={newRecipientPhone} onChange={(e) => setNewRecipientPhone(e.target.value)} placeholder="0912 345 678" className="rounded-xl mt-1" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs font-semibold">Địa chỉ</Label>
+                      <Textarea
+                        value={newAddress}
+                        onChange={(e) => setNewAddress(e.target.value)}
+                        placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                        className="rounded-xl min-h-[70px] mt-1"
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <Button type="button" onClick={handleAddAddress} size="sm" className="rounded-xl">
                         <Save className="w-4 h-4 mr-1.5" /> Lưu địa chỉ
                       </Button>
-                      <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddForm(false); setNewAddress(""); }} className="rounded-xl">
+                      <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddForm(false); setNewRecipient(""); setNewRecipientPhone(""); setNewAddress(""); }} className="rounded-xl">
                         Hủy
                       </Button>
                     </div>

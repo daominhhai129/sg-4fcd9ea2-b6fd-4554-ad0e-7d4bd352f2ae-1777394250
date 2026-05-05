@@ -24,6 +24,8 @@ export interface MemberOrder {
 
 export interface ShippingAddress {
   id: string;
+  recipientName: string;
+  recipientPhone: string;
   address: string;
   isDefault: boolean;
 }
@@ -93,8 +95,8 @@ const INITIAL_MEMBER: AppUser = {
   password: DEFAULT_PASSWORD,
   address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
   addresses: [
-    { id: "addr-1", address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh", isDefault: true },
-    { id: "addr-2", address: "456 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh", isDefault: false },
+    { id: "addr-1", recipientName: "Phạm Thu Hà", recipientPhone: "0934567890", address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh", isDefault: true },
+    { id: "addr-2", recipientName: "Phạm Thu Hà", recipientPhone: "0934567890", address: "456 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh", isDefault: false },
   ],
   orders: [
     { id: "M-2412", shopName: "Tech Zone", shopSlug: "tech-zone", date: inDays(-1), total: 2490000, status: "pending", items: [{ productId: "p2", name: "Tai nghe AirPods Pro", quantity: 1, price: 2490000 }] },
@@ -151,7 +153,7 @@ interface AuthContextType {
   setUserDomain: (userId: string, domain: string) => void;
   updateMemberInfo: (input: { name: string; email: string; phone: string }) => void;
   updateMemberPassword: (newPassword: string) => void;
-  addMemberAddress: (address: string) => boolean;
+  addMemberAddress: (input: { recipientName: string; recipientPhone: string; address: string }) => boolean;
   deleteMemberAddress: (id: string) => void;
   setDefaultMemberAddress: (id: string) => void;
 }
@@ -316,16 +318,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const syncDefaultAddress = (addrs: ShippingAddress[]): string | undefined => {
-    return addrs.find((a) => a.isDefault)?.address || addrs[0]?.address;
+    const def = addrs.find((a) => a.isDefault) || addrs[0];
+    return def ? def.recipientName + " | " + def.recipientPhone + " | " + def.address : undefined;
   };
 
-  const addMemberAddress = useCallback((address: string) => {
+  const addMemberAddress = useCallback((input: { recipientName: string; recipientPhone: string; address: string }) => {
     let success = false;
     setMember((prev) => {
       const list = prev.addresses || [];
       if (list.length >= MAX_ADDRESSES) return prev;
       success = true;
-      const newAddr: ShippingAddress = { id: "addr-" + Date.now(), address, isDefault: list.length === 0 };
+      const newAddr: ShippingAddress = { id: "addr-" + Date.now(), recipientName: input.recipientName, recipientPhone: input.recipientPhone, address: input.address, isDefault: list.length === 0 };
       const next = [...list, newAddr];
       const updated = { ...prev, addresses: next, address: syncDefaultAddress(next) };
       if (user?.role === "member") persistUser(updated);
