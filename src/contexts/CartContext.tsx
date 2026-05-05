@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { Product, CartItem } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 interface CartContextType {
   items: CartItem[];
@@ -15,6 +16,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { toast } = useToast();
 
   const addToCart = useCallback((product: Product) => {
     setItems((prev) => {
@@ -28,7 +30,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { product, quantity: 1 }];
     });
-  }, []);
+    toast({ title: "Đã thêm vào giỏ hàng", description: product.name });
+  }, [toast]);
 
   const removeFromCart = useCallback((productId: string) => {
     setItems((prev) => prev.filter((item) => item.product.id !== productId));
