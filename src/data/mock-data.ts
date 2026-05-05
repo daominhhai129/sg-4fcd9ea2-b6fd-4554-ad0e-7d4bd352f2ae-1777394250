@@ -96,14 +96,18 @@ export const shops: Shop[] = [
 ];
 
 export const categories: ProductCategory[] = [
-  { id: "cat-1", shopId: "shop-1", name: "Điện thoại", slug: "dien-thoai", description: "Smartphone chính hãng", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop", productCount: 7 },
-  { id: "cat-2", shopId: "shop-1", name: "Laptop", slug: "laptop", description: "Laptop văn phòng & gaming", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop", productCount: 5 },
-  { id: "cat-3", shopId: "shop-1", name: "Phụ kiện", slug: "phu-kien", description: "Phụ kiện công nghệ", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop", productCount: 10 },
-  { id: "cat-4", shopId: "shop-1", name: "Âm thanh", slug: "am-thanh", description: "Tai nghe & loa", image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&h=300&fit=crop", productCount: 4 },
-  { id: "cat-5", shopId: "shop-2", name: "Áo", slug: "ao", description: "Áo thời trang nam nữ", image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=300&fit=crop", productCount: 20 },
-  { id: "cat-6", shopId: "shop-2", name: "Quần", slug: "quan", description: "Quần jeans & kaki", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400&h=300&fit=crop", productCount: 14 },
-  { id: "cat-7", shopId: "shop-3", name: "Rau củ", slug: "rau-cu", description: "Rau củ hữu cơ", image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop", productCount: 18 },
-  { id: "cat-8", shopId: "shop-3", name: "Trái cây", slug: "trai-cay", description: "Trái cây tươi ngon", image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&h=300&fit=crop", productCount: 10 },
+  { id: "cat-p-1", shopId: "shop-1", name: "Thiết bị", slug: "thiet-bi", description: "Điện thoại & Laptop", productCount: 12 },
+  { id: "cat-p-2", shopId: "shop-1", name: "Phụ kiện & Âm thanh", slug: "phu-kien-am-thanh", description: "Phụ kiện và thiết bị âm thanh", productCount: 14 },
+  { id: "cat-p-3", shopId: "shop-2", name: "Trang phục", slug: "trang-phuc", description: "Quần áo nam nữ", productCount: 34 },
+  { id: "cat-p-4", shopId: "shop-3", name: "Thực phẩm tươi", slug: "thuc-pham-tuoi", description: "Rau củ và trái cây", productCount: 28 },
+  { id: "cat-1", shopId: "shop-1", parentId: "cat-p-1", name: "Điện thoại", slug: "dien-thoai", description: "Smartphone chính hãng", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop", productCount: 7 },
+  { id: "cat-2", shopId: "shop-1", parentId: "cat-p-1", name: "Laptop", slug: "laptop", description: "Laptop văn phòng & gaming", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop", productCount: 5 },
+  { id: "cat-3", shopId: "shop-1", parentId: "cat-p-2", name: "Phụ kiện", slug: "phu-kien", description: "Phụ kiện công nghệ", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop", productCount: 10 },
+  { id: "cat-4", shopId: "shop-1", parentId: "cat-p-2", name: "Âm thanh", slug: "am-thanh", description: "Tai nghe & loa", image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&h=300&fit=crop", productCount: 4 },
+  { id: "cat-5", shopId: "shop-2", parentId: "cat-p-3", name: "Áo", slug: "ao", description: "Áo thời trang nam nữ", image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=300&fit=crop", productCount: 20 },
+  { id: "cat-6", shopId: "shop-2", parentId: "cat-p-3", name: "Quần", slug: "quan", description: "Quần jeans & kaki", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400&h=300&fit=crop", productCount: 14 },
+  { id: "cat-7", shopId: "shop-3", parentId: "cat-p-4", name: "Rau củ", slug: "rau-cu", description: "Rau củ hữu cơ", image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop", productCount: 18 },
+  { id: "cat-8", shopId: "shop-3", parentId: "cat-p-4", name: "Trái cây", slug: "trai-cay", description: "Trái cây tươi ngon", image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&h=300&fit=crop", productCount: 10 },
 ];
 
 export const products: Product[] = [

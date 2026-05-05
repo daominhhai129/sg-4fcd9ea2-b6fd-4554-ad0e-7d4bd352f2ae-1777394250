@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, FolderOpen, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, GripVertical, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,15 +15,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ProductCategory } from "@/types";
 
 const shop = shops[0];
+
+const NO_PARENT = "__none__";
 
 export default function CategoriesPage() {
   const { t } = useLanguage();
   const [categories, setCategories] = useState<ProductCategory[]>(shop.categories);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
+  const [parentId, setParentId] = useState<string>(NO_PARENT);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -31,24 +41,63 @@ export default function CategoriesPage() {
     shop.categories.splice(0, shop.categories.length, ...next);
   };
 
+  // Sort: roots first, with their children right after each root
+  const sorted = useMemo(() => {
+    const roots = categories.filter((c) => !c.parentId);
+    const result: ProductCategory[] = [];
+    roots.forEach((r) => {
+      result.push(r);
+      categories.filter((c) => c.parentId === r.id).forEach((child) => result.push(child));
+    });
+    // Orphans (parent missing)
+    categories.forEach((c) => {
+      if (c.parentId && !roots.find((r) => r.id === c.parentId) && !result.find((x) => x.id === c.id)) {
+        result.push(c);
+      }
+    });
+    return result;
+  }, [categories]);
+
+  const rootCategories = useMemo(
+    () => categories.filter((c) => !c.parentId && c.id !== editing?.id),
+    [categories, editing]
+  );
+
+  const openCreate = () => {
+    setEditing(null);
+    setParentId(NO_PARENT);
+    setDialogOpen(true);
+  };
+
+  const openEdit = (cat: ProductCategory) => {
+    setEditing(cat);
+    setParentId(cat.parentId || NO_PARENT);
+    setDialogOpen(true);
+  };
+
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const data = {
-      name: form.get("name") as string,
-      slug: (form.get("name") as string).toLowerCase().replace(/\s+/g, "-"),
-      description: form.get("description") as string,
-    };
+    const name = form.get("name") as string;
+    const description = form.get("description") as string;
+    const finalParent = parentId === NO_PARENT ? undefined : parentId;
 
     let next: ProductCategory[];
     if (editing) {
-      next = categories.map((c) => (c.id === editing.id ? { ...c, ...data } : c));
+      next = categories.map((c) =>
+        c.id === editing.id
+          ? { ...c, name, description, slug: name.toLowerCase().replace(/\s+/g, "-"), parentId: finalParent }
+          : c
+      );
     } else {
       const newCat: ProductCategory = {
         id: "cat-new-" + Date.now(),
         shopId: shop.id,
         productCount: 0,
-        ...data,
+        name,
+        description,
+        slug: name.toLowerCase().replace(/\s+/g, "-"),
+        parentId: finalParent,
       };
       next = [newCat, ...categories];
     }
@@ -59,7 +108,10 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = (id: string) => {
-    const next = categories.filter((c) => c.id !== id);
+    // Also clear parentId on children of deleted parent
+    const next = categories
+      .filter((c) => c.id !== id)
+      .map((c) => (c.parentId === id ? { ...c, parentId: undefined } : c));
     setCategories(next);
     syncToShop(next);
   };
@@ -68,17 +120,12 @@ export default function CategoriesPage() {
     setDraggedId(id);
     e.dataTransfer.effectAllowed = "move";
   };
-
   const handleDragOver = (e: React.DragEvent, id: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     if (id !== dragOverId) setDragOverId(id);
   };
-
-  const handleDragLeave = () => {
-    setDragOverId(null);
-  };
-
+  const handleDragLeave = () => setDragOverId(null);
   const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
     if (!draggedId || draggedId === targetId) {
@@ -97,11 +144,12 @@ export default function CategoriesPage() {
     setDraggedId(null);
     setDragOverId(null);
   };
-
   const handleDragEnd = () => {
     setDraggedId(null);
     setDragOverId(null);
   };
+
+  const findParentName = (pid?: string) => categories.find((c) => c.id === pid)?.name;
 
   return (
     <>
@@ -114,7 +162,7 @@ export default function CategoriesPage() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button className="gradient-primary text-white border-0" onClick={() => { setEditing(null); setDialogOpen(true); }}>
+              <Button className="gradient-primary text-white border-0" onClick={openCreate}>
                 <Plus className="w-4 h-4 mr-2" />
                 {t("cat.add")}
               </Button>
@@ -127,6 +175,21 @@ export default function CategoriesPage() {
                 <div>
                   <Label className="text-sm font-semibold">{t("cat.name")} <span className="text-destructive">*</span></Label>
                   <Input name="name" defaultValue={editing?.name || ""} required className="rounded-xl mt-1.5" />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Danh mục cha</Label>
+                  <Select value={parentId} onValueChange={setParentId}>
+                    <SelectTrigger className="rounded-xl mt-1.5">
+                      <SelectValue placeholder="Không có (danh mục gốc)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_PARENT}>Không có (danh mục gốc)</SelectItem>
+                      {rootCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">Chọn danh mục cha để tạo cấp con. Để trống để làm danh mục gốc.</p>
                 </div>
                 <div>
                   <Label className="text-sm font-semibold">{t("cat.description")}</Label>
@@ -148,15 +211,18 @@ export default function CategoriesPage() {
                 <tr className="border-b border-border bg-muted/50">
                   <th className="w-10 px-2 py-3"></th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("cat.colName")}</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Danh mục cha</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("cat.colDesc")}</th>
                   <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">{t("cat.colProducts")}</th>
                   <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-32">{t("cat.colActions")}</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((cat) => {
+                {sorted.map((cat) => {
                   const isDragging = draggedId === cat.id;
                   const isOver = dragOverId === cat.id && draggedId !== cat.id;
+                  const isChild = !!cat.parentId;
+                  const parentName = findParentName(cat.parentId);
                   return (
                     <tr
                       key={cat.id}
@@ -174,8 +240,26 @@ export default function CategoriesPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm font-semibold text-foreground">{cat.name}</p>
-                        <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} {t("cat.unitProducts")}</p>
+                        <div className={`flex items-center gap-2 ${isChild ? "pl-6" : ""}`}>
+                          {isChild && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />}
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground">{cat.name}</p>
+                            {!isChild && (
+                              <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold">DANH MỤC GỐC</span>
+                            )}
+                            <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} {t("cat.unitProducts")}</p>
+                            {isChild && parentName && (
+                              <p className="text-xs text-muted-foreground lg:hidden mt-0.5">↳ {parentName}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        {parentName ? (
+                          <span className="text-sm text-foreground/80">{parentName}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
                         <p className="text-sm text-muted-foreground line-clamp-2 max-w-md">{cat.description}</p>
@@ -185,7 +269,7 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => { setEditing(cat); setDialogOpen(true); }}>
+                          <Button size="sm" variant="outline" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(cat)}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
                             {t("common.edit")}
                           </Button>

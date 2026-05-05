@@ -35,6 +35,7 @@ export interface ShopContact {
 export interface ProductCategory {
   id: string;
   shopId: string;
+  parentId?: string;
   name: string;
   slug: string;
   description: string;
