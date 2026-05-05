@@ -31,32 +31,31 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
           <div className="grid grid-cols-4 h-16">
             <a
               href={`tel:${phoneNumber}`}
-              className="flex flex-col items-center justify-center gap-0.5 text-foreground hover:bg-muted/60 transition-all"
+              className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted/60 transition-all"
             >
-              <Phone className="w-5 h-5" />
-              <span className="text-[11px] font-medium">Gọi</span>
+              <Phone className="w-5 h-5 shrink-0" />
+              <span className="text-[10px] font-medium leading-tight truncate max-w-full">Gọi</span>
             </a>
             <a
               href={`sms:${phoneNumber}`}
-              className="flex flex-col items-center justify-center gap-0.5 text-foreground hover:bg-muted/60 transition-all"
+              className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted/60 transition-all"
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="text-[11px] font-medium">Nhắn tin</span>
+              <MessageCircle className="w-5 h-5 shrink-0" />
+              <span className="text-[10px] font-medium leading-tight truncate max-w-full">Nhắn tin</span>
             </a>
             <button
               onClick={onAddToCart}
-              className="flex flex-col items-center justify-center gap-0.5 text-primary hover:bg-primary/5 transition-all border-l border-border"
+              className="flex flex-col items-center justify-center gap-0.5 px-1 text-primary hover:bg-primary/5 transition-all border-l border-border"
             >
-              <ShoppingCart className="w-5 h-5" />
-              <span className="text-[11px] font-semibold">Thêm vào giỏ</span>
+              <ShoppingCart className="w-5 h-5 shrink-0" />
+              <span className="text-[10px] font-semibold leading-tight truncate max-w-full">Vào giỏ</span>
             </button>
             <button
               onClick={onBuyNow}
-              style={themeBg}
-              className="flex flex-col items-center justify-center gap-0.5 text-white bg-accent hover:opacity-90 transition-all"
+              className="flex flex-col items-center justify-center gap-0.5 px-1 text-white bg-red-600 hover:bg-red-700 transition-all"
             >
-              <Zap className="w-5 h-5" />
-              <span className="text-[11px] font-semibold">Mua ngay</span>
+              <Zap className="w-5 h-5 shrink-0" />
+              <span className="text-[10px] font-semibold leading-tight truncate max-w-full">Mua ngay</span>
             </button>
           </div>
         </div>
