@@ -6,8 +6,10 @@ import { shops } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Lock, Eye, EyeOff, Check, AlertCircle, Bell } from "lucide-react";
+import { Save, Lock, Eye, EyeOff, Check, AlertCircle, Bell, Building2 } from "lucide-react";
+import type { ShopBusinessInfo } from "@/types";
 
 export default function SettingsPage() {
   const { t } = useLanguage();
@@ -19,16 +21,34 @@ export default function SettingsPage() {
   const [notifyNewOrder, setNotifyNewOrder] = useState(true);
   const [notifySaved, setNotifySaved] = useState(false);
 
+  const [footer, setFooter] = useState<ShopBusinessInfo>({
+    businessName: "", registrationNumber: "", registrationDate: "", registrationPlace: "", taxCode: "", ownerName: "", note: "",
+  });
+  const [footerSaved, setFooterSaved] = useState(false);
+
   useEffect(() => {
     const saved = typeof window !== "undefined" ? localStorage.getItem("notify-new-order") : null;
     if (saved !== null) setNotifyNewOrder(saved === "true");
-  }, []);
+    const fSaved = typeof window !== "undefined" ? localStorage.getItem("shop-footer-" + shop.slug) : null;
+    if (fSaved) {
+      try { setFooter({ ...(shop.businessInfo || {} as ShopBusinessInfo), ...JSON.parse(fSaved) }); } catch { if (shop.businessInfo) setFooter(shop.businessInfo); }
+    } else if (shop.businessInfo) {
+      setFooter({ businessName: shop.businessInfo.businessName, registrationNumber: shop.businessInfo.registrationNumber, registrationDate: shop.businessInfo.registrationDate || "", registrationPlace: shop.businessInfo.registrationPlace || "", taxCode: shop.businessInfo.taxCode || "", ownerName: shop.businessInfo.ownerName || "", note: shop.businessInfo.note || "" });
+    }
+  }, [shop.slug, shop.businessInfo]);
 
   const handleNotifyToggle = (val: boolean) => {
     setNotifyNewOrder(val);
     if (typeof window !== "undefined") localStorage.setItem("notify-new-order", String(val));
     setNotifySaved(true);
     setTimeout(() => setNotifySaved(false), 2000);
+  };
+
+  const handleFooterSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") localStorage.setItem("shop-footer-" + shop.slug, JSON.stringify(footer));
+    setFooterSaved(true);
+    setTimeout(() => setFooterSaved(false), 2500);
   };
 
   const handlePasswordSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -61,6 +81,61 @@ export default function SettingsPage() {
       <SEO title={t("nav.settings") + " — Admin"} />
       <AdminLayout title={t("nav.settings")} shopName={shop.name}>
         <div className="max-w-2xl space-y-6">
+          <div className="rounded-2xl bg-card border border-border/50 p-6">
+            <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-primary" />
+              Thông tin pháp lý / Footer
+            </h2>
+            <p className="text-xs text-muted-foreground mb-5">Thông tin sẽ hiển thị ở footer của trang shop. Bao gồm tên đăng ký kinh doanh, mã ĐKKD và thông tin pháp lý.</p>
+
+            <form onSubmit={handleFooterSave} className="space-y-4">
+              <div>
+                <Label className="text-sm font-semibold">Tên đăng ký kinh doanh</Label>
+                <Input value={footer.businessName} onChange={(e) => setFooter({ ...footer, businessName: e.target.value })} className="rounded-xl mt-1.5" placeholder="Công ty TNHH ABC" required />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold">Mã ĐKKD</Label>
+                  <Input value={footer.registrationNumber} onChange={(e) => setFooter({ ...footer, registrationNumber: e.target.value })} className="rounded-xl mt-1.5" placeholder="0312345678" required />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Mã số thuế</Label>
+                  <Input value={footer.taxCode || ""} onChange={(e) => setFooter({ ...footer, taxCode: e.target.value })} className="rounded-xl mt-1.5" placeholder="0312345678" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold">Ngày cấp</Label>
+                  <Input value={footer.registrationDate || ""} onChange={(e) => setFooter({ ...footer, registrationDate: e.target.value })} className="rounded-xl mt-1.5" placeholder="12/03/2020" />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Nơi cấp</Label>
+                  <Input value={footer.registrationPlace || ""} onChange={(e) => setFooter({ ...footer, registrationPlace: e.target.value })} className="rounded-xl mt-1.5" placeholder="Sở KH-ĐT TP.HCM" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-semibold">Người đại diện</Label>
+                <Input value={footer.ownerName || ""} onChange={(e) => setFooter({ ...footer, ownerName: e.target.value })} className="rounded-xl mt-1.5" placeholder="Nguyễn Văn A" />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold">Ghi chú thêm</Label>
+                <Textarea value={footer.note || ""} onChange={(e) => setFooter({ ...footer, note: e.target.value })} className="rounded-xl mt-1.5 min-h-[70px]" placeholder="Cam kết chất lượng, đổi trả 7 ngày..." />
+              </div>
+
+              {footerSaved && (
+                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-xl">
+                  <Check className="w-4 h-4" />
+                  Đã lưu thông tin footer
+                </div>
+              )}
+
+              <Button type="submit" className="gradient-primary text-white border-0 h-11 px-6 rounded-xl">
+                <Save className="w-4 h-4 mr-2" />
+                Lưu footer
+              </Button>
+            </form>
+          </div>
+
           <div className="rounded-2xl bg-card border border-border/50 p-6">
             <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
               <Bell className="w-5 h-5 text-primary" />

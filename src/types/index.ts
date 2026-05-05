@@ -8,10 +8,21 @@ export interface Shop {
   themeColor?: string;
   intro?: string;
   contact: ShopContact;
+  businessInfo?: ShopBusinessInfo;
   categories: ProductCategory[];
   products: Product[];
   orders: Order[];
   posts: Post[];
+}
+
+export interface ShopBusinessInfo {
+  businessName: string;
+  registrationNumber: string;
+  registrationDate?: string;
+  registrationPlace?: string;
+  taxCode?: string;
+  ownerName?: string;
+  note?: string;
 }
 
 export interface ShopContact {
