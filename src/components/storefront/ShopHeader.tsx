@@ -47,7 +47,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <span>Đăng nhập</span>
           </Link>
           <Link
-            href="/login"
+            href="/register"
             className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
           >
             <UserPlus className="w-4 h-4" />
@@ -89,7 +89,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <LogIn className="w-4 h-4" />
             Đăng nhập
           </Link>
-          <Link href="/login" className="flex items-center gap-2 py-2 text-sm font-medium text-white bg-primary px-3 rounded-xl" onClick={() => setMobileOpen(false)}>
+          <Link href="/register" className="flex items-center gap-2 py-2 text-sm font-medium text-white bg-primary px-3 rounded-xl" onClick={() => setMobileOpen(false)}>
             <UserPlus className="w-4 h-4" />
             Đăng ký
           </Link>
