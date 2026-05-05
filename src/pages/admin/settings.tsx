@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const [notifySaved, setNotifySaved] = useState(false);
 
   const [footer, setFooter] = useState<ShopBusinessInfo>({
-    businessName: "", registrationNumber: "", registrationDate: "", registrationPlace: "", taxCode: "", ownerName: "", note: "", footerColor: "#7c3aed",
+    businessName: "", registrationNumber: "", registrationDate: "", registrationPlace: "", taxCode: "", ownerName: "", note: "",
   });
   const [footerSaved, setFooterSaved] = useState(false);
 
@@ -120,30 +120,6 @@ export default function SettingsPage() {
               <div>
                 <Label className="text-sm font-semibold">Ghi chú thêm</Label>
                 <Textarea value={footer.note || ""} onChange={(e) => setFooter({ ...footer, note: e.target.value })} className="rounded-xl mt-1.5 min-h-[70px]" placeholder="Cam kết chất lượng, đổi trả 7 ngày..." />
-              </div>
-
-              <div>
-                <Label className="text-sm font-semibold">Màu nền footer</Label>
-                <p className="text-xs text-muted-foreground mt-0.5 mb-1.5">Màu sẽ được làm nhạt khi hiển thị (~10% opacity)</p>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={footer.footerColor || "#7c3aed"}
-                    onChange={(e) => setFooter({ ...footer, footerColor: e.target.value })}
-                    className="w-14 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
-                  />
-                  <Input
-                    value={footer.footerColor || "#7c3aed"}
-                    onChange={(e) => setFooter({ ...footer, footerColor: e.target.value })}
-                    className="rounded-xl flex-1 font-mono text-sm"
-                    placeholder="#7c3aed"
-                  />
-                  <div
-                    className="w-20 h-10 rounded-lg border border-border"
-                    style={{ backgroundColor: (footer.footerColor || "#7c3aed") + "1A" }}
-                    aria-label="Xem trước"
-                  />
-                </div>
               </div>
 
               {footerSaved && (

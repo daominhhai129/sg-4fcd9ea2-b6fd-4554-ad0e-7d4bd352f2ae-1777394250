@@ -19,10 +19,8 @@ export function ShopFooter({ shop }: ShopFooterProps) {
     }
   }, [shop.slug]);
 
-  const themeBg = info?.footerColor
-    ? { backgroundColor: info.footerColor + "1A" }
-    : shop.themeColor
-    ? { backgroundColor: `hsl(${shop.themeColor} / 0.06)` }
+  const themeBg = shop.themeColor
+    ? { backgroundColor: `hsl(${shop.themeColor} / 0.10)` }
     : undefined;
 
   return (
