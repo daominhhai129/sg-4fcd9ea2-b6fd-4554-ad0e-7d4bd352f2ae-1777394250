@@ -77,6 +77,7 @@ export default function ProductDetailPage() {
       <SEO title={product.name + " — " + shop.name} description={product.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="container py-8 pb-24 md:pb-8">
+        <div className="lg:max-w-[70%] lg:mx-auto">
         <Link href={"/shop/" + shop.slug} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Quay lại
@@ -223,6 +224,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
         )}
+        </div>
       </main>
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
     </>
