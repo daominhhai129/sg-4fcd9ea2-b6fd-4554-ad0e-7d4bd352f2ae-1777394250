@@ -4,8 +4,9 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, getOrdersByShop } from "@/data/mock-data";
-import { Users, Search, Download, Mail, Phone, MapPin, ShoppingBag } from "lucide-react";
+import { Users, Search, Download, Mail, Phone, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CustomerRow {
@@ -17,8 +18,6 @@ interface CustomerRow {
   totalSpent: number;
   lastOrderDate: string;
 }
-
-const formatPrice = (n: number) => new Intl.NumberFormat("vi-VN").format(n) + "đ";
 
 function escapeCsv(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -42,6 +41,7 @@ function downloadCsv(filename: string, rows: string[][]) {
 
 export default function CustomersPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const shop = shops.find((s) => s.id === user?.shopId) || shops[0];
   const [query, setQuery] = useState("");
@@ -73,7 +73,7 @@ export default function CustomersPage() {
         });
       }
     });
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "vi"));
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [shop.id]);
 
   const filtered = useMemo(() => {
@@ -86,16 +86,13 @@ export default function CustomersPage() {
     );
   }, [customers, query]);
 
-  const totalSpent = customers.reduce((s, c) => s + c.totalSpent, 0);
-  const totalOrders = customers.reduce((s, c) => s + c.totalOrders, 0);
-
   const handleExport = () => {
     if (filtered.length === 0) {
-      toast({ variant: "destructive", title: "Không có khách hàng để xuất" });
+      toast({ variant: "destructive", title: t("cust.exportEmptyTitle") });
       return;
     }
     const rows: string[][] = [
-      ["STT", "Họ tên", "Email", "Số điện thoại", "Địa chỉ"],
+      [t("cust.csvNo"), t("cust.csvName"), t("cust.csvEmail"), t("cust.csvPhone"), t("cust.csvAddress")],
       ...filtered.map((c, i) => [
         String(i + 1),
         c.name,
@@ -105,19 +102,23 @@ export default function CustomersPage() {
       ]),
     ];
     const date = new Date().toISOString().slice(0, 10);
-    downloadCsv("khach-hang-" + shop.slug + "-" + date + ".csv", rows);
-    toast({ variant: "success", title: "Đã xuất " + filtered.length + " khách hàng", description: "File CSV đã được tải về (mở bằng Excel)" });
+    downloadCsv("customers-" + shop.slug + "-" + date + ".csv", rows);
+    toast({
+      variant: "success",
+      title: t("cust.exportSuccess", { n: filtered.length }),
+      description: t("cust.exportDesc"),
+    });
   };
 
   return (
     <>
-      <SEO title="Quản lý khách hàng — Admin" />
-      <AdminLayout title="Quản lý khách hàng" shopName={shop.name}>
+      <SEO title={t("cust.pageTitle") + " — Admin"} />
+      <AdminLayout title={t("cust.pageTitle")} shopName={shop.name}>
         <div className="space-y-6">
           <div className="bg-card border border-border/50 rounded-2xl p-5 max-w-xs">
             <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
               <Users className="w-4 h-4" />
-              Tổng khách hàng
+              {t("cust.total")}
             </div>
             <p className="text-2xl font-heading font-bold">{customers.length}</p>
           </div>
@@ -129,19 +130,19 @@ export default function CustomersPage() {
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Tìm theo tên, email, số điện thoại..."
+                  placeholder={t("cust.searchPh")}
                   className="pl-10 rounded-xl"
                 />
               </div>
               <Button onClick={handleExport} className="rounded-xl gradient-primary text-white border-0">
                 <Download className="w-4 h-4 mr-1.5" />
-                Xuất Excel ({filtered.length})
+                {t("cust.export")} ({filtered.length})
               </Button>
             </div>
 
             {filtered.length === 0 ? (
               <div className="p-12 text-center text-muted-foreground">
-                {query ? "Không tìm thấy khách hàng phù hợp" : "Chưa có khách hàng nào"}
+                {query ? t("cust.notFound") : t("cust.empty")}
               </div>
             ) : (
               <>
@@ -149,9 +150,9 @@ export default function CustomersPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
                       <tr>
-                        <th className="text-left px-5 py-3 font-semibold">Khách hàng</th>
-                        <th className="text-left px-5 py-3 font-semibold">Liên hệ</th>
-                        <th className="text-left px-5 py-3 font-semibold">Địa chỉ</th>
+                        <th className="text-left px-5 py-3 font-semibold">{t("cust.colCustomer")}</th>
+                        <th className="text-left px-5 py-3 font-semibold">{t("cust.colContact")}</th>
+                        <th className="text-left px-5 py-3 font-semibold">{t("cust.colAddress")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -187,7 +188,7 @@ export default function CustomersPage() {
 
           <p className="text-xs text-muted-foreground italic flex items-start gap-1.5">
             <Mail className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-            Danh sách khách hàng được tổng hợp từ các đơn hàng đã đặt tại {shop.name}. File CSV xuất ra mở được trực tiếp bằng Microsoft Excel.
+            {t("cust.footerNote", { shop: shop.name })}
           </p>
         </div>
       </AdminLayout>
