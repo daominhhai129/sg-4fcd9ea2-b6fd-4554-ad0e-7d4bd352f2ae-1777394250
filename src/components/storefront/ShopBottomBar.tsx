@@ -45,7 +45,8 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
             </a>
             <button
               onClick={onAddToCart}
-              className="flex flex-col items-center justify-center gap-0.5 px-1 text-primary hover:bg-primary/5 transition-all border-l border-border"
+              style={shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+              className="flex flex-col items-center justify-center gap-0.5 px-1 text-white hover:opacity-90 transition-all"
             >
               <ShoppingCart className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-semibold leading-tight truncate max-w-full">Thêm vào giỏ</span>
