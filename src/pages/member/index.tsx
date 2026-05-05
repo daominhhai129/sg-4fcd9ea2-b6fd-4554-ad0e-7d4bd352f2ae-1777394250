@@ -155,9 +155,9 @@ export default function MemberDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <header className="bg-card/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Về trang chủ</span>
+            <Link href="/" className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+              <ShoppingBag className="w-4 h-4" />
+              <span>Tiếp tục mua sắm</span>
             </Link>
             <div className="flex items-center gap-3">
               <div className="hidden sm:block">
