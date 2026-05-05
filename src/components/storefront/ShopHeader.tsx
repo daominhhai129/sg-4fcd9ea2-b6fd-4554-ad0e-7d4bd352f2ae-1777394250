@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
-import { Menu, X, ShoppingCart, LogIn, UserPlus, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { Shop } from "@/types";
@@ -70,6 +70,13 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           >
             <Search className="w-5 h-5" />
           </button>
+          <Link
+            href="/member"
+            className="p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground"
+            aria-label="Tài khoản thành viên"
+          >
+            <User className="w-5 h-5" />
+          </Link>
           <Link
             href="/login"
             className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
