@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, LogIn, UserPlus, Search, User, ChevronDown, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { Shop } from "@/types";
@@ -17,6 +17,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
+  const [expandedParent, setExpandedParent] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -25,6 +26,12 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
       try { localStorage.setItem("lastShopSlug", shop.slug); } catch {}
     }
   }, [shop.slug]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   const parents = useMemo(() => shop.categories.filter((c) => !c.parentId), [shop.categories]);
   const childrenByParent = useMemo(() => {
@@ -59,15 +66,25 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
 
   const openSearch = () => { setQuery(""); setSearchOpen(true); };
 
+  const closeMobile = () => {
+    setMobileOpen(false);
+    setExpandedParent(null);
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-lg border-b border-border/50">
       <div className="container flex items-center justify-between h-14">
-        <Link href={"/shop/" + shop.slug} className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
-            <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
-          </div>
-          <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button className="md:hidden p-1.5 -ml-1.5 text-foreground" onClick={() => setMobileOpen(true)} aria-label="Menu">
+            <Menu className="w-5 h-5" />
+          </button>
+          <Link href={"/shop/" + shop.slug} className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
+              <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
+            </div>
+            <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-6">
           <Link href={"/shop/" + shop.slug} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -118,9 +135,6 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
               </span>
             )}
           </Link>
-          <button className="md:hidden p-1.5 text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
 
@@ -140,7 +154,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
                       <Link
                         href={"/shop/" + shop.slug + "/category/" + parent.slug}
                         onClick={() => setMegaOpen(false)}
-                        className="block font-heading font-bold text-foreground hover:text-primary transition-colors"
+                        className="block font-heading font-bold hover:opacity-80 transition-opacity"
                         style={{ color: `hsl(${shop.themeColor})` }}
                       >
                         {parent.name}
@@ -195,30 +209,81 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         </div>
       )}
 
-      {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-card px-4 pb-4 space-y-2 max-h-[70vh] overflow-y-auto">
-          <Link href={"/shop/" + shop.slug} className="block py-2 text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>
+      <div
+        className={`md:hidden fixed inset-0 z-[60] transition-opacity duration-300 ${mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        onClick={closeMobile}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+      <aside
+        className={`md:hidden fixed top-0 left-0 bottom-0 z-[70] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out flex flex-col ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="flex items-center justify-between px-4 h-14 border-b border-border flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl overflow-hidden border border-border">
+              <Image src={shop.logo} alt={shop.name} width={36} height={36} className="object-cover w-full h-full" />
+            </div>
+            <span className="font-heading text-base font-bold text-foreground">{shop.name}</span>
+          </div>
+          <button className="p-1.5 text-foreground" onClick={closeMobile} aria-label="Đóng">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <Link
+            href={"/shop/" + shop.slug}
+            onClick={closeMobile}
+            className="flex items-center px-4 py-3 text-sm font-semibold text-foreground border-b border-border/60 hover:bg-muted transition-colors"
+          >
             Trang chủ
           </Link>
+          <div className="px-4 pt-3 pb-1">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Danh mục</p>
+          </div>
           {parents.map((parent) => {
             const kids = childrenByParent[parent.id] || [];
+            const isExpanded = expandedParent === parent.id;
             return (
-              <div key={parent.id} className="border-t border-border/50 pt-2">
-                <Link
-                  href={"/shop/" + shop.slug + "/category/" + parent.slug}
-                  className="block py-1.5 text-sm font-bold text-foreground"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {parent.name}
-                </Link>
+              <div key={parent.id} className="border-b border-border/40">
+                <div className="flex items-stretch">
+                  <Link
+                    href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                    onClick={closeMobile}
+                    className="flex-1 px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    {parent.name}
+                  </Link>
+                  {kids.length > 0 && (
+                    <button
+                      onClick={() => setExpandedParent(isExpanded ? null : parent.id)}
+                      className="px-4 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+                      aria-label={isExpanded ? "Thu gọn" : "Mở rộng"}
+                      aria-expanded={isExpanded}
+                    >
+                      <ChevronRight className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                    </button>
+                  )}
+                </div>
                 {kids.length > 0 && (
-                  <div className="pl-3 space-y-1">
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-out ${isExpanded ? "max-h-96" : "max-h-0"}`}
+                    style={{ backgroundColor: `hsl(${shop.themeColor} / 0.04)` }}
+                  >
+                    <Link
+                      href={"/shop/" + shop.slug + "/category/" + parent.slug}
+                      onClick={closeMobile}
+                      className="block px-8 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                      style={{ color: `hsl(${shop.themeColor})` }}
+                    >
+                      Tất cả {parent.name}
+                    </Link>
                     {kids.map((child) => (
                       <Link
                         key={child.id}
                         href={"/shop/" + shop.slug + "/category/" + child.slug}
-                        className="block py-1 text-sm text-muted-foreground"
-                        onClick={() => setMobileOpen(false)}
+                        onClick={closeMobile}
+                        className="block px-8 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                       >
                         {child.name}
                       </Link>
@@ -228,16 +293,37 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
               </div>
             );
           })}
-          <Link href="/login" className="flex items-center gap-2 py-2 text-sm font-medium text-primary border-t border-border pt-3 mt-2" onClick={() => setMobileOpen(false)}>
-            <LogIn className="w-4 h-4" />
-            Đăng nhập
+
+          <div className="px-4 pt-4 pb-1">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Khám phá</p>
+          </div>
+          <Link href={"/shop/" + shop.slug + "#products"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
+            Sản phẩm
           </Link>
-          <Link href="/register" className="flex items-center gap-2 py-2 text-sm font-medium text-white bg-primary px-3 rounded-xl" onClick={() => setMobileOpen(false)}>
-            <UserPlus className="w-4 h-4" />
-            Đăng ký
+          <Link href={"/shop/" + shop.slug + "#blog"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
+            Bài viết
           </Link>
+
+          <div className="p-4 space-y-2">
+            <Link
+              href="/login"
+              onClick={closeMobile}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-foreground border border-border hover:bg-muted transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              Đăng nhập
+            </Link>
+            <Link
+              href="/register"
+              onClick={closeMobile}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              Đăng ký
+            </Link>
+          </div>
         </div>
-      )}
+      </aside>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl">
