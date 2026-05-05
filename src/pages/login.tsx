@@ -137,7 +137,7 @@ export default function LoginPage() {
                   <p className="text-xs text-muted-foreground">Super Admin</p>
                 </div>
               </button>
-              <button onClick={loginAsMember} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group">
+              <button onClick={() => loginAsMember()} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group">
                 <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
                   <ShoppingBag className="w-5 h-5 text-emerald-600" />
                 </div>
