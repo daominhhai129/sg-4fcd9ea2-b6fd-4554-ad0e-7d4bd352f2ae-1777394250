@@ -48,6 +48,8 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
+  longDescription?: string;
+  videoUrl?: string;
   price: number;
   salePrice?: number;
   images: string[];

@@ -125,6 +125,31 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+        {product.videoUrl && (
+          <div className="mt-12">
+            <h2 className="text-xl font-heading font-bold text-foreground mb-4">Video sản phẩm</h2>
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-lg">
+              <iframe
+                src={product.videoUrl}
+                title={product.name}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        )}
+
+        {product.longDescription && (
+          <div className="mt-12">
+            <h2 className="text-xl font-heading font-bold text-foreground mb-4">Mô tả chi tiết</h2>
+            <div
+              className="prose prose-sm md:prose-base max-w-none text-foreground/90 [&_h3]:font-heading [&_h3]:font-bold [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:leading-relaxed [&_p]:my-3 [&_ul]:my-3 [&_ul]:pl-5 [&_ul]:list-disc [&_ul>li]:my-1 [&_img]:rounded-2xl [&_img]:my-5 [&_img]:w-full [&_img]:shadow-md [&_strong]:font-semibold [&_strong]:text-foreground [&_em]:text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: product.longDescription }}
+            />
+          </div>
+        )}
+
         {relatedProducts.length > 0 && (
           <div className="mt-16">
             <h2 className="text-xl font-heading font-bold text-foreground mb-6">Sản phẩm liên quan</h2>
