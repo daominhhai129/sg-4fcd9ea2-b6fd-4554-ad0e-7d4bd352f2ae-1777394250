@@ -19,11 +19,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
     return (
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
         <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pointer-events-auto">
-          <div className="grid grid-cols-5 h-16">
-            <button onClick={openMenu} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
-              <Menu className="w-5 h-5 shrink-0" />
-              <span className="text-[10px] font-medium leading-tight truncate max-w-full">Menu</span>
-            </button>
+          <div className="grid grid-cols-4 h-16">
             <a href={`tel:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
               <Phone className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">Gọi</span>
