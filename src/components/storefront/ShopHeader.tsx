@@ -230,7 +230,7 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
     )}
 
     <aside
-      className={`md:hidden fixed top-0 left-0 bottom-0 z-[110] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`md:hidden fixed top-0 right-0 bottom-0 z-[110] w-[85%] max-w-sm bg-card shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
     >
       <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 border-b border-border bg-card z-10">
         <div className="flex items-center gap-2.5">
