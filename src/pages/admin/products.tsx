@@ -481,7 +481,7 @@ export default function ProductsPage() {
                   <p className="text-xs text-muted-foreground mb-1">{product.categoryName}</p>
                   <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
                   <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-base font-bold text-accent">{formatPrice(product.price)}</span>
+                    <span className="text-sm font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2 border-2 text-foreground border-border hover:bg-muted hover:text-foreground" onClick={() => openEdit(product)}>
