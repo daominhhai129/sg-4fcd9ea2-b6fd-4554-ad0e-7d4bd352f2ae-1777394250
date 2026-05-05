@@ -81,11 +81,10 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="space-y-6">
-            {category && <Badge variant="outline">{category.name}</Badge>}
-            <h1 className="text-2xl md:text-3xl font-heading font-extrabold text-foreground">{product.name}</h1>
+            <h1 className="text-xl md:text-2xl font-heading font-extrabold text-foreground">{product.name}</h1>
 
             <div className="flex items-baseline gap-3">
-              <span className="text-2xl md:text-3xl font-heading font-extrabold text-accent">
+              <span className="text-xl md:text-2xl font-heading font-extrabold text-accent">
                 {formatPrice(product.price)}
               </span>
             </div>
