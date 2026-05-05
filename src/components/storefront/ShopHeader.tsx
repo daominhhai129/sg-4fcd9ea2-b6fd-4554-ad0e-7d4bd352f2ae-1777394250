@@ -33,6 +33,17 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const openMenu = () => setMobileOpen(true);
+    const openSearchEvt = () => { setQuery(""); setSearchOpen(true); };
+    window.addEventListener("shop:open-menu", openMenu);
+    window.addEventListener("shop:open-search", openSearchEvt);
+    return () => {
+      window.removeEventListener("shop:open-menu", openMenu);
+      window.removeEventListener("shop:open-search", openSearchEvt);
+    };
+  }, []);
+
   const parents = useMemo(() => shop.categories.filter((c) => !c.parentId), [shop.categories]);
   const childrenByParent = useMemo(() => {
     const map: Record<string, typeof shop.categories> = {};
