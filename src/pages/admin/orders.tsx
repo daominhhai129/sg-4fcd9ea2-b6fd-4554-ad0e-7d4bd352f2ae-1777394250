@@ -26,7 +26,9 @@ const shop = shops[0];
 
 export default function OrdersPage() {
   const { t } = useLanguage();
-  const [orders, setOrders] = useState<Order[]>(shop.orders);
+  const [orders, setOrders] = useState<Order[]>(() =>
+    [...shop.orders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 500)
+  );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

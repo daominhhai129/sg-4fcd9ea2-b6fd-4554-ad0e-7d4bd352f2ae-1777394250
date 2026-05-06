@@ -49,7 +49,9 @@ export default function CustomersPage() {
   const PER_PAGE = 10;
 
   const customers = useMemo<CustomerRow[]>(() => {
-    const orders = getOrdersByShop(shop.id);
+    const orders = [...getOrdersByShop(shop.id)]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 500);
     const map = new Map<string, CustomerRow>();
     orders.forEach((o) => {
       const key = o.customerEmail.toLowerCase();
