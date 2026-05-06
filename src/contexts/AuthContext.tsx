@@ -73,6 +73,15 @@ const INITIAL_USERS: AppUser[] = [
   { id: "user-1", name: "Nguyễn Văn An", email: "an@techzone.vn", phone: "0901234567", role: "user", shopId: "shop-1", shopName: "Tech Zone", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(180), password: DEFAULT_PASSWORD },
   { id: "user-2", name: "Trần Thị Bình", email: "binh@fashionhub.vn", phone: "0912345678", role: "user", shopId: "shop-2", shopName: "Fashion Hub", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(90), password: DEFAULT_PASSWORD },
   { id: "user-3", name: "Lê Minh Cường", email: "cuong@greengarden.vn", phone: "0987654321", role: "user", shopId: "shop-3", shopName: "Green Garden", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(45), password: DEFAULT_PASSWORD },
+  { id: "user-sa1-1", name: "Phạm Đức Anh", email: "anh@bookworld.vn", phone: "0938111222", role: "user", shopId: "shop-sa1-1", shopName: "Book World", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(120), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa1-2", name: "Vũ Thị Hồng", email: "hong@beautyland.vn", phone: "0938222333", role: "user", shopId: "shop-sa1-2", shopName: "Beauty Land", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(60), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa1-3", name: "Hoàng Văn Tùng", email: "tung@sportzone.vn", phone: "0938333444", role: "user", shopId: "shop-sa1-3", shopName: "Sport Zone", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(200), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa1-4", name: "Bùi Thị Lan", email: "lan@kidstoy.vn", phone: "0938444555", role: "user", shopId: "shop-sa1-4", shopName: "Kids Toy", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(30), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa1-5", name: "Đỗ Quang Minh", email: "minh@petshop.vn", phone: "0938555666", role: "user", shopId: "shop-sa1-5", shopName: "Pet Shop", avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop", status: "locked", expiresAt: inDays(15), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa1-6", name: "Ngô Thanh Hà", email: "ha@homedecor.vn", phone: "0938666777", role: "user", shopId: "shop-sa1-6", shopName: "Home Decor", avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(90), password: DEFAULT_PASSWORD, createdBy: "subadmin-1" },
+  { id: "user-sa2-1", name: "Lý Hoàng Nam", email: "nam@coffeeshop.vn", phone: "0939111222", role: "user", shopId: "shop-sa2-1", shopName: "Coffee Shop", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(75), password: DEFAULT_PASSWORD, createdBy: "subadmin-2" },
+  { id: "user-sa2-2", name: "Trịnh Mai Linh", email: "linh@bakery.vn", phone: "0939222333", role: "user", shopId: "shop-sa2-2", shopName: "Sweet Bakery", avatar: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(150), password: DEFAULT_PASSWORD, createdBy: "subadmin-2" },
+  { id: "user-sa2-3", name: "Đinh Văn Hải", email: "hai@electronics.vn", phone: "0939333444", role: "user", shopId: "shop-sa2-3", shopName: "Mega Electronics", avatar: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=80&h=80&fit=crop", status: "active", expiresAt: inDays(40), password: DEFAULT_PASSWORD, createdBy: "subadmin-2" },
 ];
 
 const INITIAL_ADMIN: AppUser = {
@@ -132,10 +141,45 @@ const INITIAL_SUB_ADMIN: AppUser = {
   maxSites: DEFAULT_SUB_ADMIN_MAX_SITES,
 };
 
+const INITIAL_SUB_ADMIN_2: AppUser = {
+  id: "subadmin-2",
+  name: "Nguyễn Hữu Thắng",
+  email: "thang@platform.vn",
+  phone: "0911000222",
+  role: "sub_admin",
+  avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80&h=80&fit=crop",
+  status: "active",
+  expiresAt: inDays(3650),
+  password: DEFAULT_PASSWORD,
+  maxSites: 3000,
+};
+
+const INITIAL_SUB_ADMIN_3: AppUser = {
+  id: "subadmin-3",
+  name: "Lê Quỳnh Trang",
+  email: "trang@platform.vn",
+  phone: "0911000333",
+  role: "sub_admin",
+  avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&fit=crop",
+  status: "locked",
+  expiresAt: inDays(3650),
+  password: DEFAULT_PASSWORD,
+  maxSites: 5000,
+};
+
 const INITIAL_SHOP_CONFIGS: ShopConfig[] = [
   { shopId: "shop-1", shopName: "Tech Zone", ownerId: "user-1", ownerName: "Nguyễn Văn An", limits: { ...DEFAULT_LIMITS }, usage: { products: 6, categories: 4, posts: 3 } },
   { shopId: "shop-2", shopName: "Fashion Hub", ownerId: "user-2", ownerName: "Trần Thị Bình", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
   { shopId: "shop-3", shopName: "Green Garden", ownerId: "user-3", ownerName: "Lê Minh Cường", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
+  { shopId: "shop-sa1-1", shopName: "Book World", ownerId: "user-sa1-1", ownerName: "Phạm Đức Anh", limits: { ...DEFAULT_LIMITS }, usage: { products: 45, categories: 8, posts: 12 } },
+  { shopId: "shop-sa1-2", shopName: "Beauty Land", ownerId: "user-sa1-2", ownerName: "Vũ Thị Hồng", limits: { ...DEFAULT_LIMITS }, usage: { products: 78, categories: 12, posts: 5 } },
+  { shopId: "shop-sa1-3", shopName: "Sport Zone", ownerId: "user-sa1-3", ownerName: "Hoàng Văn Tùng", limits: { ...DEFAULT_LIMITS }, usage: { products: 120, categories: 15, posts: 20 } },
+  { shopId: "shop-sa1-4", shopName: "Kids Toy", ownerId: "user-sa1-4", ownerName: "Bùi Thị Lan", limits: { ...DEFAULT_LIMITS }, usage: { products: 32, categories: 6, posts: 3 } },
+  { shopId: "shop-sa1-5", shopName: "Pet Shop", ownerId: "user-sa1-5", ownerName: "Đỗ Quang Minh", limits: { ...DEFAULT_LIMITS }, usage: { products: 18, categories: 4, posts: 1 } },
+  { shopId: "shop-sa1-6", shopName: "Home Decor", ownerId: "user-sa1-6", ownerName: "Ngô Thanh Hà", limits: { ...DEFAULT_LIMITS }, usage: { products: 56, categories: 9, posts: 8 } },
+  { shopId: "shop-sa2-1", shopName: "Coffee Shop", ownerId: "user-sa2-1", ownerName: "Lý Hoàng Nam", limits: { ...DEFAULT_LIMITS }, usage: { products: 28, categories: 5, posts: 4 } },
+  { shopId: "shop-sa2-2", shopName: "Sweet Bakery", ownerId: "user-sa2-2", ownerName: "Trịnh Mai Linh", limits: { ...DEFAULT_LIMITS }, usage: { products: 35, categories: 7, posts: 6 } },
+  { shopId: "shop-sa2-3", shopName: "Mega Electronics", ownerId: "user-sa2-3", ownerName: "Đinh Văn Hải", limits: { ...DEFAULT_LIMITS }, usage: { products: 92, categories: 14, posts: 10 } },
 ];
 
 export interface CreateUserInput {
@@ -206,7 +250,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<AppUser[]>(INITIAL_USERS);
   const [admin, setAdmin] = useState<AppUser>(INITIAL_ADMIN);
   const [member, setMember] = useState<AppUser>(INITIAL_MEMBER);
-  const [subAdmins, setSubAdmins] = useState<AppUser[]>([INITIAL_SUB_ADMIN]);
+  const [subAdmins, setSubAdmins] = useState<AppUser[]>([INITIAL_SUB_ADMIN, INITIAL_SUB_ADMIN_2, INITIAL_SUB_ADMIN_3]);
   const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>(INITIAL_SHOP_CONFIGS);
 
   useEffect(() => {
