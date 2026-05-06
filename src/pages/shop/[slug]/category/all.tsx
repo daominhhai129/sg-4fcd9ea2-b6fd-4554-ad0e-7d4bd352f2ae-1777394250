@@ -114,7 +114,7 @@ export default function AllCategoriesPage() {
           {filteredProducts.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">Không có sản phẩm phù hợp</div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} shopSlug={shop.slug} themeColor={shop.themeColor} />
               ))}
