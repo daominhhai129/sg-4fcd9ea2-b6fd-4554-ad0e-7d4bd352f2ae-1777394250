@@ -137,6 +137,8 @@ export default function SubAdminPage() {
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Shop owner</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Cửa hàng</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Tên miền</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Giới hạn SP</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Hết hạn</th>
                     <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
                     <th className="px-4 py-3 w-10" />
@@ -146,6 +148,11 @@ export default function SubAdminPage() {
                   {filtered.map((u) => {
                     const expiry = new Date(u.expiresAt);
                     const expired = expiry < new Date();
+                    const cfg = u.shopId ? getShopConfig(u.shopId) : undefined;
+                    const productLimit = cfg?.limits.products || 0;
+                    const productUsage = cfg?.usage.products || 0;
+                    const usagePct = productLimit ? Math.min(100, (productUsage / productLimit) * 100) : 0;
+                    const defaultUrl = u.shopSlug ? "/shop/" + u.shopSlug : "—";
                     return (
                       <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3">
@@ -161,6 +168,22 @@ export default function SubAdminPage() {
                           {u.phone ? <a href={"tel:" + u.phone} className="text-sm text-primary hover:underline inline-flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{u.phone}</a> : <span className="text-sm text-muted-foreground">—</span>}
                         </td>
                         <td className="px-4 py-3 hidden lg:table-cell"><span className="text-sm text-muted-foreground">{u.shopName || "—"}</span></td>
+                        <td className="px-4 py-3 hidden xl:table-cell">
+                          {u.customDomain ? (
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary"><Globe className="w-3.5 h-3.5" />{u.customDomain}</span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground font-mono">{defaultUrl}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 hidden xl:table-cell">
+                          <div className="text-xs">
+                            <span className="font-semibold text-foreground">{productUsage.toLocaleString("vi-VN")}</span>
+                            <span className="text-muted-foreground"> / {productLimit.toLocaleString("vi-VN")}</span>
+                          </div>
+                          <div className="w-24 h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
+                            <div className={cn("h-full", usagePct >= 90 ? "bg-destructive" : usagePct >= 70 ? "bg-amber-500" : "bg-primary")} style={{ width: usagePct + "%" }} />
+                          </div>
+                        </td>
                         <td className="px-4 py-3 hidden sm:table-cell">
                           <span className={cn("text-sm", expired ? "text-destructive font-semibold" : "text-muted-foreground")}>
                             {expiry.toLocaleDateString("vi-VN")}
@@ -209,7 +232,7 @@ export default function SubAdminPage() {
                     );
                   })}
                   {filtered.length === 0 && (
-                    <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-muted-foreground">Chưa có shop owner nào. Bấm &quot;Tạo shop owner&quot; để bắt đầu.</td></tr>
+                    <tr><td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">Chưa có shop owner nào. Bấm &quot;Tạo shop owner&quot; để bắt đầu.</td></tr>
                   )}
                 </tbody>
               </table>
