@@ -1,4 +1,6 @@
 import type { Shop, ProductCategory, Product, Order, Post } from "@/types";
+import { extraProducts } from "./extra-products";
+import { extraPosts } from "./extra-posts";
 
 export const shops: Shop[] = [
   {
@@ -471,3 +473,6 @@ export function formatPrice(price: number): string {
 export function getOrdersByShop(shopId: string): Order[] {
   return orders.filter((o) => o.shopId === shopId);
 }
+
+products.push(...extraProducts);
+posts.push(...extraPosts);
