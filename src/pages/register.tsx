@@ -13,7 +13,8 @@ import { UserPlus, User, Mail, Phone, MapPin, ArrowRight, ArrowLeft } from "luci
 export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { loginAsMember } = useAuth();
+  const { registerMember } = useAuth();
+  const returnTo = typeof router.query.return === "string" ? router.query.return : undefined;
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -25,15 +26,15 @@ export default function RegisterPage() {
     if (!fullName || !email || !phone || !address) return;
     setIsSubmitting(true);
     setTimeout(() => {
-      let dest = "/";
-      if (typeof window !== "undefined") {
+      let dest = returnTo || "/member";
+      if (!returnTo && typeof window !== "undefined") {
         try {
           const slug = localStorage.getItem("lastShopSlug");
           if (slug) dest = "/shop/" + slug;
         } catch {}
       }
-      toast({ variant: "success", title: "Đăng ký thành công", description: "Chào mừng " + fullName + "! Tiếp tục mua sắm nhé." });
-      loginAsMember(dest);
+      toast({ variant: "success", title: "Đăng ký thành công", description: "Chào mừng " + fullName + "! Đã tự động đăng nhập." });
+      registerMember({ name: fullName, email, phone, address }, dest);
       setIsSubmitting(false);
     }, 600);
   };
@@ -43,10 +44,13 @@ export default function RegisterPage() {
       <SEO title="Đăng ký thành viên" description="Tạo tài khoản thành viên để mua sắm dễ dàng hơn" />
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4 py-10">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
+          <button
+            onClick={() => (returnTo ? router.push(returnTo) : router.push("/"))}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+          >
             <ArrowLeft className="w-4 h-4" />
-            Về trang chủ
-          </Link>
+            {returnTo ? "Quay lại" : "Về trang chủ"}
+          </button>
 
           <div className="bg-card border border-border/50 rounded-3xl shadow-xl p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -93,14 +97,14 @@ export default function RegisterPage() {
               </div>
 
               <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl h-11 text-sm font-semibold">
-                {isSubmitting ? "Đang xử lý..." : "Đăng ký"}
+                {isSubmitting ? "Đang xử lý..." : "Đăng ký & tự đăng nhập"}
                 {!isSubmitting && <ArrowRight className="w-4 h-4 ml-1" />}
               </Button>
             </form>
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Đã có tài khoản?{" "}
-              <Link href="/login" className="text-primary font-semibold hover:underline">
+              <Link href={"/member/login" + (returnTo ? "?return=" + encodeURIComponent(returnTo) : "")} className="text-primary font-semibold hover:underline">
                 Đăng nhập
               </Link>
             </p>

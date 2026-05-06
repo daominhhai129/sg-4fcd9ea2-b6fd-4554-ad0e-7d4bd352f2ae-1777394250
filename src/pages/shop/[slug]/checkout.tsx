@@ -9,7 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO } from "@/components/SEO";
-import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -185,6 +185,34 @@ export default function CheckoutPage() {
             <div className="text-sm">
               <p className="font-semibold text-emerald-900">Đã đăng nhập với {user!.name}</p>
               <p className="text-emerald-700/80 text-xs">Thông tin nhận hàng đã được tự điền — bạn có thể chỉnh sửa nếu cần.</p>
+            </div>
+          </div>
+        )}
+
+        {!user && (
+          <div className="mb-6 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <div className="text-sm">
+                <p className="font-semibold text-foreground">Mua sắm tiện hơn cùng tài khoản thành viên</p>
+                <p className="text-muted-foreground text-xs">Đăng nhập để tự điền thông tin & theo dõi đơn hàng dễ dàng.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button asChild variant="outline" size="sm" className="rounded-xl border-primary/40 text-primary hover:bg-primary hover:text-white">
+                <Link href={"/member/login?return=" + encodeURIComponent("/shop/" + shop.slug + "/checkout")}>
+                  <LogIn className="w-4 h-4 mr-1" />
+                  Đăng nhập
+                </Link>
+              </Button>
+              <Button asChild size="sm" className="rounded-xl gradient-primary text-white border-0">
+                <Link href={"/register?return=" + encodeURIComponent("/shop/" + shop.slug + "/checkout")}>
+                  <UserPlus className="w-4 h-4 mr-1" />
+                  Đăng ký
+                </Link>
+              </Button>
             </div>
           </div>
         )}

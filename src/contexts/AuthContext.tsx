@@ -45,6 +45,7 @@ export interface AppUser {
   status: UserStatus;
   expiresAt: string;
   password: string;
+  hasPassword?: boolean;
   customDomain?: string;
   address?: string;
   addresses?: ShippingAddress[];
@@ -93,6 +94,7 @@ const INITIAL_MEMBER: AppUser = {
   status: "active",
   expiresAt: inDays(3650),
   password: DEFAULT_PASSWORD,
+  hasPassword: true,
   address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh",
   addresses: [
     { id: "addr-1", recipientName: "Phạm Thu Hà", recipientPhone: "0934567890", address: "123 Nguyễn Trãi, Phường 7, Quận 5, TP. Hồ Chí Minh", isDefault: true },
@@ -157,6 +159,10 @@ interface AuthContextType {
   updateMemberAddress: (id: string, input: { recipientName: string; recipientPhone: string; address: string }) => void;
   deleteMemberAddress: (id: string) => void;
   setDefaultMemberAddress: (id: string) => void;
+  registerMember: (input: { name: string; email: string; phone: string; address: string }, redirectTo?: string) => void;
+  loginMemberByPhone: (phone: string) => { found: boolean; needsPassword: boolean };
+  loginMemberWithPassword: (phone: string, password: string) => boolean;
+  finalizeMemberLogin: (redirectTo?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -312,7 +318,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateMemberPassword = useCallback((newPassword: string) => {
     setMember((prev) => {
-      const updated = { ...prev, password: newPassword };
+      const updated = { ...prev, password: newPassword, hasPassword: true };
       if (user?.role === "member") persistUser(updated);
       return updated;
     });
@@ -370,8 +376,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [user]);
 
+  const registerMember = useCallback((input: { name: string; email: string; phone: string; address: string }, redirectTo?: string) => {
+    const newAddr: ShippingAddress = { id: "addr-" + Date.now(), recipientName: input.name, recipientPhone: input.phone, address: input.address, isDefault: true };
+    const updated: AppUser = {
+      ...member,
+      name: input.name,
+      email: input.email,
+      phone: input.phone,
+      address: input.address,
+      addresses: [newAddr],
+      hasPassword: false,
+      password: "",
+    };
+    setMember(updated);
+    persistUser(updated);
+    router.push(redirectTo || "/member");
+  }, [member, router]);
+
+  const loginMemberByPhone = useCallback((phone: string) => {
+    const cleaned = phone.replace(/\s/g, "");
+    if (member.phone === cleaned) {
+      return { found: true, needsPassword: !!member.hasPassword };
+    }
+    return { found: false, needsPassword: false };
+  }, [member]);
+
+  const loginMemberWithPassword = useCallback((phone: string, password: string) => {
+    const cleaned = phone.replace(/\s/g, "");
+    if (member.phone === cleaned && member.password === password) {
+      persistUser(member);
+      return true;
+    }
+    return false;
+  }, [member]);
+
+  const finalizeMemberLogin = useCallback((redirectTo?: string) => {
+    persistUser(member);
+    router.push(redirectTo || "/member");
+  }, [member, router]);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress, registerMember, loginMemberByPhone, loginMemberWithPassword, finalizeMemberLogin }}>
       {children}
     </AuthContext.Provider>
   );
