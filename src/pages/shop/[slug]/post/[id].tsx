@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { shops } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
+import { ShopFooter } from "@/components/storefront/ShopFooter";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { useCart } from "@/contexts/CartContext";
@@ -135,6 +136,7 @@ export default function PostDetailPage() {
           </div>
         )}
       </main>
+      <ShopFooter shop={shop} />
       <ShopBottomBar shop={shop} />
     </>
   );

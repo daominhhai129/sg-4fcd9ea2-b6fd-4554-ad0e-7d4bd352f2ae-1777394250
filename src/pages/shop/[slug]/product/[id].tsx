@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { shops, formatPrice } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
+import { ShopFooter } from "@/components/storefront/ShopFooter";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
@@ -226,6 +227,7 @@ export default function ProductDetailPage() {
         )}
         </div>
       </main>
+      <ShopFooter shop={shop} />
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
     </>
   );
