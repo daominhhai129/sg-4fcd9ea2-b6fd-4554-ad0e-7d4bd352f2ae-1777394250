@@ -215,6 +215,7 @@ export default function SuperAdminPage() {
           </header>
 
           <main className="p-4 lg:p-8 space-y-8">
+            {activeView !== "sub-admins" && (
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 { label: t("super.statShops"), value: shopConfigs.length, icon: Store, color: "text-primary bg-primary/10" },
@@ -230,6 +231,7 @@ export default function SuperAdminPage() {
                 </div>
               ))}
             </div>
+            )}
 
             {activeView === "shops" && (
             <div>
