@@ -61,6 +61,7 @@ export default function ProductsPage() {
 
   const [formImages, setFormImages] = useState<string[]>([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
+  const [shortDesc, setShortDesc] = useState("");
   const [description, setDescription] = useState("");
   const [videoLinks, setVideoLinks] = useState<string[]>([""]);
   const [affiliateLink, setAffiliateLink] = useState("");
@@ -118,6 +119,7 @@ export default function ProductsPage() {
   const resetForm = () => {
     setFormImages([]);
     setThumbnailIndex(0);
+    setShortDesc("");
     setDescription("");
     setVideoLinks([""]);
     setAffiliateLink("");
@@ -129,7 +131,9 @@ export default function ProductsPage() {
     setEditingProduct(product);
     setFormImages(product.images || []);
     setThumbnailIndex(0);
-    setDescription(product.description || "");
+    const longDesc = (product as unknown as { longDescription?: string }).longDescription;
+    setShortDesc(longDesc ? (product.description || "") : "");
+    setDescription(longDesc || product.description || "");
     setVideoLinks(
       (product as unknown as { videoLinks?: string[] }).videoLinks?.length
         ? (product as unknown as { videoLinks?: string[] }).videoLinks!
@@ -213,7 +217,8 @@ export default function ProductsPage() {
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
-      description: description,
+      description: shortDesc.trim() || description.replace(/<[^>]*>/g, "").slice(0, 200),
+      longDescription: description,
       price: Number(priceInput.replace(/\D/g, "")) || 0,
       categoryId: form.get("categoryId") as string,
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
@@ -380,6 +385,19 @@ export default function ProductsPage() {
                   {formImages.length > 0 && (
                     <p className="text-xs text-muted-foreground mt-2">{t("prod.thumbHint")}</p>
                   )}
+                </div>
+
+                <div>
+                  <Label className="text-sm font-semibold">{t("prod.shortDesc")}</Label>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("prod.shortDescTip")}</p>
+                  <textarea
+                    value={shortDesc}
+                    onChange={(e) => setShortDesc(e.target.value.slice(0, 250))}
+                    placeholder={t("prod.shortDescPh")}
+                    rows={2}
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 text-right">{shortDesc.length}/250</p>
                 </div>
 
                 <div>
