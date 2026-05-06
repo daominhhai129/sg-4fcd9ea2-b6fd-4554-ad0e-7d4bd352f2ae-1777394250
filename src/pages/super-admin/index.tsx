@@ -194,6 +194,152 @@ export default function SuperAdminPage() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
+                  <h2 className="text-lg font-heading font-bold text-foreground">Quản lý Shop Owners</h2>
+                  <p className="text-sm text-muted-foreground">Toàn bộ shop owners trên platform — bao gồm cả shop do sub-admin tạo. Có toàn quyền quản lý.</p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="relative flex-1 sm:flex-none">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Tìm theo tên, email, shop..." className="pl-9 rounded-xl w-full sm:w-64" />
+                  </div>
+                  <Button variant="outline" className="rounded-xl" onClick={handleExportCSV}><FileSpreadsheet className="w-4 h-4 mr-1.5" /> CSV</Button>
+                  <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}><UserPlus className="w-4 h-4 mr-1.5" /> Tạo</Button>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/50 overflow-hidden bg-card overflow-x-auto">
+                <table className="w-full min-w-[900px]">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Shop owner</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Cửa hàng</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Tên miền</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Giới hạn SP</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tạo bởi</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Hết hạn</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
+                      <th className="px-4 py-3 w-10" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((u) => {
+                      const expiry = new Date(u.expiresAt);
+                      const expired = expiry < new Date();
+                      const cfg = u.shopId ? shopConfigs.find((sc) => sc.shopId === u.shopId) : undefined;
+                      const productLimit = cfg?.limits.products || 0;
+                      const productUsage = cfg?.usage.products || 0;
+                      const usagePct = productLimit ? Math.min(100, (productUsage / productLimit) * 100) : 0;
+                      const defaultUrl = u.shopSlug ? "/shop/" + u.shopSlug : "—";
+                      const creator = u.createdBy ? subAdmins.find((s) => s.id === u.createdBy) : null;
+                      const createdLabel = u.createdAt ? new Date(u.createdAt).toLocaleDateString("vi-VN") : "—";
+                      return (
+                        <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <Image src={u.avatar || ""} alt={u.name} width={36} height={36} className="rounded-full flex-shrink-0" />
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 hidden md:table-cell">
+                            {u.phone ? <a href={"tel:" + u.phone} className="text-sm text-primary hover:underline inline-flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{u.phone}</a> : <span className="text-sm text-muted-foreground">—</span>}
+                          </td>
+                          <td className="px-4 py-3 hidden lg:table-cell"><span className="text-sm text-muted-foreground">{u.shopName || "—"}</span></td>
+                          <td className="px-4 py-3 hidden xl:table-cell">
+                            {u.customDomain ? (
+                              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary"><Globe className="w-3.5 h-3.5" />{u.customDomain}</span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground font-mono">{defaultUrl}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 hidden xl:table-cell">
+                            <div className="text-xs">
+                              <span className="font-semibold text-foreground">{productUsage.toLocaleString("vi-VN")}</span>
+                              <span className="text-muted-foreground"> / {productLimit.toLocaleString("vi-VN")}</span>
+                            </div>
+                            <div className="w-24 h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
+                              <div className={cn("h-full", usagePct >= 90 ? "bg-destructive" : usagePct >= 70 ? "bg-amber-500" : "bg-primary")} style={{ width: usagePct + "%" }} />
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            {creator ? (
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">{creator.name}</p>
+                                <p className="text-xs text-muted-foreground">Sub-admin · {createdLabel}</p>
+                              </div>
+                            ) : (
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-accent">Super Admin</p>
+                                <p className="text-xs text-muted-foreground">{createdLabel}</p>
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 hidden sm:table-cell">
+                            <span className={cn("text-sm", expired ? "text-destructive font-semibold" : "text-muted-foreground")}>
+                              {expiry.toLocaleDateString("vi-VN")}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", u.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
+                              {u.status === "active" ? "Hoạt động" : "Đã khóa"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="p-1.5 rounded-lg hover:bg-muted transition-colors"><MoreVertical className="w-4 h-4 text-muted-foreground" /></button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-52">
+                                <DropdownMenuItem onClick={() => enterShopAsAdmin(u.id)}>
+                                  <LogIn className="w-4 h-4 mr-2" /> Vào shop với quyền admin
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
+                                  <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
+                                  <Globe className="w-4 h-4 mr-2" /> Tên miền & URL
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setEditingShop(u.shopId || null)}>
+                                  <SlidersHorizontal className="w-4 h-4 mr-2" /> Giới hạn
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
+                                  <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
+                                  <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
+                                  <Copy className="w-4 h-4 mr-2" /> Copy thông tin
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {u.status === "active" ? (
+                                  <DropdownMenuItem onClick={() => lockUser(u.id)} className="text-destructive focus:text-destructive">
+                                    <Lock className="w-4 h-4 mr-2" /> Khóa
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => unlockUser(u.id)}>
+                                    <Unlock className="w-4 h-4 mr-2" /> Mở khóa
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredUsers.length === 0 && (
+                      <tr><td colSpan={9} className="px-4 py-12 text-center text-sm text-muted-foreground">Không tìm thấy shop owner nào.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
                   <h2 className="text-lg font-heading font-bold text-foreground">Quản lý Sub-admin</h2>
                   <p className="text-sm text-muted-foreground">Sub-admin tạo và quản lý user shop của riêng họ. Mỗi sub-admin có cap số sites tự cấu hình (mặc định 5000).</p>
                 </div>
