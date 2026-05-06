@@ -54,6 +54,24 @@ export default function CategoryPage() {
     setPage(1);
   }, [searchQuery, sortBy, id]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !shop || !id) return;
+    const key = "shop-scroll:" + shop.slug + ":cat:" + id;
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const y = parseInt(saved, 10);
+      requestAnimationFrame(() => window.scrollTo(0, y));
+      sessionStorage.removeItem(key);
+    }
+    const handleRouteChange = () => {
+      sessionStorage.setItem(key, String(window.scrollY));
+    };
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [shop, id, router.events]);
+
   if (!shop) {
     return (
       <div className="min-h-screen flex items-center justify-center">

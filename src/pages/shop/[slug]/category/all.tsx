@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopFooter } from "@/components/storefront/ShopFooter";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
@@ -20,6 +20,24 @@ export default function AllCategoriesPage() {
   const [sortBy, setSortBy] = useState("default");
 
   const shop = shops.find((s) => s.slug === slug);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !shop) return;
+    const key = "shop-scroll:" + shop.slug + ":cat-all";
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const y = parseInt(saved, 10);
+      requestAnimationFrame(() => window.scrollTo(0, y));
+      sessionStorage.removeItem(key);
+    }
+    const handleRouteChange = () => {
+      sessionStorage.setItem(key, String(window.scrollY));
+    };
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [shop, router.events]);
 
   const parentCategories = useMemo(() => {
     if (!shop) return [];
