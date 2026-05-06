@@ -14,6 +14,7 @@ import { Search, Sparkles, ChevronLeft, ChevronRight, FileText, Calendar, ArrowR
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const PRODUCTS_PER_PAGE = 24;
 const POSTS_PER_PAGE = 8;
@@ -24,6 +25,7 @@ export default function ShopPage() {
   const { addToCart, totalItems } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [productPage, setProductPage] = useState(1);
   const [postPage, setPostPage] = useState(1);
 
@@ -70,8 +72,14 @@ export default function ShopPage() {
       const q = searchQuery.toLowerCase();
       products = products.filter((p) => p.name.toLowerCase().includes(q));
     }
-    return products;
-  }, [shop, categoryFilter, searchQuery, childrenByParent]);
+    const sorted = [...products];
+    if (sortBy === "priceAsc") {
+      sorted.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
+    } else if (sortBy === "priceDesc") {
+      sorted.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
+    }
+    return sorted;
+  }, [shop, categoryFilter, searchQuery, sortBy, childrenByParent]);
 
   const productTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const paginatedProducts = useMemo(() =>
@@ -93,7 +101,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     setProductPage(1);
-  }, [categoryFilter, searchQuery]);
+  }, [categoryFilter, searchQuery, sortBy]);
 
   if (!shop) {
     return (
@@ -147,14 +155,26 @@ export default function ShopPage() {
               <h2 className="text-xl font-heading font-bold text-foreground">Sản phẩm</h2>
               <p className="text-sm text-muted-foreground mt-1">{filteredProducts.length} sản phẩm</p>
             </div>
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm sản phẩm..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl"
-              />
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+              <div className="relative flex-1 md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm sản phẩm..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 rounded-xl"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "priceAsc" | "priceDesc")}>
+                <SelectTrigger className="w-full sm:w-44 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Mới nhất</SelectItem>
+                  <SelectItem value="priceAsc">Giá thấp → cao</SelectItem>
+                  <SelectItem value="priceDesc">Giá cao → thấp</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
