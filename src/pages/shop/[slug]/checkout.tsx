@@ -7,6 +7,7 @@ import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO } from "@/components/SEO";
 import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function CheckoutPage() {
   const { slug } = router.query;
   const { items, totalItems, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const shop = shops.find((s) => s.slug === slug);
 
   const isMember = user?.role === "member";
@@ -61,26 +63,35 @@ export default function CheckoutPage() {
   const discountAmount = appliedDiscount ? calculateDiscount(appliedDiscount) : 0;
   const finalTotal = Math.max(0, totalPrice - discountAmount);
 
-  const applyDiscount = () => {
+  const applyDiscount = (codeOverride?: string) => {
     setDiscountError("");
-    const code = discountInput.trim().toUpperCase();
-    if (!code) { setDiscountError("Vui lòng nhập mã giảm giá"); return; }
+    const code = (codeOverride ?? discountInput).trim().toUpperCase();
+    if (!code) { setDiscountError(t("checkout.errEmpty")); return; }
     const found = discountCodes.find((d) => d.code.toUpperCase() === code && d.shopId === shop.id);
-    if (!found) { setDiscountError("Mã giảm giá không tồn tại"); return; }
-    if (found.status !== "active") { setDiscountError("Mã đã bị tạm dừng"); return; }
-    if (found.expiresAt && new Date(found.expiresAt) < new Date()) { setDiscountError("Mã đã hết hạn"); return; }
-    if (found.maxUses && found.usedCount >= found.maxUses) { setDiscountError("Mã đã hết lượt sử dụng"); return; }
+    if (!found) { setDiscountError(t("checkout.errNotFound")); return; }
+    if (found.status !== "active") { setDiscountError(t("checkout.errPaused")); return; }
+    if (found.expiresAt && new Date(found.expiresAt) < new Date()) { setDiscountError(t("checkout.errExpired")); return; }
+    if (found.maxUses && found.usedCount >= found.maxUses) { setDiscountError(t("checkout.errExhausted")); return; }
     if (found.minOrderValue && totalPrice < found.minOrderValue) {
-      setDiscountError(`Đơn hàng tối thiểu ${formatPrice(found.minOrderValue)} để dùng mã này`);
+      setDiscountError(t("checkout.errMinOrder", { amount: formatPrice(found.minOrderValue) }));
       return;
     }
     if (found.productId && !items.some((i) => i.product.id === found.productId)) {
-      setDiscountError(`Mã này chỉ áp dụng cho sản phẩm: ${found.productName}`);
+      setDiscountError(t("checkout.errProductOnly", { name: found.productName || "" }));
       return;
     }
     setAppliedDiscount(found);
     setDiscountInput("");
   };
+
+  const availableCodes = shop ? discountCodes.filter((d) => {
+    if (d.shopId !== shop.id) return false;
+    if (d.status !== "active") return false;
+    if (d.expiresAt && new Date(d.expiresAt) < new Date()) return false;
+    if (d.maxUses && d.usedCount >= d.maxUses) return false;
+    if (d.productId && !items.some((i) => i.product.id === d.productId)) return false;
+    return true;
+  }) : [];
 
   const removeDiscount = () => {
     setAppliedDiscount(null);
@@ -212,9 +223,9 @@ export default function CheckoutPage() {
             <div className="rounded-2xl bg-card border border-border/50 p-5 md:p-6">
               <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
                 <Tag className="w-4 h-4 text-primary" />
-                Mã giảm giá
+                {t("checkout.discountTitle")}
               </h2>
-              <p className="text-xs text-muted-foreground mb-3">Nhập mã để được giảm thêm khi thanh toán</p>
+              <p className="text-xs text-muted-foreground mb-3">{t("checkout.discountDesc")}</p>
               {appliedDiscount ? (
                 <div className="rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
@@ -224,8 +235,9 @@ export default function CheckoutPage() {
                     <div className="min-w-0">
                       <p className="font-mono font-bold text-foreground text-sm">{appliedDiscount.code}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {appliedDiscount.type === "percentage" ? `Giảm ${appliedDiscount.value}%` : `Giảm ${formatPrice(appliedDiscount.value)}`}
-                        {appliedDiscount.productName ? ` cho ${appliedDiscount.productName}` : " toàn đơn"}
+                        {appliedDiscount.type === "percentage" ? t("discount.percentOff", { n: appliedDiscount.value }) : t("discount.amountOff", { amount: formatPrice(appliedDiscount.value) })}
+                        {" "}
+                        {appliedDiscount.productName ? t("checkout.discountForProduct", { name: appliedDiscount.productName }) : t("checkout.discountForAll")}
                       </p>
                     </div>
                   </div>
@@ -234,15 +246,50 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input value={discountInput} onChange={(e) => { setDiscountInput(e.target.value.toUpperCase()); setDiscountError(""); }} className="rounded-xl font-mono uppercase" placeholder="VD: TECH10" />
-                  <Button type="button" onClick={applyDiscount} variant="outline" className="rounded-xl px-5 border-primary text-primary hover:bg-primary hover:text-white">
-                    Áp dụng
-                  </Button>
-                </div>
+                <>
+                  <div className="flex gap-2">
+                    <Input value={discountInput} onChange={(e) => { setDiscountInput(e.target.value.toUpperCase()); setDiscountError(""); }} className="rounded-xl font-mono uppercase" placeholder={t("checkout.discountPh")} />
+                    <Button type="button" onClick={() => applyDiscount()} variant="outline" className="rounded-xl px-5 border-primary text-primary hover:bg-primary hover:text-white">
+                      {t("checkout.applyBtn")}
+                    </Button>
+                  </div>
+                  {discountError && <p className="text-xs text-destructive mt-2">{discountError}</p>}
+
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("checkout.availableCodes")}</p>
+                    {availableCodes.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">{t("checkout.noAvailable")}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {availableCodes.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => applyDiscount(c.code)}
+                            className="w-full text-left rounded-xl border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-colors p-3 flex items-center gap-3 group"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                              <Tag className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-mono font-bold text-foreground text-sm">{c.code}</p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {c.type === "percentage" ? t("discount.percentOff", { n: c.value }) : t("discount.amountOff", { amount: formatPrice(c.value) })}
+                                {" "}
+                                {c.productName ? t("checkout.discountForProduct", { name: c.productName }) : t("checkout.discountForAll")}
+                                {c.minOrderValue ? ` · ${t("discount.minOrder")} ${formatPrice(c.minOrderValue)}` : ""}
+                              </p>
+                            </div>
+                            <span className="text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                              {t("checkout.clickToApply")} →
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
-              {discountError && <p className="text-xs text-destructive mt-2">{discountError}</p>}
-              <p className="text-xs text-muted-foreground mt-3">Mã thử nghiệm: <span className="font-mono font-semibold">TECH10, FREESHIP, FASHION15, FRESH20</span></p>
             </div>
           </div>
 
