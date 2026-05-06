@@ -66,6 +66,7 @@ export default function SettingsPage() {
   };
 
   const addBankAccount = () => {
+    if ((footer.bankAccounts || []).length >= 2) return;
     const newBank: BankAccount = { id: "ba-" + Date.now(), bankName: "", accountNumber: "", accountHolder: "" };
     setFooter({ ...footer, bankAccounts: [...(footer.bankAccounts || []), newBank] });
   };
@@ -158,12 +159,12 @@ export default function SettingsPage() {
                     <Landmark className="w-4 h-4 text-primary" />
                     <Label className="text-sm font-semibold">Tài khoản ngân hàng</Label>
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={addBankAccount} className="rounded-xl h-8">
+                  <Button type="button" variant="outline" size="sm" onClick={addBankAccount} disabled={(footer.bankAccounts || []).length >= 2} className="rounded-xl h-8">
                     <Plus className="w-3.5 h-3.5 mr-1" />
                     Thêm
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mb-3">Khách hàng có thể bấm vào số tài khoản để sao chép nhanh khi thanh toán.</p>
+                <p className="text-xs text-muted-foreground mb-3">Khách hàng có thể bấm vào số tài khoản để sao chép nhanh khi thanh toán. Tối đa 2 tài khoản.</p>
 
                 {(footer.bankAccounts || []).length === 0 ? (
                   <div className="text-center py-6 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground">
