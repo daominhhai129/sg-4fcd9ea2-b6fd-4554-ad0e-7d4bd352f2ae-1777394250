@@ -12,7 +12,7 @@ import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil, FileSpreadsheet } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil, FileSpreadsheet, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -36,6 +36,9 @@ export default function SuperAdminPage() {
   const [orphanedImages, setOrphanedImages] = useState(23);
   const [maintenanceAction, setMaintenanceAction] = useState<"images" | "orders" | null>(null);
   const [oldOrdersDeleted, setOldOrdersDeleted] = useState(false);
+  const [activeView, setActiveView] = useState<"shops" | "sub-admins" | "maintenance">("shops");
+  const [shopPage, setShopPage] = useState(1);
+  const SHOPS_PER_PAGE = 20;
 
   const oldOrdersCount = useMemo(() => {
     if (oldOrdersDeleted) return 0;
@@ -52,6 +55,17 @@ export default function SuperAdminPage() {
     .filter((u) => u.role === "user")
     .filter((u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()) || (u.shopName || "").toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt));
+
+  const shopTotalPages = Math.max(1, Math.ceil(filteredUsers.length / SHOPS_PER_PAGE));
+  const pagedUsers = filteredUsers.slice((shopPage - 1) * SHOPS_PER_PAGE, shopPage * SHOPS_PER_PAGE);
+
+  useEffect(() => {
+    setShopPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (shopPage > shopTotalPages) setShopPage(shopTotalPages);
+  }, [shopPage, shopTotalPages]);
 
   if (isLoading || !user || user.role !== "super_admin") {
     return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -146,6 +160,30 @@ export default function SuperAdminPage() {
             </div>
             <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
           </div>
+          <nav className="p-3 space-y-1">
+            {[
+              { id: "shops" as const, label: "Shop Owners", icon: Store, count: filteredUsers.length },
+              { id: "sub-admins" as const, label: "Sub-admin", icon: Shield, count: subAdmins.length },
+              { id: "maintenance" as const, label: "Bảo trì hệ thống", icon: Wrench },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
+                className={cn(
+                  "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  activeView === item.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className="w-4 h-4" />
+                <span className="flex-1 text-left">{item.label}</span>
+                {typeof item.count === "number" && (
+                  <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", activeView === item.id ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground")}>
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
           <div className="absolute bottom-4 left-3 right-3 space-y-1">
             <div className="px-3 pb-1">
               <LanguageToggle />
@@ -171,7 +209,9 @@ export default function SuperAdminPage() {
         <div className="lg:pl-64">
           <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
             <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
-            <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">{t("super.title")}</h1>
+            <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">
+              {activeView === "shops" ? "Quản lý Shop Owners" : activeView === "sub-admins" ? "Quản lý Sub-admin" : "Bảo trì hệ thống"}
+            </h1>
           </header>
 
           <main className="p-4 lg:p-8 space-y-8">
@@ -191,6 +231,7 @@ export default function SuperAdminPage() {
               ))}
             </div>
 
+            {activeView === "shops" && (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
@@ -222,7 +263,7 @@ export default function SuperAdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((u) => {
+                    {pagedUsers.map((u) => {
                       const expiry = new Date(u.expiresAt);
                       const expired = expiry < new Date();
                       const cfg = u.shopId ? shopConfigs.find((sc) => sc.shopId === u.shopId) : undefined;
@@ -335,8 +376,43 @@ export default function SuperAdminPage() {
                   </tbody>
                 </table>
               </div>
+              {shopTotalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Hiển thị <span className="font-semibold text-foreground">{(shopPage - 1) * SHOPS_PER_PAGE + 1}</span>–<span className="font-semibold text-foreground">{Math.min(shopPage * SHOPS_PER_PAGE, filteredUsers.length)}</span> trong <span className="font-semibold text-foreground">{filteredUsers.length}</span> shop owners
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="rounded-xl" disabled={shopPage === 1} onClick={() => setShopPage((p) => p - 1)}>
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Trước
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: shopTotalPages }, (_, i) => i + 1)
+                        .filter((p) => p === 1 || p === shopTotalPages || Math.abs(p - shopPage) <= 1)
+                        .map((p, idx, arr) => (
+                          <span key={p} className="flex items-center">
+                            {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-muted-foreground">…</span>}
+                            <button
+                              onClick={() => setShopPage(p)}
+                              className={cn(
+                                "min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors",
+                                shopPage === p ? "bg-primary text-white" : "bg-card border border-border hover:bg-muted"
+                              )}
+                            >
+                              {p}
+                            </button>
+                          </span>
+                        ))}
+                    </div>
+                    <Button variant="outline" size="sm" className="rounded-xl" disabled={shopPage === shopTotalPages} onClick={() => setShopPage((p) => p + 1)}>
+                      Sau <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
+            )}
 
+            {activeView === "sub-admins" && (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
@@ -428,7 +504,9 @@ export default function SuperAdminPage() {
                 </table>
               </div>
             </div>
+            )}
 
+            {activeView === "maintenance" && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Wrench className="w-5 h-5 text-accent" />
@@ -482,6 +560,7 @@ export default function SuperAdminPage() {
                 </div>
               </div>
             </div>
+            )}
           </main>
         </div>
 
