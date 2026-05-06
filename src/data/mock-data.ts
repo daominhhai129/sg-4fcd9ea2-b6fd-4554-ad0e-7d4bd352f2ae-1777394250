@@ -476,3 +476,21 @@ export const posts: Post[] = [
   { id: "post-29", shopId: "shop-3", title: "Detox với nước ép củ dền: lợi ích bất ngờ", slug: "detox-cu-den", excerpt: "Củ dền — siêu thực phẩm cho máu và làn da. Cách làm nước ép detox tại nhà.", content: "<p>Củ dền đỏ giàu nitrat tự nhiên, sắt và vitamin C — lý tưởng cho detox.</p><h3>Công thức nước ép</h3><p>2 củ dền + 1 quả táo + 1/2 quả chanh + 1cm gừng — ép lấy nước, uống vào buổi sáng.</p><img src=\"https://images.unsplash.com/photo-1593105544559-ecb03bf76f82?w=800&h=500&fit=crop\" alt=\"Củ dền\" />", coverImage: "https://images.unsplash.com/photo-1593105544559-ecb03bf76f82?w=800&h=400&fit=crop", images: ["https://images.unsplash.com/photo-1593105544559-ecb03bf76f82?w=800&h=400&fit=crop"], productIds: ["p-43"], createdAt: "2026-03-14", status: "published" },
   { id: "post-30", shopId: "shop-3", title: "Bơ Đắk Lắk: vua trái cây Việt Nam", slug: "bo-dak-lak-vua-trai-cay", excerpt: "Vì sao bơ Đắk Lắk được mệnh danh là vua trái cây Việt? Khám phá ngay.", content: "<p>Bơ sáp Đắk Lắk nổi tiếng với độ béo dẻo, dinh dưỡng vượt trội so với bơ nhập khẩu.</p><h3>Cách chọn bơ ngon</h3><p>Vỏ căng bóng, ấn nhẹ thấy mềm vừa — đó là quả bơ chín ngọt nhất.</p><img src=\"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=800&h=500&fit=crop\" alt=\"Bơ Đắk Lắk\" />", coverImage: "https://images.unsplash.com/photo-1601039641847-7857b994d704?w=800&h=400&fit=crop", images: ["https://images.unsplash.com/photo-1601039641847-7857b994d704?w=800&h=400&fit=crop"], productIds: ["p-40"], createdAt: "2026-03-13", status: "published" },
 ];
+
+products.push(...extraProducts);
+posts.push(...extraPosts);
+
+shops.forEach((s) => {
+  s.products = products.filter((p) => p.shopId === s.id);
+  s.categories = categories.filter((c) => c.shopId === s.id);
+  s.posts = posts.filter((p) => p.shopId === s.id);
+  s.orders = orders.filter((o) => o.shopId === s.id);
+});
+
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat("vi-VN").format(price) + "đ";
+}
+
+export function getOrdersByShop(shopId: string): Order[] {
+  return orders.filter((o) => o.shopId === shopId);
+}
