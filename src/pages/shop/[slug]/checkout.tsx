@@ -2,18 +2,18 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
-import { shops, formatPrice } from "@/data/mock-data";
+import { shops, formatPrice, discountCodes } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEO } from "@/components/SEO";
-import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import type { DiscountCode } from "@/types";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -34,6 +34,10 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [discountInput, setDiscountInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
+  const [discountError, setDiscountError] = useState("");
+
   if (!shop) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -43,6 +47,45 @@ export default function CheckoutPage() {
   }
 
   const themeStyle = shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined;
+
+  const calculateDiscount = (code: DiscountCode): number => {
+    if (code.productId) {
+      const item = items.find((i) => i.product.id === code.productId);
+      if (!item) return 0;
+      const itemPrice = (item.product.salePrice || item.product.price) * item.quantity;
+      return code.type === "percentage" ? Math.round(itemPrice * code.value / 100) : Math.min(code.value, itemPrice);
+    }
+    return code.type === "percentage" ? Math.round(totalPrice * code.value / 100) : Math.min(code.value, totalPrice);
+  };
+
+  const discountAmount = appliedDiscount ? calculateDiscount(appliedDiscount) : 0;
+  const finalTotal = Math.max(0, totalPrice - discountAmount);
+
+  const applyDiscount = () => {
+    setDiscountError("");
+    const code = discountInput.trim().toUpperCase();
+    if (!code) { setDiscountError("Vui lòng nhập mã giảm giá"); return; }
+    const found = discountCodes.find((d) => d.code.toUpperCase() === code && d.shopId === shop.id);
+    if (!found) { setDiscountError("Mã giảm giá không tồn tại"); return; }
+    if (found.status !== "active") { setDiscountError("Mã đã bị tạm dừng"); return; }
+    if (found.expiresAt && new Date(found.expiresAt) < new Date()) { setDiscountError("Mã đã hết hạn"); return; }
+    if (found.maxUses && found.usedCount >= found.maxUses) { setDiscountError("Mã đã hết lượt sử dụng"); return; }
+    if (found.minOrderValue && totalPrice < found.minOrderValue) {
+      setDiscountError(`Đơn hàng tối thiểu ${formatPrice(found.minOrderValue)} để dùng mã này`);
+      return;
+    }
+    if (found.productId && !items.some((i) => i.product.id === found.productId)) {
+      setDiscountError(`Mã này chỉ áp dụng cho sản phẩm: ${found.productName}`);
+      return;
+    }
+    setAppliedDiscount(found);
+    setDiscountInput("");
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountError("");
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +139,10 @@ export default function CheckoutPage() {
             <div className="rounded-xl bg-muted/50 p-4 mb-6 text-left text-sm space-y-1.5">
               <div className="flex justify-between"><span className="text-muted-foreground">Số điện thoại:</span><span className="font-medium">{form.phone}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Địa chỉ:</span><span className="font-medium text-right max-w-[60%] truncate">{form.address}</span></div>
-              <div className="flex justify-between border-t border-border pt-1.5 mt-1.5"><span className="font-semibold">Tổng cộng:</span><span className="font-bold text-accent">{formatPrice(totalPrice)}</span></div>
+              {appliedDiscount && (
+                <div className="flex justify-between"><span className="text-muted-foreground">Mã giảm giá:</span><span className="font-medium font-mono text-primary">{appliedDiscount.code}</span></div>
+              )}
+              <div className="flex justify-between border-t border-border pt-1.5 mt-1.5"><span className="font-semibold">Tổng cộng:</span><span className="font-bold text-accent">{formatPrice(finalTotal)}</span></div>
             </div>
             <Button asChild className="w-full text-white border-0 h-11" style={themeStyle}>
               <Link href={"/shop/" + shop.slug}>Tiếp tục mua sắm</Link>
@@ -162,6 +208,42 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
+
+            <div className="rounded-2xl bg-card border border-border/50 p-5 md:p-6">
+              <h2 className="font-heading font-bold text-foreground mb-1 flex items-center gap-2">
+                <Tag className="w-4 h-4 text-primary" />
+                Mã giảm giá
+              </h2>
+              <p className="text-xs text-muted-foreground mb-3">Nhập mã để được giảm thêm khi thanh toán</p>
+              {appliedDiscount ? (
+                <div className="rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 p-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-mono font-bold text-foreground text-sm">{appliedDiscount.code}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {appliedDiscount.type === "percentage" ? `Giảm ${appliedDiscount.value}%` : `Giảm ${formatPrice(appliedDiscount.value)}`}
+                        {appliedDiscount.productName ? ` cho ${appliedDiscount.productName}` : " toàn đơn"}
+                      </p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={removeDiscount} className="p-2 rounded-lg hover:bg-white/60 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input value={discountInput} onChange={(e) => { setDiscountInput(e.target.value.toUpperCase()); setDiscountError(""); }} className="rounded-xl font-mono uppercase" placeholder="VD: TECH10" />
+                  <Button type="button" onClick={applyDiscount} variant="outline" className="rounded-xl px-5 border-primary text-primary hover:bg-primary hover:text-white">
+                    Áp dụng
+                  </Button>
+                </div>
+              )}
+              {discountError && <p className="text-xs text-destructive mt-2">{discountError}</p>}
+              <p className="text-xs text-muted-foreground mt-3">Mã thử nghiệm: <span className="font-mono font-semibold">TECH10, FREESHIP, FASHION15, FRESH20</span></p>
+            </div>
           </div>
 
           <div className="lg:col-span-1">
@@ -194,9 +276,15 @@ export default function CheckoutPage() {
                   <span>Vận chuyển</span>
                   <span className="text-green-600 font-medium">Miễn phí</span>
                 </div>
+                {appliedDiscount && (
+                  <div className="flex justify-between text-primary">
+                    <span className="flex items-center gap-1"><Tag className="w-3 h-3" />Giảm giá ({appliedDiscount.code})</span>
+                    <span className="font-semibold">-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-foreground text-base pt-2 border-t border-border">
                   <span>Tổng cộng</span>
-                  <span className="text-accent">{formatPrice(totalPrice)}</span>
+                  <span className="text-accent">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
 

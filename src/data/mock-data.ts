@@ -1,6 +1,7 @@
 import type { Shop, ProductCategory, Product, Order, Post } from "@/types";
 import { extraProducts } from "./extra-products";
 import { extraPosts } from "./extra-posts";
+import { discountCodes } from "./discount-codes";
 
 export const shops: Shop[] = [
   {
@@ -485,7 +486,10 @@ shops.forEach((s) => {
   s.categories = categories.filter((c) => c.shopId === s.id);
   s.posts = posts.filter((p) => p.shopId === s.id);
   s.orders = orders.filter((o) => o.shopId === s.id);
+  s.discountCodes = discountCodes.filter((d) => d.shopId === s.id);
 });
+
+export { discountCodes };
 
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat("vi-VN").format(price) + "đ";

@@ -13,6 +13,7 @@ export interface Shop {
   products: Product[];
   orders: Order[];
   posts: Post[];
+  discountCodes: DiscountCode[];
 }
 
 export interface ShopBusinessInfo {
@@ -113,4 +114,20 @@ export interface Post {
 export interface CartItem {
   product: Product;
   quantity: number;
+}
+
+export interface DiscountCode {
+  id: string;
+  shopId: string;
+  code: string;
+  type: "percentage" | "fixed";
+  value: number;
+  productId?: string;
+  productName?: string;
+  minOrderValue?: number;
+  maxUses?: number;
+  usedCount: number;
+  expiresAt?: string;
+  status: "active" | "inactive";
+  createdAt: string;
 }

@@ -22,6 +22,7 @@ import {
   Phone,
   MessageCircle,
   Users,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -51,6 +52,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
     { href: "/admin/categories", label: t("nav.categories"), icon: FolderOpen },
     { href: "/admin/orders", label: t("nav.orders"), icon: ShoppingBag },
     { href: "/admin/customers", label: t("nav.customers"), icon: Users },
+    { href: "/admin/discounts", label: "Mã giảm giá", icon: Tag },
     { href: "/admin/posts", label: t("nav.posts"), icon: FileText },
     { href: "/admin/profile", label: t("nav.profile"), icon: UserCircle },
     { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
