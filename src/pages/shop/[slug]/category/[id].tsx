@@ -10,6 +10,7 @@ import { SEO } from "@/components/SEO";
 import { Search, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -18,6 +19,7 @@ export default function CategoryPage() {
   const { slug, id } = router.query;
   const { addToCart, totalItems } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [page, setPage] = useState(1);
 
   const shop = shops.find((s) => s.slug === slug);
@@ -32,8 +34,14 @@ export default function CategoryPage() {
       const q = searchQuery.toLowerCase();
       products = products.filter((p) => p.name.toLowerCase().includes(q));
     }
-    return products;
-  }, [shop, category, searchQuery]);
+    const sorted = [...products];
+    if (sortBy === "priceAsc") {
+      sorted.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
+    } else if (sortBy === "priceDesc") {
+      sorted.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
+    }
+    return sorted;
+  }, [shop, category, searchQuery, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const paginatedProducts = useMemo(
@@ -43,7 +51,7 @@ export default function CategoryPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, id]);
+  }, [searchQuery, sortBy, id]);
 
   if (!shop) {
     return (
@@ -92,14 +100,26 @@ export default function CategoryPage() {
               {category.description && <p className="text-sm text-muted-foreground mt-1">{category.description}</p>}
               <p className="text-sm text-muted-foreground mt-1">{filteredProducts.length} sản phẩm</p>
             </div>
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm trong danh mục..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl"
-              />
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+              <div className="relative flex-1 md:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm trong danh mục..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 rounded-xl"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "priceAsc" | "priceDesc")}>
+                <SelectTrigger className="w-full sm:w-44 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Mới nhất</SelectItem>
+                  <SelectItem value="priceAsc">Giá thấp → cao</SelectItem>
+                  <SelectItem value="priceDesc">Giá cao → thấp</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
