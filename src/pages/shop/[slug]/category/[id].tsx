@@ -134,7 +134,7 @@ export default function CategoryPage() {
 
           <div className="flex gap-2 overflow-x-auto pb-2 mt-6 -mx-1 px-1 select-none">
             <Link
-              href={`/shop/${shop.slug}#products`}
+              href={`/shop/${shop.slug}/category/all`}
               className="px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap bg-card text-foreground border border-border hover:border-primary transition-all"
             >
               Tất cả
