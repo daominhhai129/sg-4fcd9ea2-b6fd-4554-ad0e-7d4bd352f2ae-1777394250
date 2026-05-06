@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, getOrdersByShop } from "@/data/mock-data";
-import { Users, Search, Download, Mail, Phone, MapPin } from "lucide-react";
+import { Users, Search, Download, Mail, Phone, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CustomerRow {
@@ -45,6 +45,8 @@ export default function CustomersPage() {
   const { toast } = useToast();
   const shop = shops.find((s) => s.id === user?.shopId) || shops[0];
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 10;
 
   const customers = useMemo<CustomerRow[]>(() => {
     const orders = getOrdersByShop(shop.id);
@@ -85,6 +87,12 @@ export default function CustomersPage() {
       c.phone.includes(q)
     );
   }, [customers, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(() => filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE), [filtered, currentPage]);
+
+  useEffect(() => { setPage(1); }, [query]);
 
   const handleExport = () => {
     if (filtered.length === 0) {
@@ -156,7 +164,7 @@ export default function CustomersPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {filtered.map((c) => (
+                      {paginated.map((c) => (
                         <tr key={c.email} className="hover:bg-muted/30 transition-colors">
                           <td className="px-5 py-3">
                             <p className="font-semibold text-foreground">{c.name}</p>
@@ -171,7 +179,7 @@ export default function CustomersPage() {
                 </div>
 
                 <div className="md:hidden divide-y divide-border">
-                  {filtered.map((c) => (
+                  {paginated.map((c) => (
                     <div key={c.email} className="p-4">
                       <p className="font-semibold text-foreground truncate">{c.name}</p>
                       <p className="text-xs text-muted-foreground truncate mb-2">{c.email}</p>
@@ -182,6 +190,22 @@ export default function CustomersPage() {
                     </div>
                   ))}
                 </div>
+
+                {filtered.length > PER_PAGE && (
+                  <div className="flex items-center justify-center gap-2 p-4 border-t border-border">
+                    <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                      <Button key={n} variant={n === currentPage ? "default" : "outline"} size="sm" className={"rounded-xl w-9 " + (n === currentPage ? "gradient-primary text-white border-0" : "")} onClick={() => setPage(n)}>
+                        {n}
+                      </Button>
+                    ))}
+                    <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>

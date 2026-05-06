@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { SEO } from "@/components/SEO";
@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, MapPin, Phone, Mail, Package } from "lucide-react";
+import { Search, Eye, MapPin, Phone, Mail, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -30,6 +30,8 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 10;
 
   const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
     pending: { label: t("status.pending"), className: "bg-yellow-100 text-yellow-700 border-yellow-200", dot: "bg-yellow-500" },
@@ -48,6 +50,12 @@ export default function OrdersPage() {
     }
     return result;
   }, [orders, search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(() => filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE), [filtered, currentPage]);
+
+  useEffect(() => { setPage(1); }, [search, statusFilter]);
 
   const updateStatus = (orderId: string, newStatus: Order["status"]) => {
     setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
@@ -88,7 +96,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((order) => {
+            {paginated.map((order) => {
               const sc = statusConfig[order.status];
               return (
                 <div key={order.id} className="rounded-2xl bg-card border-2 border-foreground/15 p-4 hover:shadow-lg hover:border-primary/50 transition-all flex flex-col gap-3">
@@ -141,6 +149,22 @@ export default function OrdersPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {filtered.length > PER_PAGE && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <Button key={n} variant={n === currentPage ? "default" : "outline"} size="sm" className={"rounded-xl w-9 " + (n === currentPage ? "gradient-primary text-white border-0" : "")} onClick={() => setPage(n)}>
+                {n}
+              </Button>
+            ))}
+            <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage === totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         )}
 
