@@ -235,7 +235,6 @@ export default function SubAdminPage() {
           open={!!domainUser}
           onOpenChange={(o) => { if (!o) setDomainUser(null); }}
           userName={domainUserData?.name || ""}
-          shopSlug={domainUserData?.shopSlug}
           currentDomain={domainUserData?.customDomain}
           onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: "Đã cập nhật tên miền" }); } }}
         />
@@ -243,9 +242,8 @@ export default function SubAdminPage() {
           open={!!limitsUser}
           onOpenChange={(o) => { if (!o) setLimitsUser(null); }}
           shopName={limitsUserData?.shopName || ""}
-          currentLimits={limitsConfig?.limits}
-          currentUsage={limitsConfig?.usage}
-          onSave={(limits) => { if (limitsUserData?.shopId) { setShopLimit(limitsUserData.shopId, limits); toast({ title: "Đã cập nhật giới hạn" }); } }}
+          initialValue={limitsConfig?.limits.products || 200}
+          onSave={(value) => { if (limitsUserData?.shopId) { setShopLimit(limitsUserData.shopId, value); toast({ title: "Đã cập nhật giới hạn" }); } }}
         />
       </div>
     </>
