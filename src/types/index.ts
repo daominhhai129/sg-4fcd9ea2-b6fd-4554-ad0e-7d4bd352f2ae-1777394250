@@ -13,7 +13,7 @@ export interface Shop {
   products: Product[];
   orders: Order[];
   posts: Post[];
-  discountCodes: DiscountCode[];
+  discountCodes?: DiscountCode[];
 }
 
 export interface ShopBusinessInfo {
