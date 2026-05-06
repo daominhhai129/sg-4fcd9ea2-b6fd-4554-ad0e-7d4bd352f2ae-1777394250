@@ -203,7 +203,7 @@ export default function CategoryPage() {
                 Hiển thị {(page - 1) * PRODUCTS_PER_PAGE + 1}-{Math.min(page * PRODUCTS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
               </p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === 1} onClick={() => { setPage((p) => p - 1); window.scrollTo({ top: 200, behavior: "smooth" }); }}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Trước
                 </Button>
@@ -211,7 +211,7 @@ export default function CategoryPage() {
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                     <button
                       key={p}
-                      onClick={() => { setPage(p); window.scrollTo({ top: 200, behavior: "smooth" }); }}
+                      onClick={() => setPage(p)}
                       style={page === p ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                       className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${page === p ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
@@ -219,7 +219,7 @@ export default function CategoryPage() {
                     </button>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === totalPages} onClick={() => { setPage((p) => p + 1); window.scrollTo({ top: 200, behavior: "smooth" }); }}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
                   Sau
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>

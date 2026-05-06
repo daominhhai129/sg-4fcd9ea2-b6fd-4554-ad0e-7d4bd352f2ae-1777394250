@@ -287,7 +287,7 @@ export default function ShopPage() {
                 Hiển thị {(productPage - 1) * PRODUCTS_PER_PAGE + 1}-{Math.min(productPage * PRODUCTS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
               </p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === 1} onClick={() => { setProductPage((p) => p - 1); window.scrollTo({ top: 400, behavior: "smooth" }); }}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === 1} onClick={() => setProductPage((p) => p - 1)}>
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Trước
                 </Button>
@@ -295,7 +295,7 @@ export default function ShopPage() {
                   {Array.from({ length: productTotalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      onClick={() => { setProductPage(page); window.scrollTo({ top: 400, behavior: "smooth" }); }}
+                      onClick={() => setProductPage(page)}
                       style={productPage === page ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                       className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${productPage === page ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
@@ -303,7 +303,7 @@ export default function ShopPage() {
                     </button>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === productTotalPages} onClick={() => { setProductPage((p) => p + 1); window.scrollTo({ top: 400, behavior: "smooth" }); }}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === productTotalPages} onClick={() => setProductPage((p) => p + 1)}>
                   Sau
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
