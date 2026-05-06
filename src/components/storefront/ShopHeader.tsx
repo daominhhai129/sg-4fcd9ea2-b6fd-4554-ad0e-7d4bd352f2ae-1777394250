@@ -121,6 +121,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           <Link href={"/shop/" + shop.slug + "#blog"} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Bài viết
           </Link>
+          <Link href={"/shop/" + shop.slug + "/contact"} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Liên hệ
+          </Link>
         </nav>
 
         <div className="flex items-center gap-1.5">
@@ -318,6 +321,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         </Link>
         <Link href={"/shop/" + shop.slug + "#blog"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
           Bài viết
+        </Link>
+        <Link href={"/shop/" + shop.slug + "/contact"} onClick={closeMobile} className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors border-b border-border/40">
+          Liên hệ
         </Link>
 
         <div className="p-4 space-y-2">
