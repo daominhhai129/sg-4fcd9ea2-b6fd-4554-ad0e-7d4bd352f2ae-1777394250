@@ -261,14 +261,14 @@ export default function ProductsPage() {
     <>
       <SEO title={t("nav.products") + " — Admin"} />
       <AdminLayout title={t("nav.products")}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-72">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:items-center gap-2 lg:gap-3 w-full lg:w-auto">
+            <div className="relative col-span-2 sm:col-span-4 lg:col-span-1 lg:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder={t("prod.searchPh")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-xl" />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-40 rounded-xl">
+              <SelectTrigger className="w-full lg:w-40 rounded-xl">
                 <SelectValue placeholder={t("nav.categories")} />
               </SelectTrigger>
               <SelectContent>
@@ -279,7 +279,7 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
             <Select value={visibilityFilter} onValueChange={(v) => setVisibilityFilter(v as "all" | "visible" | "hidden")}>
-              <SelectTrigger className="w-36 rounded-xl">
+              <SelectTrigger className="w-full lg:w-36 rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -289,7 +289,7 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "priceAsc" | "priceDesc")}>
-              <SelectTrigger className="w-40 rounded-xl">
+              <SelectTrigger className="w-full lg:w-40 rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -298,7 +298,7 @@ export default function ProductsPage() {
                 <SelectItem value="priceDesc">Giá cao → thấp</SelectItem>
               </SelectContent>
             </Select>
-            <div className="flex items-center border border-border rounded-xl overflow-hidden">
+            <div className="hidden lg:flex items-center border border-border rounded-xl overflow-hidden">
               <button onClick={() => setViewMode("grid")} className={`p-2 transition-colors ${viewMode === "grid" ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}>
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -309,7 +309,7 @@ export default function ProductsPage() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="gradient-primary text-white border-0" onClick={openCreate}>
+              <Button className="gradient-primary text-white border-0 w-full lg:w-auto" onClick={openCreate}>
                 <Plus className="w-4 h-4 mr-2" />
                 {t("prod.add")}
               </Button>
