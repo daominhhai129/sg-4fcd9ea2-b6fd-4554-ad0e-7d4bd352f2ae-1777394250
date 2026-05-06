@@ -282,7 +282,12 @@ export default function AdminDiscounts() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                  <Command>
+                  <Command
+                    filter={(value, search) => {
+                      const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+                      return norm(value).includes(norm(search)) ? 1 : 0;
+                    }}
+                  >
                     <CommandInput placeholder={t("discount.searchProduct")} />
                     <CommandList>
                       <CommandEmpty>{t("discount.noProductFound")}</CommandEmpty>
