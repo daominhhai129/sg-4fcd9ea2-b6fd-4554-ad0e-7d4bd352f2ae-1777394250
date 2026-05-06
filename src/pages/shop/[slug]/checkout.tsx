@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO } from "@/components/SEO";
-import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag, UserCheck, Tag, X, Sparkles, LogIn, UserPlus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,24 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveInfo, setSaveInfo] = useState(true);
+
+  useEffect(() => {
+    if (isMember || typeof window === "undefined") return;
+    const saved = localStorage.getItem("guest-checkout-info");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setForm((prev) => ({
+          name: data.name || prev.name,
+          phone: data.phone || prev.phone,
+          address: data.address || prev.address,
+          email: data.email || prev.email,
+          note: prev.note,
+        }));
+      } catch {}
+    }
+  }, [isMember]);
 
   const [discountInput, setDiscountInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
@@ -108,6 +126,13 @@ export default function CheckoutPage() {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
+    }
+    if (!isMember && typeof window !== "undefined") {
+      if (saveInfo) {
+        localStorage.setItem("guest-checkout-info", JSON.stringify({ name: form.name, phone: form.phone, address: form.address, email: form.email }));
+      } else {
+        localStorage.removeItem("guest-checkout-info");
+      }
     }
     const id = "DH" + Date.now().toString().slice(-8);
     setOrderId(id);
@@ -245,6 +270,24 @@ export default function CheckoutPage() {
                   <Label htmlFor="note" className="text-sm font-semibold">Ghi chú</Label>
                   <Textarea id="note" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className="mt-1.5 rounded-xl min-h-[72px]" placeholder="Lưu ý cho người giao hàng (không bắt buộc)" />
                 </div>
+                {!isMember && (
+                  <div className="sm:col-span-2 flex items-start gap-3 rounded-xl bg-muted/50 border border-border/50 p-3">
+                    <input
+                      id="saveInfo"
+                      type="checkbox"
+                      checked={saveInfo}
+                      onChange={(e) => setSaveInfo(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer"
+                    />
+                    <label htmlFor="saveInfo" className="text-sm cursor-pointer flex-1">
+                      <span className="font-semibold text-foreground flex items-center gap-1.5">
+                        <Save className="w-3.5 h-3.5 text-primary" />
+                        Lưu thông tin cho lần mua tiếp theo
+                      </span>
+                      <span className="text-xs text-muted-foreground">Họ tên, SĐT, email và địa chỉ sẽ được tự điền ở lần checkout sau (lưu trên trình duyệt này).</span>
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
 
