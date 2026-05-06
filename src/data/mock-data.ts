@@ -1,6 +1,7 @@
 import type { Shop, ProductCategory, Product, Order, Post } from "@/types";
 import { extraProducts } from "./extra-products";
 import { extraPosts } from "./extra-posts";
+import { extraOrders } from "./extra-orders";
 import { discountCodes } from "./discount-codes";
 
 export const shops: Shop[] = [
@@ -480,6 +481,7 @@ export const posts: Post[] = [
 
 products.push(...extraProducts);
 posts.push(...extraPosts);
+orders.push(...extraOrders);
 
 shops.forEach((s) => {
   s.products = products.filter((p) => p.shopId === s.id);
