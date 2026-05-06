@@ -23,6 +23,14 @@ export interface ShopBusinessInfo {
   taxCode?: string;
   ownerName?: string;
   note?: string;
+  bankAccounts?: BankAccount[];
+}
+
+export interface BankAccount {
+  id: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
 }
 
 export interface ShopContact {

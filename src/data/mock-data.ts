@@ -26,6 +26,10 @@ export const shops: Shop[] = [
       taxCode: "0312345678",
       ownerName: "Nguyễn Văn An",
       note: "Cam kết hàng chính hãng 100%, bảo hành toàn quốc.",
+      bankAccounts: [
+        { id: "ba-1", bankName: "Vietcombank", accountNumber: "0123456789012", accountHolder: "CONG TY TNHH TECH ZONE" },
+        { id: "ba-2", bankName: "Techcombank", accountNumber: "9988776655", accountHolder: "CONG TY TNHH TECH ZONE" },
+      ],
     },
     categories: [],
     products: [],
@@ -57,6 +61,9 @@ export const shops: Shop[] = [
       taxCode: "0316789012",
       ownerName: "Trần Thị Bình",
       note: "Đổi trả miễn phí trong 7 ngày.",
+      bankAccounts: [
+        { id: "ba-3", bankName: "MB Bank", accountNumber: "0987654321", accountHolder: "CONG TY TNHH FASHION HUB" },
+      ],
     },
     categories: [],
     products: [],
@@ -87,6 +94,9 @@ export const shops: Shop[] = [
       taxCode: "0309876543",
       ownerName: "Lê Minh Cường",
       note: "Sản phẩm hữu cơ đạt chuẩn VietGAP.",
+      bankAccounts: [
+        { id: "ba-4", bankName: "BIDV", accountNumber: "31010001234567", accountHolder: "HTX GREEN GARDEN" },
+      ],
     },
     categories: [],
     products: [],

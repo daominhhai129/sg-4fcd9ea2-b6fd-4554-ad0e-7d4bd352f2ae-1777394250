@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Lock, Eye, EyeOff, Check, AlertCircle, Bell, Building2 } from "lucide-react";
-import type { ShopBusinessInfo } from "@/types";
+import { Save, Lock, Eye, EyeOff, Check, AlertCircle, Bell, Building2, Landmark, Plus, Trash2 } from "lucide-react";
+import type { ShopBusinessInfo, BankAccount } from "@/types";
 
 export default function SettingsPage() {
   const { t } = useLanguage();
@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const [notifySaved, setNotifySaved] = useState(false);
 
   const [footer, setFooter] = useState<ShopBusinessInfo>({
-    businessName: "", registrationNumber: "", registrationDate: "", registrationPlace: "", taxCode: "", ownerName: "", note: "",
+    businessName: "", registrationNumber: "", registrationDate: "", registrationPlace: "", taxCode: "", ownerName: "", note: "", bankAccounts: [],
   });
   const [footerSaved, setFooterSaved] = useState(false);
 
@@ -31,9 +31,23 @@ export default function SettingsPage() {
     if (saved !== null) setNotifyNewOrder(saved === "true");
     const fSaved = typeof window !== "undefined" ? localStorage.getItem("shop-footer-" + shop.slug) : null;
     if (fSaved) {
-      try { setFooter({ ...(shop.businessInfo || {} as ShopBusinessInfo), ...JSON.parse(fSaved) }); } catch { if (shop.businessInfo) setFooter(shop.businessInfo); }
+      try {
+        const parsed = JSON.parse(fSaved);
+        setFooter({ ...(shop.businessInfo || {} as ShopBusinessInfo), ...parsed, bankAccounts: parsed.bankAccounts || shop.businessInfo?.bankAccounts || [] });
+      } catch {
+        if (shop.businessInfo) setFooter({ ...shop.businessInfo, bankAccounts: shop.businessInfo.bankAccounts || [] });
+      }
     } else if (shop.businessInfo) {
-      setFooter({ businessName: shop.businessInfo.businessName, registrationNumber: shop.businessInfo.registrationNumber, registrationDate: shop.businessInfo.registrationDate || "", registrationPlace: shop.businessInfo.registrationPlace || "", taxCode: shop.businessInfo.taxCode || "", ownerName: shop.businessInfo.ownerName || "", note: shop.businessInfo.note || "" });
+      setFooter({
+        businessName: shop.businessInfo.businessName,
+        registrationNumber: shop.businessInfo.registrationNumber,
+        registrationDate: shop.businessInfo.registrationDate || "",
+        registrationPlace: shop.businessInfo.registrationPlace || "",
+        taxCode: shop.businessInfo.taxCode || "",
+        ownerName: shop.businessInfo.ownerName || "",
+        note: shop.businessInfo.note || "",
+        bankAccounts: shop.businessInfo.bankAccounts || [],
+      });
     }
   }, [shop.slug, shop.businessInfo]);
 
@@ -49,6 +63,22 @@ export default function SettingsPage() {
     if (typeof window !== "undefined") localStorage.setItem("shop-footer-" + shop.slug, JSON.stringify(footer));
     setFooterSaved(true);
     setTimeout(() => setFooterSaved(false), 2500);
+  };
+
+  const addBankAccount = () => {
+    const newBank: BankAccount = { id: "ba-" + Date.now(), bankName: "", accountNumber: "", accountHolder: "" };
+    setFooter({ ...footer, bankAccounts: [...(footer.bankAccounts || []), newBank] });
+  };
+
+  const updateBankAccount = (id: string, field: keyof BankAccount, value: string) => {
+    setFooter({
+      ...footer,
+      bankAccounts: (footer.bankAccounts || []).map((b) => (b.id === id ? { ...b, [field]: value } : b)),
+    });
+  };
+
+  const removeBankAccount = (id: string) => {
+    setFooter({ ...footer, bankAccounts: (footer.bankAccounts || []).filter((b) => b.id !== id) });
   };
 
   const handlePasswordSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -120,6 +150,44 @@ export default function SettingsPage() {
               <div>
                 <Label className="text-sm font-semibold">Ghi chú thêm</Label>
                 <Textarea value={footer.note || ""} onChange={(e) => setFooter({ ...footer, note: e.target.value })} className="rounded-xl mt-1.5 min-h-[70px]" placeholder="Cam kết chất lượng, đổi trả 7 ngày..." />
+              </div>
+
+              <div className="pt-4 border-t border-border/60">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-primary" />
+                    <Label className="text-sm font-semibold">Tài khoản ngân hàng</Label>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={addBankAccount} className="rounded-xl h-8">
+                    <Plus className="w-3.5 h-3.5 mr-1" />
+                    Thêm
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Khách hàng có thể bấm vào số tài khoản để sao chép nhanh khi thanh toán.</p>
+
+                {(footer.bankAccounts || []).length === 0 ? (
+                  <div className="text-center py-6 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground">
+                    Chưa có tài khoản nào. Bấm <strong>Thêm</strong> để thêm tài khoản đầu tiên.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {(footer.bankAccounts || []).map((b, idx) => (
+                      <div key={b.id} className="rounded-xl border border-border p-3 bg-muted/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-muted-foreground">Tài khoản #{idx + 1}</span>
+                          <button type="button" onClick={() => removeBankAccount(b.id)} className="text-destructive hover:text-destructive/80 p-1" aria-label="Xóa">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          <Input value={b.bankName} onChange={(e) => updateBankAccount(b.id, "bankName", e.target.value)} placeholder="Tên ngân hàng (Vietcombank...)" className="rounded-lg" />
+                          <Input value={b.accountNumber} onChange={(e) => updateBankAccount(b.id, "accountNumber", e.target.value)} placeholder="Số tài khoản" className="rounded-lg font-mono" />
+                        </div>
+                        <Input value={b.accountHolder} onChange={(e) => updateBankAccount(b.id, "accountHolder", e.target.value)} placeholder="Chủ tài khoản (CONG TY TNHH...)" className="rounded-lg mt-2.5" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {footerSaved && (

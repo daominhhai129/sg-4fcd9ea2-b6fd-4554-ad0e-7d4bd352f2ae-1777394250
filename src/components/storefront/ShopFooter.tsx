@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Phone, Mail, MapPin, Building2, FileCheck2, Calendar, User as UserIcon } from "lucide-react";
+import { Phone, Mail, MapPin, Building2, FileCheck2, Calendar, User as UserIcon, Landmark, Copy, Check } from "lucide-react";
 import type { Shop, ShopBusinessInfo } from "@/types";
 
 interface ShopFooterProps {
@@ -10,14 +10,26 @@ interface ShopFooterProps {
 
 export function ShopFooter({ shop }: ShopFooterProps) {
   const [info, setInfo] = useState<ShopBusinessInfo | undefined>(shop.businessInfo);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = localStorage.getItem("shop-footer-" + shop.slug);
     if (saved) {
-      try { setInfo(JSON.parse(saved)); } catch {}
+      try {
+        const parsed = JSON.parse(saved);
+        setInfo({ ...(shop.businessInfo || {} as ShopBusinessInfo), ...parsed });
+      } catch {}
     }
-  }, [shop.slug]);
+  }, [shop.slug, shop.businessInfo]);
+
+  const handleCopy = async (id: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {}
+  };
 
   const themeBg = shop.themeColor
     ? { backgroundColor: `hsl(${shop.themeColor} / 0.10)` }
@@ -26,8 +38,8 @@ export function ShopFooter({ shop }: ShopFooterProps) {
   return (
     <footer className="mt-16 border-t border-border text-black" style={themeBg}>
       <div className="container py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10">
+          <div className="md:col-span-1">
             <Link href={"/shop/" + shop.slug} className="flex items-center gap-2.5 mb-3">
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-border bg-card">
                 <Image src={shop.logo} alt={shop.name} width={40} height={40} className="object-cover w-full h-full" />
@@ -94,6 +106,37 @@ export function ShopFooter({ shop }: ShopFooterProps) {
               </ul>
             ) : (
               <p className="text-xs text-black/70 italic">Chưa cập nhật thông tin pháp lý.</p>
+            )}
+          </div>
+
+          <div>
+            <h3 className="font-heading font-bold text-sm text-black mb-3 uppercase tracking-wide">Tài khoản ngân hàng</h3>
+            {info?.bankAccounts && info.bankAccounts.length > 0 ? (
+              <ul className="space-y-2.5">
+                {info.bankAccounts.map((b) => (
+                  <li key={b.id} className="bg-card/70 border border-border rounded-xl p-2.5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Landmark className="w-4 h-4 text-black flex-shrink-0" />
+                      <span className="text-sm font-bold text-black">{b.bankName}</span>
+                    </div>
+                    <button
+                      onClick={() => handleCopy(b.id, b.accountNumber)}
+                      className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-background border border-border hover:border-primary transition-colors group"
+                      title="Bấm để sao chép"
+                    >
+                      <span className="text-sm font-mono font-semibold text-black tracking-wider">{b.accountNumber}</span>
+                      {copiedId === b.id ? (
+                        <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-black/60 group-hover:text-primary flex-shrink-0" />
+                      )}
+                    </button>
+                    <p className="text-xs text-black/70 mt-1 truncate">{b.accountHolder}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-black/70 italic">Chưa cập nhật tài khoản ngân hàng.</p>
             )}
           </div>
         </div>
