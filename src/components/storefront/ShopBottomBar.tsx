@@ -10,6 +10,8 @@ interface ShopBottomBarProps {
 
 export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBottomBarProps) {
   const phoneNumber = shop.contact.phone.replace(/\s+/g, "");
+  const messageHref = shop.contact.messengerLink || `sms:${phoneNumber}`;
+  const messageProps = shop.contact.messengerLink ? { target: "_blank", rel: "noopener noreferrer" } : {};
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.contact.address)}`;
 
   const openMenu = () => window.dispatchEvent(new CustomEvent("shop:open-menu"));
@@ -24,7 +26,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
               <Phone className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">Gọi</span>
             </a>
-            <a href={`sms:${phoneNumber}`} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
+            <a href={messageHref} {...messageProps} className="flex flex-col items-center justify-center gap-0.5 px-1 text-foreground hover:bg-muted transition-all">
               <MessageCircle className="w-5 h-5 shrink-0" />
               <span className="text-[10px] font-medium leading-tight truncate max-w-full">Nhắn tin</span>
             </a>
@@ -56,7 +58,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
             <Phone className="w-5 h-5" />
             <span className="text-[11px] md:text-[10px] font-medium">Gọi điện</span>
           </a>
-          <a href={`sms:${phoneNumber}`} className="flex flex-col items-center justify-center gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60">
+          <a href={messageHref} {...messageProps} className="flex flex-col items-center justify-center gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60">
             <MessageCircle className="w-5 h-5" />
             <span className="text-[11px] md:text-[10px] font-medium">Nhắn tin</span>
           </a>

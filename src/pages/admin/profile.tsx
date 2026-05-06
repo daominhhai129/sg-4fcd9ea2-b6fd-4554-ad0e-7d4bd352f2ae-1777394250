@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Store, Phone, Mail, MapPin, Image as ImageIcon, Palette, Facebook, Instagram, Youtube, Check, Globe, Music2 } from "lucide-react";
+import { Save, Store, Phone, Mail, MapPin, Image as ImageIcon, Palette, Facebook, Instagram, Youtube, Check, Globe, Music2, MessageCircle } from "lucide-react";
 import type { Shop } from "@/types";
 
 const themePresets = [
@@ -54,6 +54,7 @@ export default function ProfilePage() {
         phone: form.get("phone") as string,
         email: form.get("email") as string,
         address: form.get("address") as string,
+        messengerLink: form.get("messengerLink") as string,
         socialLinks: [
           { platform: "facebook", url: form.get("facebook") as string },
           { platform: "instagram", url: form.get("instagram") as string },
@@ -180,6 +181,11 @@ export default function ProfilePage() {
               <div>
                 <Label className="flex items-center gap-1.5 text-sm font-semibold"><MapPin className="w-3.5 h-3.5" />{t("profile.address")}</Label>
                 <Input name="address" defaultValue={shop.contact.address} className="rounded-xl mt-1.5" />
+              </div>
+              <div>
+                <Label className="flex items-center gap-1.5 text-sm font-semibold"><MessageCircle className="w-3.5 h-3.5" />Link tin nhắn (Messenger / Zalo)</Label>
+                <Input name="messengerLink" defaultValue={shop.contact.messengerLink || ""} placeholder="https://m.me/yourshop hoặc https://zalo.me/0901234567" className="rounded-xl mt-1.5" />
+                <p className="text-[11px] text-muted-foreground mt-1">Link này sẽ được dùng cho nút &quot;Nhắn tin&quot; ở storefront.</p>
               </div>
             </div>
           </div>

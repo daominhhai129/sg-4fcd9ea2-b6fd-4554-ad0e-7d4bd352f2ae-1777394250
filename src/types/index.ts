@@ -37,6 +37,7 @@ export interface ShopContact {
   phone: string;
   email: string;
   address: string;
+  messengerLink?: string;
   socialLinks: { platform: string; url: string }[];
 }
 

@@ -13,6 +13,7 @@ export const shops: Shop[] = [
       phone: "0901 234 567",
       email: "contact@techzone.vn",
       address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
+      messengerLink: "https://m.me/techzonevn",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/techzone" },
         { platform: "Instagram", url: "https://instagram.com/techzone" },
@@ -45,9 +46,10 @@ export const shops: Shop[] = [
     banner: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=400&fit=crop",
     themeColor: "340 82% 52%",
     contact: {
-      phone: "0912 345 678",
+      phone: "0902 345 678",
       email: "hello@fashionhub.vn",
       address: "456 Lê Lợi, Quận 1, TP.HCM",
+      messengerLink: "https://zalo.me/fashionhubvn",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/fashionhub" },
         { platform: "TikTok", url: "https://tiktok.com/@fashionhub" },
@@ -79,9 +81,10 @@ export const shops: Shop[] = [
     banner: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop",
     themeColor: "142 71% 45%",
     contact: {
-      phone: "0923 456 789",
-      email: "info@greengarden.vn",
-      address: "789 Trần Hưng Đạo, Quận 5, TP.HCM",
+      phone: "0903 456 789",
+      email: "support@greengarden.vn",
+      address: "789 Võ Văn Tần, Quận 3, TP.HCM",
+      messengerLink: "https://m.me/greengardenvn",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/greengarden" },
       ],
