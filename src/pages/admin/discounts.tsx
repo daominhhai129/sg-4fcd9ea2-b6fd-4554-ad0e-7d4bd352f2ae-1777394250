@@ -10,9 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Search, Edit, Trash2, Tag, Copy, CheckCircle2, Percent, DollarSign } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Tag, Copy, CheckCircle2, Percent, DollarSign, ChevronsUpDown, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+const SHOP_DISCOUNT_LIMIT = 50;
 
 interface FormState {
   code: string;
@@ -40,6 +45,7 @@ export default function AdminDiscounts() {
   const [deleting, setDeleting] = useState<DiscountCode | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [copied, setCopied] = useState<string | null>(null);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const shopProducts = allProducts.filter((p) => p.shopId === user?.shopId);
 
@@ -49,7 +55,17 @@ export default function AdminDiscounts() {
     return true;
   });
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
+  const limitReached = codes.length >= SHOP_DISCOUNT_LIMIT;
+
+  const openCreate = () => {
+    if (limitReached) {
+      toast({ title: t("discount.limitReached"), variant: "destructive" });
+      return;
+    }
+    setEditing(null);
+    setForm(emptyForm);
+    setDialogOpen(true);
+  };
 
   const openEdit = (c: DiscountCode) => {
     setEditing(c);
@@ -69,6 +85,10 @@ export default function AdminDiscounts() {
   const handleSave = () => {
     if (!form.code.trim() || !form.value) {
       toast({ title: t("discount.toastFill"), variant: "destructive" });
+      return;
+    }
+    if (!editing && codes.length >= SHOP_DISCOUNT_LIMIT) {
+      toast({ title: t("discount.limitReached"), variant: "destructive" });
       return;
     }
     const product = form.productId !== "all" ? shopProducts.find((p) => p.id === form.productId) : undefined;
@@ -119,11 +139,18 @@ export default function AdminDiscounts() {
     toast({ title: t("discount.toastCopied", { code }) });
   };
 
+  const selectedProduct = form.productId !== "all" ? shopProducts.find((p) => p.id === form.productId) : null;
+
   return (
     <AdminLayout title={t("nav.discounts")}>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-6">
-        <p className="text-sm text-muted-foreground">{t("discount.subtitle")}</p>
-        <Button onClick={openCreate} className="gradient-primary text-white border-0 rounded-xl">
+        <div>
+          <p className="text-sm text-muted-foreground">{t("discount.subtitle")}</p>
+          <p className={cn("text-xs mt-1 font-semibold", limitReached ? "text-destructive" : "text-muted-foreground")}>
+            {t("discount.codesUsage", { used: codes.length })}
+          </p>
+        </div>
+        <Button onClick={openCreate} disabled={limitReached} className="gradient-primary text-white border-0 rounded-xl disabled:opacity-50">
           <Plus className="w-4 h-4 mr-2" /> {t("discount.create")}
         </Button>
       </div>
@@ -245,15 +272,44 @@ export default function AdminDiscounts() {
             </div>
             <div>
               <Label className="text-sm font-semibold">{t("discount.applyForLabel")}</Label>
-              <Select value={form.productId} onValueChange={(v) => setForm({ ...form, productId: v })}>
-                <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("discount.allProducts")}</SelectItem>
-                  {shopProducts.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={productPickerOpen} onOpenChange={setProductPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" className="mt-1.5 w-full justify-between rounded-xl font-normal">
+                    <span className="truncate">
+                      {form.productId === "all" ? t("discount.allProducts") : selectedProduct?.name || t("discount.selectProduct")}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder={t("discount.searchProduct")} />
+                    <CommandList>
+                      <CommandEmpty>{t("discount.noProductFound")}</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => { setForm({ ...form, productId: "all" }); setProductPickerOpen(false); }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", form.productId === "all" ? "opacity-100" : "opacity-0")} />
+                          {t("discount.allProducts")}
+                        </CommandItem>
+                        {shopProducts.map((p) => (
+                          <CommandItem
+                            key={p.id}
+                            value={p.name}
+                            onSelect={() => { setForm({ ...form, productId: p.id }); setProductPickerOpen(false); }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", form.productId === p.id ? "opacity-100" : "opacity-0")} />
+                            <span className="truncate">{p.name}</span>
+                            <span className="ml-auto text-xs text-muted-foreground flex-shrink-0">{formatPrice(p.salePrice ?? p.price)}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

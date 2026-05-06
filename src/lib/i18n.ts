@@ -58,6 +58,11 @@ export const translations = {
     "discount.toastCreated": "Đã tạo mã giảm giá {code}",
     "discount.toastDeleted": "Đã xoá mã {code}",
     "discount.toastCopied": "Đã copy mã {code}",
+    "discount.limitReached": "Mỗi shop chỉ được tạo tối đa 50 mã giảm giá",
+    "discount.codesUsage": "{used}/50 mã",
+    "discount.searchProduct": "Tìm sản phẩm...",
+    "discount.noProductFound": "Không tìm thấy sản phẩm",
+    "discount.selectProduct": "Chọn sản phẩm hoặc tất cả",
 
     "checkout.discountTitle": "Mã giảm giá",
     "checkout.discountDesc": "Nhập mã hoặc chọn từ danh sách bên dưới",
@@ -428,6 +433,11 @@ export const translations = {
     "discount.toastCreated": "Created code {code}",
     "discount.toastDeleted": "Deleted {code}",
     "discount.toastCopied": "Copied {code}",
+    "discount.limitReached": "Each shop can have at most 50 discount codes",
+    "discount.codesUsage": "{used}/50 codes",
+    "discount.searchProduct": "Search products...",
+    "discount.noProductFound": "No product found",
+    "discount.selectProduct": "Select product or all",
 
     "checkout.discountTitle": "Discount code",
     "checkout.discountDesc": "Enter a code or pick from the list below",
