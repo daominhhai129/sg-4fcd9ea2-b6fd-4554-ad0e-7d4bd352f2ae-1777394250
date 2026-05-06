@@ -46,17 +46,6 @@ const quillModules = {
   ],
 };
 
-interface ProductFormData {
-  name: string;
-  sku: string;
-  description: string;
-  price: number;
-  categoryId: string;
-  images: string[];
-  thumbnailIndex: number;
-  videoLinks: string[];
-}
-
 export default function ProductsPage() {
   const { t } = useLanguage();
   const [search, setSearch] = useState("");
@@ -68,9 +57,6 @@ export default function ProductsPage() {
   const ITEMS_PER_PAGE = 10;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
-  const [detailImageIdx, setDetailImageIdx] = useState(0);
 
   const [formImages, setFormImages] = useState<string[]>([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
@@ -148,19 +134,6 @@ export default function ProductsPage() {
     setEditingProduct(null);
     resetForm();
     setDialogOpen(true);
-  };
-
-  const openDetail = (product: Product) => {
-    setViewingProduct(product);
-    setDetailImageIdx(0);
-    setDetailOpen(true);
-  };
-
-  const handleEditFromDetail = () => {
-    if (viewingProduct) {
-      setDetailOpen(false);
-      openEdit(viewingProduct);
-    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -464,7 +437,7 @@ export default function ProductsPage() {
         {viewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {paginated.map((product) => (
-              <div key={product.id} onClick={() => openDetail(product)} className={`rounded-2xl bg-card border-2 overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${product.isHidden ? "border-muted-foreground/20 opacity-60" : "border-foreground/15 hover:border-primary/50"}`}>
+              <div key={product.id} onClick={() => openEdit(product)} className={`rounded-2xl bg-card border-2 overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${product.isHidden ? "border-muted-foreground/20 opacity-60" : "border-foreground/15 hover:border-primary/50"}`}>
                 <div className="relative aspect-square overflow-hidden">
                   <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                   {product.isHidden && (
@@ -513,7 +486,7 @@ export default function ProductsPage() {
                 </thead>
                 <tbody>
                   {paginated.map((product) => (
-                    <tr key={product.id} onClick={() => openDetail(product)} className={`border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer ${product.isHidden ? "opacity-60" : ""}`}>
+                    <tr key={product.id} onClick={() => openEdit(product)} className={`border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors cursor-pointer ${product.isHidden ? "opacity-60" : ""}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-border/50">
@@ -593,87 +566,6 @@ export default function ProductsPage() {
             </div>
           </div>
         )}
-
-        <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onCloseAutoFocus={(e) => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle className="font-heading">{t("prod.detailTitle")}</DialogTitle>
-            </DialogHeader>
-            {viewingProduct && (
-              <div className="space-y-5">
-                <div className="grid md:grid-cols-2 gap-5">
-                  <div className="space-y-3">
-                    <div className="relative aspect-square rounded-xl overflow-hidden border border-border bg-muted">
-                      <Image src={viewingProduct.images[detailImageIdx] || viewingProduct.images[0]} alt={viewingProduct.name} fill className="object-cover" />
-                    </div>
-                    {viewingProduct.images.length > 1 && (
-                      <div className="grid grid-cols-4 gap-2">
-                        {viewingProduct.images.map((img, idx) => (
-                          <button key={idx} onClick={() => setDetailImageIdx(idx)} className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${idx === detailImageIdx ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"}`}>
-                            <Image src={img} alt={`#${idx + 1}`} fill className="object-cover" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{viewingProduct.categoryName}</p>
-                      <h3 className="text-xl font-heading font-bold text-foreground">{viewingProduct.name}</h3>
-                      {(viewingProduct as unknown as { sku?: string }).sku && (
-                        <p className="text-xs text-muted-foreground mt-1">{t("prod.sku")}: {(viewingProduct as unknown as { sku?: string }).sku}</p>
-                      )}
-                    </div>
-
-                    <div className="text-2xl font-bold text-accent">{formatPrice(viewingProduct.price)}</div>
-
-                    {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks?.length ? (
-                      <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><Video className="w-4 h-4" />{t("prod.videoSection")}</p>
-                        <div className="space-y-1.5">
-                          {(viewingProduct as unknown as { videoLinks?: string[] }).videoLinks!.map((link, idx) => (
-                            <a key={idx} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
-                              <Link2 className="w-3.5 h-3.5 shrink-0" />
-                              <span className="truncate">{link}</span>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink && (
-                      <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" />{t("prod.affiliateSection")}</p>
-                        <a href={(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline truncate">
-                          <Link2 className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{(viewingProduct as unknown as { affiliateLink?: string }).affiliateLink}</span>
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {viewingProduct.description && (
-                  <div>
-                    <p className="text-sm font-semibold mb-2">{t("prod.desc")}</p>
-                    <div className="prose prose-sm max-w-none text-foreground rounded-xl bg-muted/50 p-4 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_img]:rounded-lg [&_img]:my-3" dangerouslySetInnerHTML={{ __html: viewingProduct.description }} />
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-3 border-t">
-                  <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDetailOpen(false)}>
-                    {t("common.close")}
-                  </Button>
-                  <Button type="button" className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleEditFromDetail}>
-                    <Pencil className="w-4 h-4 mr-1.5" />
-                    {t("common.edit")}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </AdminLayout>
     </>
   );
