@@ -272,7 +272,7 @@ export default function AdminDiscounts() {
             </div>
             <div>
               <Label className="text-sm font-semibold">{t("discount.applyForLabel")}</Label>
-              <Popover open={productPickerOpen} onOpenChange={setProductPickerOpen}>
+              <Popover open={productPickerOpen} onOpenChange={setProductPickerOpen} modal={true}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" className="mt-1.5 w-full justify-between rounded-xl font-normal">
                     <span className="truncate">
