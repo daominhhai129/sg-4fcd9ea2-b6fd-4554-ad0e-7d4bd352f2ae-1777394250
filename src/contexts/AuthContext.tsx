@@ -195,6 +195,7 @@ export interface CreateSubAdminInput {
   email: string;
   phone: string;
   maxSites: number;
+  password?: string;
 }
 
 interface AuthContextType {
@@ -507,14 +508,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       id, name: input.name, email: input.email, phone: input.phone,
       role: "sub_admin",
       avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop",
-      status: "active", expiresAt: inDays(3650), password: DEFAULT_PASSWORD,
+      status: "active", expiresAt: inDays(3650),
+      password: input.password && input.password.length > 0 ? input.password : DEFAULT_PASSWORD,
       maxSites: input.maxSites,
     };
     setSubAdmins((prev) => [...prev, newSA]);
   }, []);
 
   const updateSubAdmin = useCallback((id: string, input: CreateSubAdminInput) => {
-    setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, name: input.name, email: input.email, phone: input.phone, maxSites: input.maxSites } : s)));
+    setSubAdmins((prev) => prev.map((s) => {
+      if (s.id !== id) return s;
+      const next: AppUser = { ...s, name: input.name, email: input.email, phone: input.phone, maxSites: input.maxSites };
+      if (input.password && input.password.length > 0) next.password = input.password;
+      return next;
+    }));
   }, []);
 
   const deleteSubAdmin = useCallback((id: string) => {

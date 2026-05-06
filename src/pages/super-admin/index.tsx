@@ -378,8 +378,9 @@ export default function SuperAdminPage() {
           open={!!editingSubAdmin}
           onOpenChange={(o) => { if (!o) setEditingSubAdmin(null); }}
           title="Sửa Sub-admin"
+          isEdit
           initial={editingSubAdminData ? { name: editingSubAdminData.name, email: editingSubAdminData.email, phone: editingSubAdminData.phone || "", maxSites: editingSubAdminData.maxSites || 5000 } : null}
-          onSubmit={(input) => { if (editingSubAdmin) { updateSubAdmin(editingSubAdmin, input); toast({ title: "Đã cập nhật" }); } }}
+          onSubmit={(input) => { if (editingSubAdmin) { updateSubAdmin(editingSubAdmin, input); toast({ title: "Đã cập nhật sub-admin" }); } }}
         />
         <AlertDialog open={!!deletingSubAdmin} onOpenChange={(o) => { if (!o) setDeletingSubAdmin(null); }}>
           <AlertDialogContent>

@@ -61,11 +61,11 @@ export function ExtendDialog({ open, onOpenChange, userName, currentExpiry, onCo
       setMode("days");
       setDays(30);
       const base = currentExpiry ? new Date(currentExpiry) : new Date();
-      const initial = new Date(base);
-      initial.setDate(initial.getDate() + 30);
-      setDate(initial);
+      const initialDate = new Date(base);
+      initialDate.setDate(initialDate.getDate() + 30);
+      setDate(initialDate);
     }
-  }, [open, currentExpiry]);
+  }, [open]);
 
   const handleConfirm = () => {
     if (mode === "days") {
@@ -265,7 +265,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSave }: EditUserDia
     if (open && user) {
       setForm({ name: user.name, email: user.email, phone: user.phone || "", shopName: user.shopName || "" });
     }
-  }, [open, user]);
+  }, [open]);
   const submit = () => {
     if (!form.name || !form.email || !form.shopName) return;
     onSave(form);
@@ -295,19 +295,22 @@ interface SubAdminDialogProps {
   onOpenChange: (open: boolean) => void;
   initial?: { name: string; email: string; phone: string; maxSites: number } | null;
   title: string;
+  isEdit?: boolean;
   onSubmit: (input: CreateSubAdminInput) => void;
 }
 
-export function SubAdminDialog({ open, onOpenChange, initial, title, onSubmit }: SubAdminDialogProps) {
-  const [form, setForm] = useState<CreateSubAdminInput>({ name: "", email: "", phone: "", maxSites: 5000 });
+export function SubAdminDialog({ open, onOpenChange, initial, title, isEdit, onSubmit }: SubAdminDialogProps) {
+  const [form, setForm] = useState<CreateSubAdminInput>({ name: "", email: "", phone: "", maxSites: 5000, password: "" });
   useEffect(() => {
     if (open) {
-      setForm(initial ? { ...initial } : { name: "", email: "", phone: "", maxSites: 5000 });
+      setForm(initial ? { ...initial, password: "" } : { name: "", email: "", phone: "", maxSites: 5000, password: "" });
     }
-  }, [open, initial]);
+  }, [open]);
   const submit = () => {
     if (!form.name || !form.email) return;
-    onSubmit(form);
+    const payload: CreateSubAdminInput = { name: form.name, email: form.email, phone: form.phone, maxSites: form.maxSites };
+    if (form.password && form.password.trim().length > 0) payload.password = form.password.trim();
+    onSubmit(payload);
     onOpenChange(false);
   };
   return (
@@ -316,17 +319,21 @@ export function SubAdminDialog({ open, onOpenChange, initial, title, onSubmit }:
         <DialogHeader><DialogTitle className="font-heading">{title}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Email đăng nhập</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
           <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div>
+            <Label className="text-sm font-semibold">Mật khẩu {isEdit ? "mới" : ""}</Label>
+            <Input type="text" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} className="rounded-xl mt-1.5 font-mono" placeholder={isEdit ? "Để trống = giữ nguyên" : "iLoveProID@"} />
+            <p className="text-xs text-muted-foreground mt-1.5">{isEdit ? "Chỉ điền nếu muốn đổi mật khẩu đăng nhập." : "Mặc định: iLoveProID@. Có thể đổi ngay khi tạo."}</p>
+          </div>
           <div>
             <Label className="text-sm font-semibold">Giới hạn số sites quản lý</Label>
             <Input type="number" value={form.maxSites} onChange={(e) => setForm({ ...form, maxSites: Number(e.target.value) })} className="rounded-xl mt-1.5" />
             <p className="text-xs text-muted-foreground mt-1.5">Mặc định: 5000 sites/sub-admin.</p>
           </div>
-          {!initial && <p className="text-xs text-muted-foreground">Mật khẩu mặc định: <code className="font-mono text-foreground">iLoveProID@</code></p>}
           <div className="flex gap-3 pt-2 border-t">
             <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{initial ? "Lưu" : "Tạo"}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{isEdit ? "Lưu" : "Tạo"}</Button>
           </div>
         </div>
       </DialogContent>
