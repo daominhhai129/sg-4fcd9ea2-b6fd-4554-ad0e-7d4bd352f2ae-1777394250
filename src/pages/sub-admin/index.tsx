@@ -6,21 +6,23 @@ import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CreateUserDialog, ExtendDialog, EditUserDialog } from "@/components/admin/SuperAdminDialogs";
+import { CreateUserDialog, ExtendDialog, EditUserDialog, DomainDialog, LimitDialog } from "@/components/admin/SuperAdminDialogs";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, LogOut, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, CalendarClock, Pencil, AlertCircle } from "lucide-react";
+import { Shield, Store, Users, LogOut, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, CalendarClock, Pencil, AlertCircle, Globe, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SubAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading, allUsers, logout, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser } = useAuth();
+  const { user, isLoading, allUsers, shopConfigs, logout, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, setUserDomain, setShopLimit, getShopConfig } = useAuth();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [extendingUser, setExtendingUser] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [domainUser, setDomainUser] = useState<string | null>(null);
+  const [limitsUser, setLimitsUser] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "sub_admin")) router.replace("/login");
@@ -39,6 +41,9 @@ export default function SubAdminPage() {
   const atCap = myUsers.length >= cap;
   const extendingUserData = allUsers.find((u) => u.id === extendingUser);
   const editingUserData = allUsers.find((u) => u.id === editingUser);
+  const domainUserData = allUsers.find((u) => u.id === domainUser);
+  const limitsUserData = allUsers.find((u) => u.id === limitsUser);
+  const limitsConfig = limitsUserData?.shopId ? getShopConfig(limitsUserData.shopId) : undefined;
 
   const handleCreateClick = () => {
     if (atCap) {
@@ -175,6 +180,12 @@ export default function SubAdminPage() {
                               <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
                                 <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
                               </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
+                                <Globe className="w-4 h-4 mr-2" /> Tên miền & URL
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setLimitsUser(u.id)}>
+                                <Sliders className="w-4 h-4 mr-2" /> Giới hạn sản phẩm/bài viết
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
                                 <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
                               </DropdownMenuItem>
@@ -219,6 +230,22 @@ export default function SubAdminPage() {
           onOpenChange={(o) => { if (!o) setEditingUser(null); }}
           user={editingUserData || null}
           onSave={(input) => { if (editingUser) { updateUser(editingUser, input); toast({ title: "Đã cập nhật" }); } }}
+        />
+        <DomainDialog
+          open={!!domainUser}
+          onOpenChange={(o) => { if (!o) setDomainUser(null); }}
+          userName={domainUserData?.name || ""}
+          shopSlug={domainUserData?.shopSlug}
+          currentDomain={domainUserData?.customDomain}
+          onSave={(domain) => { if (domainUser) { setUserDomain(domainUser, domain); toast({ title: "Đã cập nhật tên miền" }); } }}
+        />
+        <LimitDialog
+          open={!!limitsUser}
+          onOpenChange={(o) => { if (!o) setLimitsUser(null); }}
+          shopName={limitsUserData?.shopName || ""}
+          currentLimits={limitsConfig?.limits}
+          currentUsage={limitsConfig?.usage}
+          onSave={(limits) => { if (limitsUserData?.shopId) { setShopLimit(limitsUserData.shopId, limits); toast({ title: "Đã cập nhật giới hạn" }); } }}
         />
       </div>
     </>
