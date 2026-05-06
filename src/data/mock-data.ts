@@ -463,3 +463,11 @@ export const posts: Post[] = [
   { id: "post-36", shopId: "shop-2", title: "Quần jogger: từ phòng gym đến đường phố", slug: "quan-jogger-street-style", excerpt: "Jogger không chỉ để tập gym — đây là item streetwear không thể thiếu.", content: "<p>Quần jogger nam đã trở thành item thời trang đa năng, phù hợp mọi hoàn cảnh.</p><h3>Phối đồ</h3><p>Jogger + áo thun oversized + sneaker = streetwear chuẩn. Jogger + polo + giày da = smart-casual độc đáo.</p><img src=\"https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800&h=500&fit=crop\" alt=\"Jogger\" />", coverImage: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800&h=400&fit=crop", images: ["https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800&h=400&fit=crop"], productIds: ["p-50", "p-7", "p-36"], createdAt: "2026-03-07", status: "published" },
   { id: "post-37", shopId: "shop-3", title: "Cà chua bi: vị ngọt từ Đà Lạt", slug: "ca-chua-bi-da-lat", excerpt: "Cà chua bi Đà Lạt — vua salad với vị ngọt đậm đà tự nhiên.", content: "<p>Cà chua bi Đà Lạt được trồng ở khí hậu mát mẻ quanh năm, cho vị ngọt thanh và độ giòn đặc biệt.</p><img src=\"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=500&fit=crop\" alt=\"Cà chua bi\" />", coverImage: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=400&fit=crop", images: ["https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=400&fit=crop"], productIds: ["p-39"], createdAt: "2026-03-06", status: "published" },
 ];
+
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat("vi-VN").format(price) + "đ";
+}
+
+export function getOrdersByShop(shopId: string): Order[] {
+  return orders.filter((o) => o.shopId === shopId);
+}
