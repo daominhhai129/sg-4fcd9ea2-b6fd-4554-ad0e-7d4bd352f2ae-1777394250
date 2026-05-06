@@ -24,6 +24,7 @@ export default function CategoryPage() {
 
   const shop = shops.find((s) => s.slug === slug);
   const category = shop?.categories.find((c) => c.slug === id || c.id === id);
+  const parentCategory = category?.parentId ? shop?.categories.find((c) => c.id === category.parentId) : null;
 
   const filteredProducts = useMemo(() => {
     if (!shop || !category) return [];
@@ -89,6 +90,14 @@ export default function CategoryPage() {
               Trang chủ
             </Link>
             <ChevronRightIcon className="w-3.5 h-3.5" />
+            {parentCategory && (
+              <>
+                <Link href={`/shop/${shop.slug}/category/${parentCategory.slug}`} className="hover:text-primary">
+                  {parentCategory.name}
+                </Link>
+                <ChevronRightIcon className="w-3.5 h-3.5" />
+              </>
+            )}
             <span className="text-foreground font-medium">{category.name}</span>
           </nav>
 
