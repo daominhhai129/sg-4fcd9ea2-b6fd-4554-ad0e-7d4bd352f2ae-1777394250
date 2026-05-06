@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Store, User, Shield, Mail, Lock, ArrowRight, Eye, EyeOff, ShoppingBag } from "lucide-react";
 
 export default function LoginPage() {
-  const { loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials } = useAuth();
+  const { loginAsUser, loginAsSuperAdmin, loginAsMember, loginAsSubAdmin, loginWithCredentials } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -118,7 +118,7 @@ export default function LoginPage() {
               <div className="relative flex justify-center text-xs"><span className="bg-background px-3 text-muted-foreground uppercase tracking-wider">Demo nhanh</span></div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button onClick={loginAsUser} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <User className="w-5 h-5 text-primary" />
@@ -135,6 +135,15 @@ export default function LoginPage() {
                 <div className="text-center">
                   <p className="text-sm font-semibold text-foreground">Demo Admin</p>
                   <p className="text-xs text-muted-foreground">Super Admin</p>
+                </div>
+              </button>
+              <button onClick={loginAsSubAdmin} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group">
+                <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                  <Shield className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground">Demo Sub-admin</p>
+                  <p className="text-xs text-muted-foreground">Sub Admin</p>
                 </div>
               </button>
               <button onClick={() => loginAsMember()} className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group">

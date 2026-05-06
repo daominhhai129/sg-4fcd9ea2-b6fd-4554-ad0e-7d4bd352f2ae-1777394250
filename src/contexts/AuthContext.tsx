@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export type UserRole = "user" | "super_admin" | "member";
+export type UserRole = "user" | "super_admin" | "member" | "sub_admin";
 export type UserStatus = "active" | "locked";
 
 export const DEFAULT_PASSWORD = "iLoveProID@";
+export const DEFAULT_SUB_ADMIN_MAX_SITES = 5000;
 
 export interface ShopLimits {
   products: number;
@@ -50,6 +51,8 @@ export interface AppUser {
   address?: string;
   addresses?: ShippingAddress[];
   orders?: MemberOrder[];
+  createdBy?: string;
+  maxSites?: number;
 }
 
 export interface ShopConfig {
@@ -116,6 +119,19 @@ const INITIAL_MEMBER: AppUser = {
   ],
 };
 
+const INITIAL_SUB_ADMIN: AppUser = {
+  id: "subadmin-1",
+  name: "Trần Phúc",
+  email: "phuc@platform.vn",
+  phone: "0911000111",
+  role: "sub_admin",
+  avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
+  status: "active",
+  expiresAt: inDays(3650),
+  password: DEFAULT_PASSWORD,
+  maxSites: DEFAULT_SUB_ADMIN_MAX_SITES,
+};
+
 const INITIAL_SHOP_CONFIGS: ShopConfig[] = [
   { shopId: "shop-1", shopName: "Tech Zone", ownerId: "user-1", ownerName: "Nguyễn Văn An", limits: { ...DEFAULT_LIMITS }, usage: { products: 6, categories: 4, posts: 3 } },
   { shopId: "shop-2", shopName: "Fashion Hub", ownerId: "user-2", ownerName: "Trần Thị Bình", limits: { ...DEFAULT_LIMITS }, usage: { products: 2, categories: 2, posts: 0 } },
@@ -130,15 +146,24 @@ export interface CreateUserInput {
   expiryDays: number;
 }
 
+export interface CreateSubAdminInput {
+  name: string;
+  email: string;
+  phone: string;
+  maxSites: number;
+}
+
 interface AuthContextType {
   user: AppUser | null;
   isLoading: boolean;
   allUsers: AppUser[];
+  subAdmins: AppUser[];
   shopConfigs: ShopConfig[];
   impersonating: boolean;
   loginAsUser: () => void;
   loginAsSuperAdmin: () => void;
   loginAsMember: (redirectTo?: string) => void;
+  loginAsSubAdmin: () => void;
   loginWithCredentials: (email: string, password: string) => boolean;
   logout: () => void;
   enterShopAsAdmin: (userId: string) => void;
@@ -163,6 +188,12 @@ interface AuthContextType {
   loginMemberByPhone: (phone: string) => { found: boolean; needsPassword: boolean };
   loginMemberWithPassword: (phone: string, password: string) => boolean;
   finalizeMemberLogin: (redirectTo?: string) => void;
+  createSubAdmin: (input: CreateSubAdminInput) => void;
+  updateSubAdmin: (id: string, input: CreateSubAdminInput) => void;
+  deleteSubAdmin: (id: string) => void;
+  lockSubAdmin: (id: string) => void;
+  unlockSubAdmin: (id: string) => void;
+  resetSubAdminPassword: (id: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -175,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<AppUser[]>(INITIAL_USERS);
   const [admin, setAdmin] = useState<AppUser>(INITIAL_ADMIN);
   const [member, setMember] = useState<AppUser>(INITIAL_MEMBER);
+  const [subAdmins, setSubAdmins] = useState<AppUser[]>([INITIAL_SUB_ADMIN]);
   const [shopConfigs, setShopConfigs] = useState<ShopConfig[]>(INITIAL_SHOP_CONFIGS);
 
   useEffect(() => {
@@ -220,16 +252,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push(redirectTo || "/member");
   }, [router, member]);
 
+  const loginAsSubAdmin = useCallback(() => {
+    persistUser(subAdmins[0]);
+    router.push("/sub-admin");
+  }, [router, subAdmins]);
+
   const loginWithCredentials = useCallback((email: string, _password: string) => {
-    const found = [...users, admin, member].find((u) => u.email === email);
+    const found = [...users, admin, member, ...subAdmins].find((u) => u.email === email);
     if (found) {
       persistUser(found);
-      const dest = found.role === "super_admin" ? "/super-admin" : found.role === "member" ? "/member" : "/admin";
+      const dest = found.role === "super_admin" ? "/super-admin"
+        : found.role === "sub_admin" ? "/sub-admin"
+        : found.role === "member" ? "/member"
+        : "/admin";
       router.push(dest);
       return true;
     }
     return false;
-  }, [router, users, admin, member]);
+  }, [router, users, admin, member, subAdmins]);
 
   const logout = useCallback(() => {
     persistUser(null);
@@ -284,15 +324,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createUser = useCallback((input: CreateUserInput) => {
     const id = "user-" + Date.now();
     const shopId = "shop-" + Date.now();
+    const createdBy = user?.role === "sub_admin" ? user.id : undefined;
     const newUser: AppUser = {
       id, name: input.name, email: input.email, phone: input.phone,
       role: "user", shopId, shopName: input.shopName,
       avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop",
       status: "active", expiresAt: inDays(input.expiryDays), password: DEFAULT_PASSWORD,
+      createdBy,
     };
     setUsers((prev) => [...prev, newUser]);
     setShopConfigs((prev) => [...prev, { shopId, shopName: input.shopName, ownerId: id, ownerName: input.name, limits: { ...DEFAULT_LIMITS }, usage: { products: 0, categories: 0, posts: 0 } }]);
-  }, []);
+  }, [user]);
 
   const updateUser = useCallback((userId: string, input: { name: string; email: string; phone: string; shopName: string }) => {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, name: input.name, email: input.email, phone: input.phone, shopName: input.shopName } : u)));
@@ -415,8 +457,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push(redirectTo || "/member");
   }, [member, router]);
 
+  const createSubAdmin = useCallback((input: CreateSubAdminInput) => {
+    const id = "subadmin-" + Date.now();
+    const newSA: AppUser = {
+      id, name: input.name, email: input.email, phone: input.phone,
+      role: "sub_admin",
+      avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=80&h=80&fit=crop",
+      status: "active", expiresAt: inDays(3650), password: DEFAULT_PASSWORD,
+      maxSites: input.maxSites,
+    };
+    setSubAdmins((prev) => [...prev, newSA]);
+  }, []);
+
+  const updateSubAdmin = useCallback((id: string, input: CreateSubAdminInput) => {
+    setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, name: input.name, email: input.email, phone: input.phone, maxSites: input.maxSites } : s)));
+  }, []);
+
+  const deleteSubAdmin = useCallback((id: string) => {
+    setSubAdmins((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  const lockSubAdmin = useCallback((id: string) => {
+    setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, status: "locked" } : s)));
+  }, []);
+
+  const unlockSubAdmin = useCallback((id: string) => {
+    setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, status: "active" } : s)));
+  }, []);
+
+  const resetSubAdminPassword = useCallback((id: string) => {
+    setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, password: DEFAULT_PASSWORD } : s)));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress, registerMember, loginMemberByPhone, loginMemberWithPassword, finalizeMemberLogin }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, subAdmins, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginAsSubAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress, registerMember, loginMemberByPhone, loginMemberWithPassword, finalizeMemberLogin, createSubAdmin, updateSubAdmin, deleteSubAdmin, lockSubAdmin, unlockSubAdmin, resetSubAdminPassword }}>
       {children}
     </AuthContext.Provider>
   );
