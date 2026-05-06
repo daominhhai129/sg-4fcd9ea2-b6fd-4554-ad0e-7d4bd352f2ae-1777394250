@@ -29,6 +29,25 @@ export default function ShopPage() {
   const [productPage, setProductPage] = useState(1);
   const [postPage, setPostPage] = useState(1);
 
+  const changeProductPage = (newPage: number) => {
+    if (typeof window !== "undefined") {
+      const y = window.scrollY;
+      setProductPage(newPage);
+      requestAnimationFrame(() => window.scrollTo(0, y));
+    } else {
+      setProductPage(newPage);
+    }
+  };
+  const changePostPage = (newPage: number) => {
+    if (typeof window !== "undefined") {
+      const y = window.scrollY;
+      setPostPage(newPage);
+      requestAnimationFrame(() => window.scrollTo(0, y));
+    } else {
+      setPostPage(newPage);
+    }
+  };
+
   const shop = shops.find((s) => s.slug === slug);
 
   const parentCategories = useMemo(() => {
@@ -287,7 +306,7 @@ export default function ShopPage() {
                 Hiển thị {(productPage - 1) * PRODUCTS_PER_PAGE + 1}-{Math.min(productPage * PRODUCTS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
               </p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === 1} onClick={() => setProductPage((p) => p - 1)}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === 1} onClick={() => changeProductPage(productPage - 1)}>
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Trước
                 </Button>
@@ -295,7 +314,7 @@ export default function ShopPage() {
                   {Array.from({ length: productTotalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      onClick={() => setProductPage(page)}
+                      onClick={() => changeProductPage(page)}
                       style={productPage === page ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                       className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${productPage === page ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
@@ -303,7 +322,7 @@ export default function ShopPage() {
                     </button>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === productTotalPages} onClick={() => setProductPage((p) => p + 1)}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={productPage === productTotalPages} onClick={() => changeProductPage(productPage + 1)}>
                   Sau
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -347,7 +366,7 @@ export default function ShopPage() {
                   Hiển thị {(postPage - 1) * POSTS_PER_PAGE + 1}-{Math.min(postPage * POSTS_PER_PAGE, publishedPosts.length)} / {publishedPosts.length} bài viết
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="rounded-xl" disabled={postPage === 1} onClick={() => setPostPage((p) => p - 1)}>
+                  <Button variant="outline" size="sm" className="rounded-xl" disabled={postPage === 1} onClick={() => changePostPage(postPage - 1)}>
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Trước
                   </Button>
@@ -355,7 +374,7 @@ export default function ShopPage() {
                     {Array.from({ length: postTotalPages }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
-                        onClick={() => setPostPage(page)}
+                        onClick={() => changePostPage(page)}
                         style={postPage === page ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                         className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${postPage === page ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                       >
@@ -363,7 +382,7 @@ export default function ShopPage() {
                       </button>
                     ))}
                   </div>
-                  <Button variant="outline" size="sm" className="rounded-xl" disabled={postPage === postTotalPages} onClick={() => setPostPage((p) => p + 1)}>
+                  <Button variant="outline" size="sm" className="rounded-xl" disabled={postPage === postTotalPages} onClick={() => changePostPage(postPage + 1)}>
                     Sau
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>

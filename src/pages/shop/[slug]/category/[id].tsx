@@ -22,6 +22,16 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [page, setPage] = useState(1);
 
+  const changePage = (newPage: number) => {
+    if (typeof window !== "undefined") {
+      const y = window.scrollY;
+      setPage(newPage);
+      requestAnimationFrame(() => window.scrollTo(0, y));
+    } else {
+      setPage(newPage);
+    }
+  };
+
   const shop = shops.find((s) => s.slug === slug);
   const category = shop?.categories.find((c) => c.slug === id || c.id === id);
   const parentCategory = category?.parentId ? shop?.categories.find((c) => c.id === category.parentId) : null;
@@ -203,7 +213,7 @@ export default function CategoryPage() {
                 Hiển thị {(page - 1) * PRODUCTS_PER_PAGE + 1}-{Math.min(page * PRODUCTS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
               </p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === 1} onClick={() => changePage(page - 1)}>
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Trước
                 </Button>
@@ -211,7 +221,7 @@ export default function CategoryPage() {
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                     <button
                       key={p}
-                      onClick={() => setPage(p)}
+                      onClick={() => changePage(p)}
                       style={page === p ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
                       className={`min-w-[36px] h-9 rounded-xl text-sm font-medium transition-colors ${page === p ? "text-white" : "bg-card border border-border hover:bg-muted"}`}
                     >
@@ -219,7 +229,7 @@ export default function CategoryPage() {
                     </button>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+                <Button variant="outline" size="sm" className="rounded-xl" disabled={page === totalPages} onClick={() => changePage(page + 1)}>
                   Sau
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
