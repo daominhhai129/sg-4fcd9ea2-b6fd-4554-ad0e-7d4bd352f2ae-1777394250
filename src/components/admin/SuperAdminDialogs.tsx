@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Save, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CreateUserInput } from "@/contexts/AuthContext";
+import type { CreateUserInput, CreateSubAdminInput } from "@/contexts/AuthContext";
 
 interface LimitDialogProps {
   open: boolean;
@@ -283,6 +283,50 @@ export function EditUserDialog({ open, onOpenChange, user, onSave }: EditUserDia
           <div className="flex gap-3 pt-2 border-t">
             <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
             <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface SubAdminDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initial?: { name: string; email: string; phone: string; maxSites: number } | null;
+  title: string;
+  onSubmit: (input: CreateSubAdminInput) => void;
+}
+
+export function SubAdminDialog({ open, onOpenChange, initial, title, onSubmit }: SubAdminDialogProps) {
+  const [form, setForm] = useState<CreateSubAdminInput>({ name: "", email: "", phone: "", maxSites: 5000 });
+  useEffect(() => {
+    if (open) {
+      setForm(initial ? { ...initial } : { name: "", email: "", phone: "", maxSites: 5000 });
+    }
+  }, [open, initial]);
+  const submit = () => {
+    if (!form.name || !form.email) return;
+    onSubmit(form);
+    onOpenChange(false);
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle className="font-heading">{title}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div>
+            <Label className="text-sm font-semibold">Giới hạn số sites quản lý</Label>
+            <Input type="number" value={form.maxSites} onChange={(e) => setForm({ ...form, maxSites: Number(e.target.value) })} className="rounded-xl mt-1.5" />
+            <p className="text-xs text-muted-foreground mt-1.5">Mặc định: 5000 sites/sub-admin.</p>
+          </div>
+          {!initial && <p className="text-xs text-muted-foreground">Mật khẩu mặc định: <code className="font-mono text-foreground">iLoveProID@</code></p>}
+          <div className="flex gap-3 pt-2 border-t">
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{initial ? "Lưu" : "Tạo"}</Button>
           </div>
         </div>
       </DialogContent>

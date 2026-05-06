@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog, EditUserDialog } from "@/components/admin/SuperAdminDialogs";
+import { LimitDialog, ExtendDialog, CreateUserDialog, AdminPasswordDialog, DomainDialog, EditUserDialog, SubAdminDialog } from "@/components/admin/SuperAdminDialogs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { orders as mockOrders } from "@/data/mock-data";
 import {
@@ -21,7 +21,7 @@ export default function SuperAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { user, isLoading, shopConfigs, allUsers, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, enterShopAsAdmin, setUserDomain } = useAuth();
+  const { user, isLoading, shopConfigs, allUsers, subAdmins, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, enterShopAsAdmin, setUserDomain, createSubAdmin, updateSubAdmin, deleteSubAdmin, lockSubAdmin, unlockSubAdmin, resetSubAdminPassword } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [editingShop, setEditingShop] = useState<string | null>(null);
@@ -30,6 +30,9 @@ export default function SuperAdminPage() {
   const [pwdOpen, setPwdOpen] = useState(false);
   const [domainUser, setDomainUser] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [createSubAdminOpen, setCreateSubAdminOpen] = useState(false);
+  const [editingSubAdmin, setEditingSubAdmin] = useState<string | null>(null);
+  const [deletingSubAdmin, setDeletingSubAdmin] = useState<string | null>(null);
   const [orphanedImages, setOrphanedImages] = useState(23);
   const [maintenanceAction, setMaintenanceAction] = useState<"images" | "orders" | null>(null);
   const [oldOrdersDeleted, setOldOrdersDeleted] = useState(false);
@@ -58,6 +61,8 @@ export default function SuperAdminPage() {
   const extendingUserData = allUsers.find((u) => u.id === extendingUser);
   const domainUserData = allUsers.find((u) => u.id === domainUser);
   const editingUserData = allUsers.find((u) => u.id === editingUser);
+  const editingSubAdminData = subAdmins.find((s) => s.id === editingSubAdmin);
+  const deletingSubAdminData = subAdmins.find((s) => s.id === deletingSubAdmin);
   const totalProducts = shopConfigs.reduce((sum, sc) => sum + sc.usage.products, 0);
 
   const handleResetPassword = (userId: string, name: string) => {
@@ -188,145 +193,90 @@ export default function SuperAdminPage() {
 
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <h2 className="text-lg font-heading font-bold text-foreground">{t("super.usersTitle")}</h2>
-                <div className="flex gap-2">
-                  <div className="relative flex-1 sm:w-72">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder={t("super.searchPh")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-xl" />
-                  </div>
-                  <Button variant="outline" className="rounded-xl" onClick={handleExportCSV}>
-                    <FileSpreadsheet className="w-4 h-4 mr-1.5" /> {t("super.export")}
-                  </Button>
-                  <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}>
-                    <UserPlus className="w-4 h-4 mr-1.5" /> {t("super.create")}
-                  </Button>
+                <div>
+                  <h2 className="text-lg font-heading font-bold text-foreground">Quản lý Sub-admin</h2>
+                  <p className="text-sm text-muted-foreground">Sub-admin tạo và quản lý user shop của riêng họ. Mỗi sub-admin có cap số sites tự cấu hình (mặc định 5000).</p>
                 </div>
+                <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateSubAdminOpen(true)}>
+                  <UserPlus className="w-4 h-4 mr-1.5" /> Tạo Sub-admin
+                </Button>
               </div>
-
               <div className="rounded-2xl border border-border/50 overflow-hidden bg-card">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colUser")}</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("super.colPhone")}</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">{t("super.colShop")}</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">{t("super.colDomain")}</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">{t("super.colExpiry")}</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colStatus")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sub-admin</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sites quản lý</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((u) => {
-                      const expiry = new Date(u.expiresAt);
-                      const expired = expiry < new Date();
-                      const sc = u.shopId ? shopConfigs.find((s) => s.shopId === u.shopId) : null;
+                    {subAdmins.map((sa) => {
+                      const sitesCount = allUsers.filter((u) => u.createdBy === sa.id).length;
+                      const cap = sa.maxSites || 5000;
                       return (
-                        <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors align-top">
+                        <tr key={sa.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3 min-w-0">
-                              <Image src={u.avatar || ""} alt={u.name} width={36} height={36} className="rounded-full flex-shrink-0" />
+                              <Image src={sa.avatar || ""} alt={sa.name} width={36} height={36} className="rounded-full flex-shrink-0" />
                               <div className="min-w-0">
-                                <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                                {sc && (
-                                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[11px] text-muted-foreground">
-                                    <span className="inline-flex items-center gap-1"><Package className="w-3 h-3" />{sc.usage.products}/{sc.limits.products}</span>
-                                    <span className="inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" />{sc.usage.categories}/{sc.limits.categories}</span>
-                                    <span className="inline-flex items-center gap-1"><FileText className="w-3 h-3" />{sc.usage.posts}/{sc.limits.posts}</span>
-                                  </div>
-                                )}
-                                {u.customDomain && (
-                                  <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="xl:hidden inline-flex items-center gap-1 mt-1 text-[11px] font-medium text-primary hover:underline">
-                                    <Globe className="w-3 h-3" />{u.customDomain}
-                                  </a>
-                                )}
+                                <p className="text-sm font-semibold text-foreground truncate">{sa.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{sa.email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-4 py-3 hidden md:table-cell">
-                            {u.phone ? (
-                              <a href={"tel:" + u.phone} className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-                                <Phone className="w-3.5 h-3.5" /> {u.phone}
-                              </a>
-                            ) : <span className="text-sm text-muted-foreground">—</span>}
+                            {sa.phone ? <a href={"tel:" + sa.phone} className="text-sm text-primary hover:underline inline-flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{sa.phone}</a> : <span className="text-sm text-muted-foreground">—</span>}
                           </td>
-                          <td className="px-4 py-3 hidden lg:table-cell"><span className="text-sm text-muted-foreground">{u.shopName || "—"}</span></td>
-                          <td className="px-4 py-3 hidden xl:table-cell">
-                            {u.customDomain ? (
-                              <a href={"https://" + u.customDomain} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-                                <Globe className="w-3.5 h-3.5" />{u.customDomain}
-                              </a>
-                            ) : <span className="text-sm text-muted-foreground">—</span>}
+                          <td className="px-4 py-3">
+                            <div className="text-sm">
+                              <span className="font-bold text-foreground">{sitesCount}</span>
+                              <span className="text-muted-foreground"> / {cap.toLocaleString("vi-VN")}</span>
+                            </div>
+                            <div className="w-32 h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
+                              <div className="h-full bg-primary" style={{ width: Math.min(100, (sitesCount / cap) * 100) + "%" }} />
+                            </div>
                           </td>
-                          <td className="px-4 py-3 hidden sm:table-cell">
-                            <span className={cn("text-sm", expired ? "text-destructive font-semibold" : "text-muted-foreground")}>
-                              {expiry.toLocaleDateString("vi-VN")}
+                          <td className="px-4 py-3">
+                            <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", sa.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
+                              {sa.status === "active" ? "Hoạt động" : "Đã khóa"}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", u.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
-                              {u.status === "active" ? t("super.statusActive") : t("super.statusLocked")}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            {u.role !== "super_admin" && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <button className="p-1.5 rounded-lg hover:bg-muted transition-colors"><MoreVertical className="w-4 h-4 text-muted-foreground" /></button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                  {u.phone && (
-                                    <DropdownMenuItem asChild>
-                                      <a href={"tel:" + u.phone}><Phone className="w-4 h-4 mr-2" /> {t("super.menuCall")}</a>
-                                    </DropdownMenuItem>
-                                  )}
-                                  {sc && (
-                                    <DropdownMenuItem onClick={() => enterShopAsAdmin(u.id)}>
-                                      <LogIn className="w-4 h-4 mr-2" /> {t("super.menuDashboard")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
-                                    <Copy className="w-4 h-4 mr-2" /> {t("super.menuCopy")}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="p-1.5 rounded-lg hover:bg-muted transition-colors"><MoreVertical className="w-4 h-4 text-muted-foreground" /></button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => setEditingSubAdmin(sa.id)}>
+                                  <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { resetSubAdminPassword(sa.id); toast({ title: "Đã reset mật khẩu", description: `Mật khẩu của ${sa.name} đã đặt về mặc định.` }); }}>
+                                  <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {sa.status === "active" ? (
+                                  <DropdownMenuItem onClick={() => lockSubAdmin(sa.id)} className="text-destructive focus:text-destructive">
+                                    <Lock className="w-4 h-4 mr-2" /> Khóa
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
-                                    <Pencil className="w-4 h-4 mr-2" /> {t("super.menuEdit")}
+                                ) : (
+                                  <DropdownMenuItem onClick={() => unlockSubAdmin(sa.id)}>
+                                    <Unlock className="w-4 h-4 mr-2" /> Mở khóa
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
-                                    <CalendarClock className="w-4 h-4 mr-2" /> {t("super.menuExtend")}
-                                  </DropdownMenuItem>
-                                  {sc && (
-                                    <DropdownMenuItem onClick={() => setEditingShop(sc.shopId)}>
-                                      <SlidersHorizontal className="w-4 h-4 mr-2" /> {t("super.menuLimit")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  {sc && (
-                                    <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
-                                      <Globe className="w-4 h-4 mr-2" /> {t("super.menuDomain")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
-                                    <RefreshCw className="w-4 h-4 mr-2" /> {t("super.menuReset")}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  {u.status === "active" ? (
-                                    <DropdownMenuItem onClick={() => lockUser(u.id)} className="text-destructive focus:text-destructive">
-                                      <Lock className="w-4 h-4 mr-2" /> {t("super.menuLock")}
-                                    </DropdownMenuItem>
-                                  ) : (
-                                    <DropdownMenuItem onClick={() => unlockUser(u.id)}>
-                                      <Unlock className="w-4 h-4 mr-2" /> {t("super.menuUnlock")}
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
+                                )}
+                                <DropdownMenuItem onClick={() => setDeletingSubAdmin(sa.id)} className="text-destructive focus:text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" /> Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </td>
                         </tr>
                       );
                     })}
-                    {filteredUsers.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">{t("super.empty")}</td></tr>
+                    {subAdmins.length === 0 && (
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">Chưa có sub-admin nào.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -418,6 +368,33 @@ export default function SuperAdminPage() {
           user={editingUserData || null}
           onSave={(input) => { if (editingUser) { updateUser(editingUser, input); toast({ title: "Đã cập nhật", description: "Thông tin chủ shop đã được lưu." }); } }}
         />
+        <SubAdminDialog
+          open={createSubAdminOpen}
+          onOpenChange={setCreateSubAdminOpen}
+          title="Tạo Sub-admin mới"
+          onSubmit={(input) => { createSubAdmin(input); toast({ title: "Đã tạo sub-admin", description: `${input.name} có thể đăng nhập với mật khẩu mặc định.` }); }}
+        />
+        <SubAdminDialog
+          open={!!editingSubAdmin}
+          onOpenChange={(o) => { if (!o) setEditingSubAdmin(null); }}
+          title="Sửa Sub-admin"
+          initial={editingSubAdminData ? { name: editingSubAdminData.name, email: editingSubAdminData.email, phone: editingSubAdminData.phone || "", maxSites: editingSubAdminData.maxSites || 5000 } : null}
+          onSubmit={(input) => { if (editingSubAdmin) { updateSubAdmin(editingSubAdmin, input); toast({ title: "Đã cập nhật" }); } }}
+        />
+        <AlertDialog open={!!deletingSubAdmin} onOpenChange={(o) => { if (!o) setDeletingSubAdmin(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-heading">Xóa sub-admin?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn sắp xóa sub-admin <strong>{deletingSubAdminData?.name}</strong>. Các shop user do sub-admin này tạo vẫn được giữ nguyên. Hành động không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (deletingSubAdmin) { deleteSubAdmin(deletingSubAdmin); toast({ title: "Đã xóa sub-admin" }); setDeletingSubAdmin(null); } }} className="rounded-xl bg-destructive hover:bg-destructive/90">Xác nhận xóa</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <AlertDialog open={!!maintenanceAction} onOpenChange={(o) => { if (!o) setMaintenanceAction(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
