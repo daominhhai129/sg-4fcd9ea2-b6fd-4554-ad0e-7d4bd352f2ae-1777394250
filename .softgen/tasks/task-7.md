@@ -1,6 +1,6 @@
 ---
 title: Sub-admin role & management
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [auth, super-admin, sub-admin]
