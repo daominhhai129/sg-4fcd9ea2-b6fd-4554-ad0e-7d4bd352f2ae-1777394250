@@ -86,27 +86,41 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-4">
-            <Carousel setApi={setApi} className="w-full" opts={{ loop: false }}>
-              <CarouselContent className="-ml-0">
-                {mediaItems.map((item, i) => (
-                  <CarouselItem key={i} className="pl-0">
-                    <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
-                      {item.type === "image" ? (
-                        <Image src={item.src} alt={product.name} fill className="object-cover" />
-                      ) : (
-                        <iframe
-                          src={item.src}
-                          title={product.name}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="absolute inset-0 w-full h-full"
-                        />
-                      )}
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
+            <div className="relative">
+              <Carousel setApi={setApi} className="w-full" opts={{ loop: false }}>
+                <CarouselContent className="-ml-0">
+                  {mediaItems.map((item, i) => (
+                    <CarouselItem key={i} className="pl-0">
+                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
+                        {item.type === "image" ? (
+                          <Image src={item.src} alt={product.name} fill className="object-cover" />
+                        ) : (
+                          <iframe
+                            src={item.src}
+                            title={product.name}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0 w-full h-full"
+                          />
+                        )}
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+              {product.videoUrl && activeImage < product.images.length && (
+                <button
+                  onClick={() => goToSlide(product.images.length)}
+                  className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/70 backdrop-blur-sm text-white text-sm font-semibold hover:bg-black/85 transition-colors shadow-lg"
+                  aria-label="Xem video sản phẩm"
+                >
+                  <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+                    <Play className="w-3.5 h-3.5 text-black fill-black ml-0.5" />
+                  </span>
+                  Xem video
+                </button>
+              )}
+            </div>
             {mediaItems.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1">
                 {mediaItems.map((item, i) => (
