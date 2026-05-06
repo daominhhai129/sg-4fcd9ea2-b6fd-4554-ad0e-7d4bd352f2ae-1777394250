@@ -270,22 +270,24 @@ export default function CheckoutPage() {
                   <Label htmlFor="note" className="text-sm font-semibold">Ghi chú</Label>
                   <Textarea id="note" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className="mt-1.5 rounded-xl min-h-[72px]" placeholder="Lưu ý cho người giao hàng (không bắt buộc)" />
                 </div>
-                <div className="sm:col-span-2 flex items-start gap-3 rounded-xl bg-primary/5 border-2 border-primary/30 p-4">
-                  <input
-                    id="saveInfo"
-                    type="checkbox"
-                    checked={saveInfo}
-                    onChange={(e) => setSaveInfo(e.target.checked)}
-                    className="mt-0.5 w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer accent-primary"
-                  />
-                  <label htmlFor="saveInfo" className="text-sm cursor-pointer flex-1">
-                    <span className="font-bold text-foreground flex items-center gap-1.5">
-                      <Save className="w-4 h-4 text-primary" />
-                      Lưu thông tin cho lần mua tiếp theo
-                    </span>
-                    <span className="text-xs text-muted-foreground block mt-0.5">Họ tên, SĐT, email và địa chỉ sẽ được tự điền ở lần checkout sau (lưu trên trình duyệt này).</span>
-                  </label>
-                </div>
+                {!isMember && (
+                  <div className="sm:col-span-2 flex items-start gap-3 rounded-xl bg-primary/5 border-2 border-primary/30 p-4">
+                    <input
+                      id="saveInfo"
+                      type="checkbox"
+                      checked={saveInfo}
+                      onChange={(e) => setSaveInfo(e.target.checked)}
+                      className="mt-0.5 w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary cursor-pointer accent-primary"
+                    />
+                    <label htmlFor="saveInfo" className="text-sm cursor-pointer flex-1">
+                      <span className="font-bold text-foreground flex items-center gap-1.5">
+                        <Save className="w-4 h-4 text-primary" />
+                        Lưu thông tin cho lần mua tiếp theo
+                      </span>
+                      <span className="text-xs text-muted-foreground block mt-0.5">Họ tên, SĐT, email và địa chỉ sẽ được tự điền ở lần checkout sau (lưu trên trình duyệt này).</span>
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
 
