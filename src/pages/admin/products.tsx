@@ -51,6 +51,7 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [products, setProducts] = useState<Product[]>(shop.products);
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,19 +79,27 @@ export default function ProductsPage() {
     }
     if (visibilityFilter === "visible") result = result.filter((p) => !p.isHidden);
     if (visibilityFilter === "hidden") result = result.filter((p) => p.isHidden);
-    return [...result].sort((a, b) => {
-      const dateA = (a as unknown as { updatedAt?: string }).updatedAt || a.createdAt;
-      const dateB = (b as unknown as { updatedAt?: string }).updatedAt || b.createdAt;
-      return new Date(dateB).getTime() - new Date(dateA).getTime();
-    });
-  }, [products, search, categoryFilter, visibilityFilter]);
+    const sorted = [...result];
+    if (sortBy === "priceAsc") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "priceDesc") {
+      sorted.sort((a, b) => b.price - a.price);
+    } else {
+      sorted.sort((a, b) => {
+        const dateA = (a as unknown as { updatedAt?: string }).updatedAt || a.createdAt;
+        const dateB = (b as unknown as { updatedAt?: string }).updatedAt || b.createdAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      });
+    }
+    return sorted;
+  }, [products, search, categoryFilter, visibilityFilter, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = useMemo(() => filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filtered, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoryFilter, visibilityFilter]);
+  }, [search, categoryFilter, visibilityFilter, sortBy]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -275,6 +284,16 @@ export default function ProductsPage() {
                 <SelectItem value="all">Tất cả trạng thái</SelectItem>
                 <SelectItem value="visible">Đang hiển thị</SelectItem>
                 <SelectItem value="hidden">Đã ẩn</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "priceAsc" | "priceDesc")}>
+              <SelectTrigger className="w-40 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Mới nhất</SelectItem>
+                <SelectItem value="priceAsc">Giá thấp → cao</SelectItem>
+                <SelectItem value="priceDesc">Giá cao → thấp</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex items-center border border-border rounded-xl overflow-hidden">
