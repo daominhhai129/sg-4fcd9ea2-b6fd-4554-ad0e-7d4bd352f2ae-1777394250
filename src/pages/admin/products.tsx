@@ -75,7 +75,9 @@ export default function ProductsPage() {
       result = result.filter((p) => p.name.toLowerCase().includes(q));
     }
     if (categoryFilter !== "all") {
-      result = result.filter((p) => p.categoryId === categoryFilter);
+      const childIds = shop.categories.filter((c) => c.parentId === categoryFilter).map((c) => c.id);
+      const allowedIds = new Set<string>([categoryFilter, ...childIds]);
+      result = result.filter((p) => allowedIds.has(p.categoryId));
     }
     if (visibilityFilter === "visible") result = result.filter((p) => !p.isHidden);
     if (visibilityFilter === "hidden") result = result.filter((p) => p.isHidden);
