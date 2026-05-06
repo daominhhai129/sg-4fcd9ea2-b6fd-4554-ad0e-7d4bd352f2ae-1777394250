@@ -476,3 +476,10 @@ export function getOrdersByShop(shopId: string): Order[] {
 
 products.push(...extraProducts);
 posts.push(...extraPosts);
+
+shops.forEach((s) => {
+  s.products = products.filter((p) => p.shopId === s.id);
+  s.categories = categories.filter((c) => c.shopId === s.id);
+  s.posts = posts.filter((p) => p.shopId === s.id);
+  s.orders = orders.filter((o) => o.shopId === s.id);
+});
