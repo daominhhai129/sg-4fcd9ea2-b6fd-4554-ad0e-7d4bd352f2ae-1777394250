@@ -137,23 +137,32 @@ export default function CategoryPage() {
             >
               Tất cả
             </Link>
-            {shop.categories.map((cat) => {
-              const active = cat.id === category.id;
-              return (
-                <Link
-                  key={cat.id}
-                  href={`/shop/${shop.slug}/category/${cat.slug}`}
-                  style={active ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                    active
-                      ? "text-white shadow-md border-0"
-                      : "bg-card text-foreground border border-border hover:border-primary"
-                  }`}
-                >
-                  {cat.name}
-                </Link>
-              );
-            })}
+            {(() => {
+              const rootId = parentCategory ? parentCategory.id : category.id;
+              const root = parentCategory || category;
+              const siblings = shop.categories.filter((c) => c.parentId === rootId);
+              const chips = [root, ...siblings];
+              return chips.map((cat) => {
+                const active = cat.id === category.id;
+                const isParent = cat.id === rootId && parentCategory;
+                return (
+                  <Link
+                    key={cat.id}
+                    href={`/shop/${shop.slug}/category/${cat.slug}`}
+                    style={active ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                    className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                      active
+                        ? "text-white shadow-md border-0"
+                        : isParent
+                        ? "bg-muted text-foreground border border-border hover:border-primary"
+                        : "bg-card text-foreground border border-border hover:border-primary"
+                    }`}
+                  >
+                    {isParent ? `← ${cat.name}` : cat.name}
+                  </Link>
+                );
+              });
+            })()}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 mt-6">
