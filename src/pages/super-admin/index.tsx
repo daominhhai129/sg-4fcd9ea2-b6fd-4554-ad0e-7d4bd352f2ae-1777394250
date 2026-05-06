@@ -23,6 +23,7 @@ export default function SuperAdminPage() {
   const { t } = useLanguage();
   const { user, isLoading, shopConfigs, allUsers, subAdmins, logout, setShopLimit, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, enterShopAsAdmin, setUserDomain, createSubAdmin, updateSubAdmin, deleteSubAdmin, lockSubAdmin, unlockSubAdmin, resetSubAdminPassword } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [search, setSearch] = useState("");
   const [editingShop, setEditingShop] = useState<string | null>(null);
   const [extendingUser, setExtendingUser] = useState<string | null>(null);
@@ -152,14 +153,22 @@ export default function SuperAdminPage() {
     <>
       <SEO title="Super Admin" />
       <div className="min-h-screen bg-background">
-        <aside className={cn("fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 lg:translate-x-0", sidebarOpen ? "translate-x-0" : "-translate-x-full")}>
-          <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center"><Shield className="w-4 h-4 text-white" /></div>
-              <span className="font-heading font-bold text-foreground">Super Admin</span>
+        <aside className={cn("fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-200 lg:translate-x-0", sidebarCollapsed ? "w-20" : "w-64", sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full")}>
+          <div className={cn("flex items-center h-16 px-4 border-b border-border", sidebarCollapsed ? "justify-center" : "justify-between")}>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0"><Shield className="w-4 h-4 text-white" /></div>
+              {!sidebarCollapsed && <span className="font-heading font-bold text-foreground truncate">Super Admin</span>}
             </div>
-            <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
+            {!sidebarCollapsed && (
+              <>
+                <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
+                <button className="hidden lg:flex p-1 text-muted-foreground hover:text-foreground" onClick={() => setSidebarCollapsed(true)} title="Thu gọn"><ChevronLeft className="w-5 h-5" /></button>
+              </>
+            )}
           </div>
+          {sidebarCollapsed && (
+            <button className="hidden lg:flex w-full justify-center py-2 text-muted-foreground hover:text-foreground border-b border-border" onClick={() => setSidebarCollapsed(false)} title="Mở rộng"><ChevronRight className="w-5 h-5" /></button>
+          )}
           <nav className="p-3 space-y-1">
             {[
               { id: "shops" as const, label: "Shop Owners", icon: Store, count: filteredUsers.length },
@@ -169,14 +178,16 @@ export default function SuperAdminPage() {
               <button
                 key={item.id}
                 onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
+                title={sidebarCollapsed ? item.label : undefined}
                 className={cn(
-                  "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  "flex items-center gap-3 w-full rounded-xl text-sm font-medium transition-colors",
+                  sidebarCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5",
                   activeView === item.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <item.icon className="w-4 h-4" />
-                <span className="flex-1 text-left">{item.label}</span>
-                {typeof item.count === "number" && (
+                <item.icon className="w-4 h-4 flex-shrink-0" />
+                {!sidebarCollapsed && <span className="flex-1 text-left">{item.label}</span>}
+                {!sidebarCollapsed && typeof item.count === "number" && (
                   <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", activeView === item.id ? "bg-primary text-white" : "bg-muted-foreground/10 text-muted-foreground")}>
                     {item.count}
                   </span>
@@ -185,28 +196,37 @@ export default function SuperAdminPage() {
             ))}
           </nav>
           <div className="absolute bottom-4 left-3 right-3 space-y-1">
-            <div className="px-3 pb-1">
-              <LanguageToggle />
-            </div>
-            <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
-              <Image src={user.avatar || ""} alt={user.name} width={32} height={32} className="rounded-full" />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-                <p className="text-xs text-muted-foreground">Super Admin</p>
+            {!sidebarCollapsed && (
+              <>
+                <div className="px-3 pb-1">
+                  <LanguageToggle />
+                </div>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
+                  <Image src={user.avatar || ""} alt={user.name} width={32} height={32} className="rounded-full" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">Super Admin</p>
+                  </div>
+                </div>
+              </>
+            )}
+            {sidebarCollapsed && (
+              <div className="flex justify-center py-2">
+                <Image src={user.avatar || ""} alt={user.name} width={32} height={32} className="rounded-full" />
               </div>
-            </div>
-            <button onClick={() => setPwdOpen(true)} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors">
-              <KeyRound className="w-4 h-4" /> {t("settings.changePwd")}
+            )}
+            <button onClick={() => setPwdOpen(true)} title={sidebarCollapsed ? t("settings.changePwd") : undefined} className={cn("flex items-center gap-2 w-full rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors", sidebarCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5")}>
+              <KeyRound className="w-4 h-4 flex-shrink-0" /> {!sidebarCollapsed && t("settings.changePwd")}
             </button>
-            <button onClick={logout} className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors">
-              <LogOut className="w-4 h-4" /> {t("nav.logout")}
+            <button onClick={logout} title={sidebarCollapsed ? t("nav.logout") : undefined} className={cn("flex items-center gap-2 w-full rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors", sidebarCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5")}>
+              <LogOut className="w-4 h-4 flex-shrink-0" /> {!sidebarCollapsed && t("nav.logout")}
             </button>
           </div>
         </aside>
 
         {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-        <div className="lg:pl-64">
+        <div className={cn("transition-all duration-200", sidebarCollapsed ? "lg:pl-20" : "lg:pl-64")}>
           <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
             <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
             <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">
