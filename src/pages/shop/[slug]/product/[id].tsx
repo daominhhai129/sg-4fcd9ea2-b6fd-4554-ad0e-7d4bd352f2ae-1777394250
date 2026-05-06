@@ -79,10 +79,20 @@ export default function ProductDetailPage() {
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="container py-8 pb-24 md:pb-8">
         <div className="lg:max-w-[70%] lg:mx-auto">
-        <Link href={"/shop/" + shop.slug} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window !== "undefined" && window.history.length > 1) {
+              router.back();
+            } else {
+              router.push("/shop/" + shop.slug);
+            }
+          }}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" />
           Quay lại
-        </Link>
+        </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-4">
