@@ -134,6 +134,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
         </nav>
 
         <div className="flex items-center gap-1.5">
+          <button onClick={openSearch} className="md:hidden p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tìm kiếm">
+            <Search className="w-5 h-5" />
+          </button>
           <button onClick={openSearch} className="hidden md:inline-flex p-1.5 rounded-lg hover:bg-muted transition-colors text-foreground" aria-label="Tìm kiếm">
             <Search className="w-5 h-5" />
           </button>
@@ -156,17 +159,6 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <Menu className="w-5 h-5" />
           </button>
         </div>
-      </div>
-
-      <div className="md:hidden container pb-2.5 -mt-1">
-        <button
-          type="button"
-          onClick={openSearch}
-          className="flex items-center gap-2.5 w-full h-10 px-3.5 rounded-xl bg-muted/70 hover:bg-muted text-left transition-colors"
-        >
-          <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-          <span className="text-sm text-muted-foreground truncate">Tìm sản phẩm trong {shop.name}...</span>
-        </button>
       </div>
 
       {megaOpen && (
