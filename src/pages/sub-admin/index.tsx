@@ -10,23 +10,33 @@ import { CreateUserDialog, ExtendDialog, EditUserDialog, DomainDialog, LimitDial
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, LogOut, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, CalendarClock, Pencil, AlertCircle, Globe, Sliders } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Shield, Store, Users, LogOut, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, CalendarClock, Pencil, AlertCircle, Globe, Sliders, UserCog } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SubAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading, allUsers, shopConfigs, logout, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, setUserDomain, setShopLimit, getShopConfig } = useAuth();
+  const { user, isLoading, allUsers, shopConfigs, logout, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, setUserDomain, setShopLimit, getShopConfig, updateSubAdminSelf } = useAuth();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [extendingUser, setExtendingUser] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [domainUser, setDomainUser] = useState<string | null>(null);
   const [limitsUser, setLimitsUser] = useState<string | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: "", email: "", phone: "", password: "" });
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "sub_admin")) router.replace("/login");
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    if (profileOpen && user) {
+      setProfileForm({ name: user.name, email: user.email, phone: user.phone || "", password: "" });
+    }
+  }, [profileOpen]);
 
   if (isLoading || !user || user.role !== "sub_admin") {
     return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -68,10 +78,14 @@ export default function SubAdminPage() {
             <span className="font-heading font-bold text-foreground">Sub-admin Dashboard</span>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-muted">
+            <button onClick={() => setProfileOpen(true)} className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
               <Image src={user.avatar || ""} alt={user.name} width={28} height={28} className="rounded-full" />
               <span className="text-sm font-semibold text-foreground">{user.name}</span>
-            </div>
+              <UserCog className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <Button variant="outline" size="sm" className="rounded-xl sm:hidden" onClick={() => setProfileOpen(true)}>
+              <UserCog className="w-4 h-4" />
+            </Button>
             <Button variant="outline" size="sm" className="rounded-xl" onClick={logout}>
               <LogOut className="w-4 h-4 mr-1.5" /> Đăng xuất
             </Button>
@@ -268,6 +282,34 @@ export default function SubAdminPage() {
           initialValue={limitsConfig?.limits.products || 200}
           onSave={(value) => { if (limitsUserData?.shopId) { setShopLimit(limitsUserData.shopId, value); toast({ title: "Đã cập nhật giới hạn" }); } }}
         />
+
+        <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle className="font-heading">Tài khoản của tôi</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+              <div><Label className="text-sm font-semibold">Email đăng nhập</Label><Input type="email" value={profileForm.email} onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+              <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+              <div>
+                <Label className="text-sm font-semibold">Mật khẩu mới</Label>
+                <Input type="text" value={profileForm.password} onChange={(e) => setProfileForm({ ...profileForm, password: e.target.value })} className="rounded-xl mt-1.5 font-mono" placeholder="Để trống = giữ nguyên" />
+                <p className="text-xs text-muted-foreground mt-1.5">Chỉ điền nếu muốn đổi mật khẩu.</p>
+              </div>
+              <div className="flex gap-3 pt-2 border-t">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setProfileOpen(false)}>Hủy</Button>
+                <Button
+                  className="flex-1 gradient-primary text-white border-0 rounded-xl"
+                  onClick={() => {
+                    if (!profileForm.name || !profileForm.email) return;
+                    updateSubAdminSelf({ name: profileForm.name, email: profileForm.email, phone: profileForm.phone, password: profileForm.password.trim() || undefined });
+                    toast({ title: "Đã cập nhật tài khoản" });
+                    setProfileOpen(false);
+                  }}
+                >Lưu</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );

@@ -240,6 +240,7 @@ interface AuthContextType {
   lockSubAdmin: (id: string) => void;
   unlockSubAdmin: (id: string) => void;
   resetSubAdminPassword: (id: string) => void;
+  updateSubAdminSelf: (input: { name: string; email: string; phone: string; password?: string }) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -541,8 +542,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSubAdmins((prev) => prev.map((s) => (s.id === id ? { ...s, password: DEFAULT_PASSWORD } : s)));
   }, []);
 
+  const updateSubAdminSelf = useCallback((input: { name: string; email: string; phone: string; password?: string }) => {
+    if (!user || user.role !== "sub_admin") return;
+    const id = user.id;
+    setSubAdmins((prev) => prev.map((s) => {
+      if (s.id !== id) return s;
+      const next: AppUser = { ...s, name: input.name, email: input.email, phone: input.phone };
+      if (input.password && input.password.length > 0) next.password = input.password;
+      return next;
+    }));
+    const updated: AppUser = { ...user, name: input.name, email: input.email, phone: input.phone };
+    if (input.password && input.password.length > 0) updated.password = input.password;
+    persistUser(updated);
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, allUsers: users, subAdmins, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginAsSubAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress, registerMember, loginMemberByPhone, loginMemberWithPassword, finalizeMemberLogin, createSubAdmin, updateSubAdmin, deleteSubAdmin, lockSubAdmin, unlockSubAdmin, resetSubAdminPassword }}>
+    <AuthContext.Provider value={{ user, isLoading, allUsers: users, subAdmins, shopConfigs, impersonating: !!originalUser, loginAsUser, loginAsSuperAdmin, loginAsMember, loginAsSubAdmin, loginWithCredentials, logout, enterShopAsAdmin, exitImpersonation, setShopLimit, getShopConfig, lockUser, unlockUser, extendUserExpiry, resetUserPassword, createUser, updateUser, updateAdminPassword, setUserDomain, updateMemberInfo, updateMemberPassword, addMemberAddress, updateMemberAddress, deleteMemberAddress, setDefaultMemberAddress, registerMember, loginMemberByPhone, loginMemberWithPassword, finalizeMemberLogin, createSubAdmin, updateSubAdmin, deleteSubAdmin, lockSubAdmin, unlockSubAdmin, resetSubAdminPassword, updateSubAdminSelf }}>
       {children}
     </AuthContext.Provider>
   );
