@@ -28,10 +28,10 @@ export default function CartPage() {
       <SEO title={"Giỏ hàng — " + shop.name} />
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="container py-8 min-h-[60vh]">
-        <button onClick={() => router.back()} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <Link href={"/shop/" + shop.slug} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Tiếp tục mua sắm
-        </button>
+        </Link>
 
         <h1 className="text-2xl font-heading font-extrabold text-foreground mb-8">Giỏ hàng ({totalItems})</h1>
 
