@@ -200,6 +200,20 @@ export default function LoginPage() {
                   <p className="text-base font-heading font-bold text-foreground">{settings.hotlinePhone}</p>
                 </div>
               </a>
+              {settings.hotlinePhone2 && (
+                <a
+                  href={"tel:" + settings.hotlinePhone2.replace(/\s/g, "")}
+                  className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Phone className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">{settings.hotlineLabel2}</p>
+                    <p className="text-base font-heading font-bold text-foreground">{settings.hotlinePhone2}</p>
+                  </div>
+                </a>
+              )}
               <a
                 href={settings.zaloUrl}
                 target="_blank"
@@ -214,6 +228,22 @@ export default function LoginPage() {
                   <p className="text-base font-heading font-bold text-foreground">{settings.zaloPhone}</p>
                 </div>
               </a>
+              {settings.zaloPhone2 && (
+                <a
+                  href={settings.zaloUrl2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                    <MessageCircle className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Chat Zalo hỗ trợ</p>
+                    <p className="text-base font-heading font-bold text-foreground">{settings.zaloPhone2}</p>
+                  </div>
+                </a>
+              )}
             </div>
             <p className="text-xs text-muted-foreground text-center pt-1">
               Giờ hỗ trợ: {settings.supportHours}

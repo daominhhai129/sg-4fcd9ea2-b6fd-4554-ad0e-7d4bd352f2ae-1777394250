@@ -692,27 +692,61 @@ function SupportSettingsView() {
       </div>
       <p className="text-sm text-muted-foreground mb-6">Quản lý hotline và Zalo hiển thị cho khách hàng quên mật khẩu trên trang đăng nhập.</p>
       <div className="rounded-2xl bg-card border border-border/50 p-6 max-w-2xl space-y-5">
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Số hotline</label>
-            <Input value={settings.hotlinePhone} onChange={(e) => setSettings({ ...settings, hotlinePhone: e.target.value })} placeholder="1900 123 456" className="rounded-xl" />
+        <div>
+          <h3 className="text-sm font-heading font-bold text-foreground mb-3 uppercase tracking-wide text-muted-foreground">Hotline #1</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Số hotline</label>
+              <Input value={settings.hotlinePhone} onChange={(e) => setSettings({ ...settings, hotlinePhone: e.target.value })} placeholder="1900 123 456" className="rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Nhãn hotline</label>
+              <Input value={settings.hotlineLabel} onChange={(e) => setSettings({ ...settings, hotlineLabel: e.target.value })} placeholder="Hotline kỹ thuật" className="rounded-xl" />
+            </div>
           </div>
-          <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Nhãn hotline</label>
-            <Input value={settings.hotlineLabel} onChange={(e) => setSettings({ ...settings, hotlineLabel: e.target.value })} placeholder="Hotline kỹ thuật" className="rounded-xl" />
+        </div>
+        <div>
+          <h3 className="text-sm font-heading font-bold text-foreground mb-3 uppercase tracking-wide text-muted-foreground">Hotline #2</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Số hotline</label>
+              <Input value={settings.hotlinePhone2} onChange={(e) => setSettings({ ...settings, hotlinePhone2: e.target.value })} placeholder="1900 654 321" className="rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Nhãn hotline</label>
+              <Input value={settings.hotlineLabel2} onChange={(e) => setSettings({ ...settings, hotlineLabel2: e.target.value })} placeholder="Hotline kinh doanh" className="rounded-xl" />
+            </div>
           </div>
-          <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Số Zalo</label>
-            <Input value={settings.zaloPhone} onChange={(e) => setSettings({ ...settings, zaloPhone: e.target.value })} placeholder="0901 234 567" className="rounded-xl" />
+        </div>
+        <div>
+          <h3 className="text-sm font-heading font-bold text-foreground mb-3 uppercase tracking-wide text-muted-foreground">Zalo #1</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Số Zalo</label>
+              <Input value={settings.zaloPhone} onChange={(e) => setSettings({ ...settings, zaloPhone: e.target.value })} placeholder="0901 234 567" className="rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Link Zalo</label>
+              <Input value={settings.zaloUrl} onChange={(e) => setSettings({ ...settings, zaloUrl: e.target.value })} placeholder="https://zalo.me/..." className="rounded-xl" />
+            </div>
           </div>
-          <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Link Zalo</label>
-            <Input value={settings.zaloUrl} onChange={(e) => setSettings({ ...settings, zaloUrl: e.target.value })} placeholder="https://zalo.me/..." className="rounded-xl" />
+        </div>
+        <div>
+          <h3 className="text-sm font-heading font-bold text-foreground mb-3 uppercase tracking-wide text-muted-foreground">Zalo #2</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Số Zalo</label>
+              <Input value={settings.zaloPhone2} onChange={(e) => setSettings({ ...settings, zaloPhone2: e.target.value })} placeholder="0907 654 321" className="rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">Link Zalo</label>
+              <Input value={settings.zaloUrl2} onChange={(e) => setSettings({ ...settings, zaloUrl2: e.target.value })} placeholder="https://zalo.me/..." className="rounded-xl" />
+            </div>
           </div>
-          <div className="sm:col-span-2">
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Giờ hỗ trợ</label>
-            <Input value={settings.supportHours} onChange={(e) => setSettings({ ...settings, supportHours: e.target.value })} placeholder="Thứ 2 - Chủ nhật, 8:00 - 22:00" className="rounded-xl" />
-          </div>
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-foreground mb-1.5 block">Giờ hỗ trợ</label>
+          <Input value={settings.supportHours} onChange={(e) => setSettings({ ...settings, supportHours: e.target.value })} placeholder="Thứ 2 - Chủ nhật, 8:00 - 22:00" className="rounded-xl" />
         </div>
         <div className="flex gap-2 pt-2">
           <Button onClick={handleSave} className="gradient-primary text-white border-0 rounded-xl">Lưu thay đổi</Button>
