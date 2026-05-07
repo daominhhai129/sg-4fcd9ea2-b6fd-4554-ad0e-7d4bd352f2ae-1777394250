@@ -157,23 +157,23 @@ export default function SuperAdminPage() {
           <div className={cn("flex items-center h-16 px-4 border-b border-border", sidebarCollapsed ? "justify-center" : "justify-between")}>
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0"><Shield className="w-4 h-4 text-white" /></div>
-              {!sidebarCollapsed && <span className="font-heading font-bold text-foreground truncate">Super Admin</span>}
+              {!sidebarCollapsed && <span className="font-heading font-bold text-foreground truncate">{t("super.title")}</span>}
             </div>
             {!sidebarCollapsed && (
               <>
                 <button className="lg:hidden p-1 text-muted-foreground" onClick={() => setSidebarOpen(false)}><X className="w-5 h-5" /></button>
-                <button className="hidden lg:flex p-1 text-muted-foreground hover:text-foreground" onClick={() => setSidebarCollapsed(true)} title="Thu gọn"><ChevronLeft className="w-5 h-5" /></button>
+                <button className="hidden lg:flex p-1 text-muted-foreground hover:text-foreground" onClick={() => setSidebarCollapsed(true)} title={t("super.collapse")}><ChevronLeft className="w-5 h-5" /></button>
               </>
             )}
           </div>
           {sidebarCollapsed && (
-            <button className="hidden lg:flex w-full justify-center py-2 text-muted-foreground hover:text-foreground border-b border-border" onClick={() => setSidebarCollapsed(false)} title="Mở rộng"><ChevronRight className="w-5 h-5" /></button>
+            <button className="hidden lg:flex w-full justify-center py-2 text-muted-foreground hover:text-foreground border-b border-border" onClick={() => setSidebarCollapsed(false)} title={t("super.expand")}><ChevronRight className="w-5 h-5" /></button>
           )}
           <nav className="p-3 space-y-1">
             {[
-              { id: "shops" as const, label: "Shop Owners", icon: Store, count: filteredUsers.length },
-              { id: "sub-admins" as const, label: "Sub-admin", icon: Shield, count: subAdmins.length },
-              { id: "maintenance" as const, label: "Bảo trì hệ thống", icon: Wrench },
+              { id: "shops" as const, label: t("super.navShops"), icon: Store, count: filteredUsers.length },
+              { id: "sub-admins" as const, label: t("super.navSubAdmins"), icon: Shield, count: subAdmins.length },
+              { id: "maintenance" as const, label: t("super.navMaintenance"), icon: Wrench },
             ].map((item) => (
               <button
                 key={item.id}
@@ -230,7 +230,7 @@ export default function SuperAdminPage() {
           <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
             <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
             <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">
-              {activeView === "shops" ? "Quản lý Shop Owners" : activeView === "sub-admins" ? "Quản lý Sub-admin" : "Bảo trì hệ thống"}
+              {activeView === "shops" ? t("super.headerShops") : activeView === "sub-admins" ? t("super.headerSubAdmins") : t("super.headerMaintenance")}
             </h1>
           </header>
 
@@ -257,30 +257,30 @@ export default function SuperAdminPage() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                  <h2 className="text-lg font-heading font-bold text-foreground">Quản lý Shop Owners</h2>
-                  <p className="text-sm text-muted-foreground">Toàn bộ shop owners trên platform — bao gồm cả shop do sub-admin tạo. Có toàn quyền quản lý.</p>
+                  <h2 className="text-lg font-heading font-bold text-foreground">{t("super.shopsTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("super.shopsDesc")}</p>
                 </div>
                 <div className="flex gap-2">
                   <div className="relative flex-1 sm:flex-none">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Tìm theo tên, email, shop..." className="pl-9 rounded-xl w-full sm:w-64" />
+                    <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("super.searchShopsPh")} className="pl-9 rounded-xl w-full sm:w-64" />
                   </div>
-                  <Button variant="outline" className="rounded-xl" onClick={handleExportCSV}><FileSpreadsheet className="w-4 h-4 mr-1.5" /> CSV</Button>
-                  <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}><UserPlus className="w-4 h-4 mr-1.5" /> Tạo</Button>
+                  <Button variant="outline" className="rounded-xl" onClick={handleExportCSV}><FileSpreadsheet className="w-4 h-4 mr-1.5" /> {t("super.csvBtn")}</Button>
+                  <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateOpen(true)}><UserPlus className="w-4 h-4 mr-1.5" /> {t("super.createBtn")}</Button>
                 </div>
               </div>
               <div className="rounded-2xl border border-border/50 overflow-hidden bg-card overflow-x-auto">
                 <table className="w-full min-w-[900px]">
                   <thead>
                     <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Shop owner</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Cửa hàng</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Tên miền</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">Giới hạn SP</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Tạo bởi</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">Hết hạn</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colShopOwner")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("col.phone")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">{t("super.colShopShort")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">{t("super.colDomainShort")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden xl:table-cell">{t("super.colLimitShort")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colCreatedBy")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell">{t("col.expiry")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("col.status")}</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
@@ -330,11 +330,11 @@ export default function SuperAdminPage() {
                             {creator ? (
                               <div className="min-w-0">
                                 <p className="text-sm font-medium text-foreground truncate">{creator.name}</p>
-                                <p className="text-xs text-muted-foreground">Sub-admin · {createdLabel}</p>
+                                <p className="text-xs text-muted-foreground">{t("super.creatorSub")} · {createdLabel}</p>
                               </div>
                             ) : (
                               <div className="min-w-0">
-                                <p className="text-sm font-medium text-accent">Super Admin</p>
+                                <p className="text-sm font-medium text-accent">{t("super.creatorSuper")}</p>
                                 <p className="text-xs text-muted-foreground">{createdLabel}</p>
                               </div>
                             )}
@@ -346,7 +346,7 @@ export default function SuperAdminPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", u.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
-                              {u.status === "active" ? "Hoạt động" : "Đã khóa"}
+                              {u.status === "active" ? t("status.active") : t("status.locked")}
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -356,34 +356,34 @@ export default function SuperAdminPage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-52">
                                 <DropdownMenuItem onClick={() => enterShopAsAdmin(u.id)}>
-                                  <LogIn className="w-4 h-4 mr-2" /> Vào shop với quyền admin
+                                  <LogIn className="w-4 h-4 mr-2" /> {t("super.menuEnterShop")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
-                                  <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                  <Pencil className="w-4 h-4 mr-2" /> {t("super.menuEditInfo")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
-                                  <Globe className="w-4 h-4 mr-2" /> Tên miền & URL
+                                  <Globe className="w-4 h-4 mr-2" /> {t("super.menuDomainUrl")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setEditingShop(u.shopId || null)}>
-                                  <SlidersHorizontal className="w-4 h-4 mr-2" /> Giới hạn
+                                  <SlidersHorizontal className="w-4 h-4 mr-2" /> {t("super.menuLimits")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
-                                  <CalendarClock className="w-4 h-4 mr-2" /> Gia hạn
+                                  <CalendarClock className="w-4 h-4 mr-2" /> {t("super.menuExtendShort")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
-                                  <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
+                                  <RefreshCw className="w-4 h-4 mr-2" /> {t("super.menuResetPwd")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleCopyShopInfo(u.id)}>
-                                  <Copy className="w-4 h-4 mr-2" /> Copy thông tin
+                                  <Copy className="w-4 h-4 mr-2" /> {t("super.menuCopyInfo")}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 {u.status === "active" ? (
                                   <DropdownMenuItem onClick={() => lockUser(u.id)} className="text-destructive focus:text-destructive">
-                                    <Lock className="w-4 h-4 mr-2" /> Khóa
+                                    <Lock className="w-4 h-4 mr-2" /> {t("super.menuLockShort")}
                                   </DropdownMenuItem>
                                 ) : (
                                   <DropdownMenuItem onClick={() => unlockUser(u.id)}>
-                                    <Unlock className="w-4 h-4 mr-2" /> Mở khóa
+                                    <Unlock className="w-4 h-4 mr-2" /> {t("super.menuUnlockShort")}
                                   </DropdownMenuItem>
                                 )}
                               </DropdownMenuContent>
@@ -393,7 +393,7 @@ export default function SuperAdminPage() {
                       );
                     })}
                     {filteredUsers.length === 0 && (
-                      <tr><td colSpan={9} className="px-4 py-12 text-center text-sm text-muted-foreground">Không tìm thấy shop owner nào.</td></tr>
+                      <tr><td colSpan={9} className="px-4 py-12 text-center text-sm text-muted-foreground">{t("super.emptyShops")}</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -401,11 +401,11 @@ export default function SuperAdminPage() {
               {shopTotalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
                   <p className="text-sm text-muted-foreground">
-                    Hiển thị <span className="font-semibold text-foreground">{(shopPage - 1) * SHOPS_PER_PAGE + 1}</span>–<span className="font-semibold text-foreground">{Math.min(shopPage * SHOPS_PER_PAGE, filteredUsers.length)}</span> trong <span className="font-semibold text-foreground">{filteredUsers.length}</span> shop owners
+                    {t("super.pageShowing")} <span className="font-semibold text-foreground">{(shopPage - 1) * SHOPS_PER_PAGE + 1}</span>–<span className="font-semibold text-foreground">{Math.min(shopPage * SHOPS_PER_PAGE, filteredUsers.length)}</span> {t("super.pageIn")} <span className="font-semibold text-foreground">{filteredUsers.length}</span> {t("super.pageShopOwners")}
                   </p>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" className="rounded-xl" disabled={shopPage === 1} onClick={() => setShopPage((p) => p - 1)}>
-                      <ChevronLeft className="w-4 h-4 mr-1" /> Trước
+                      <ChevronLeft className="w-4 h-4 mr-1" /> {t("super.pagePrev")}
                     </Button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: shopTotalPages }, (_, i) => i + 1)
@@ -426,7 +426,7 @@ export default function SuperAdminPage() {
                         ))}
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl" disabled={shopPage === shopTotalPages} onClick={() => setShopPage((p) => p + 1)}>
-                      Sau <ChevronRight className="w-4 h-4 ml-1" />
+                      {t("super.pageNext")} <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </div>
@@ -438,21 +438,21 @@ export default function SuperAdminPage() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                  <h2 className="text-lg font-heading font-bold text-foreground">Quản lý Sub-admin</h2>
-                  <p className="text-sm text-muted-foreground">Sub-admin tạo và quản lý user shop của riêng họ. Mỗi sub-admin có cap số sites tự cấu hình (mặc định 5000).</p>
+                  <h2 className="text-lg font-heading font-bold text-foreground">{t("super.subAdminsTitle")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("super.subAdminsDesc")}</p>
                 </div>
                 <Button className="gradient-primary text-white border-0 rounded-xl" onClick={() => setCreateSubAdminOpen(true)}>
-                  <UserPlus className="w-4 h-4 mr-1.5" /> Tạo Sub-admin
+                  <UserPlus className="w-4 h-4 mr-1.5" /> {t("super.createSubBtn")}
                 </Button>
               </div>
               <div className="rounded-2xl border border-border/50 overflow-hidden bg-card">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sub-admin</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">SĐT</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Sites quản lý</th>
-                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Trạng thái</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colSubAdmin")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("col.phone")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("super.colSitesManaged")}</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("col.status")}</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
@@ -485,7 +485,7 @@ export default function SuperAdminPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", sa.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")}>
-                              {sa.status === "active" ? "Hoạt động" : "Đã khóa"}
+                              {sa.status === "active" ? t("status.active") : t("status.locked")}
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -495,23 +495,23 @@ export default function SuperAdminPage() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
                                 <DropdownMenuItem onClick={() => setEditingSubAdmin(sa.id)}>
-                                  <Pencil className="w-4 h-4 mr-2" /> Sửa thông tin
+                                  <Pencil className="w-4 h-4 mr-2" /> {t("super.menuEditInfo")}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { resetSubAdminPassword(sa.id); toast({ title: "Đã reset mật khẩu", description: `Mật khẩu của ${sa.name} đã đặt về mặc định.` }); }}>
-                                  <RefreshCw className="w-4 h-4 mr-2" /> Reset mật khẩu
+                                <DropdownMenuItem onClick={() => { resetSubAdminPassword(sa.id); toast({ title: t("super.toastSubResetPwd"), description: t("super.toastSubResetPwdDesc").replace("{name}", sa.name) }); }}>
+                                  <RefreshCw className="w-4 h-4 mr-2" /> {t("super.menuResetPwd")}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 {sa.status === "active" ? (
                                   <DropdownMenuItem onClick={() => lockSubAdmin(sa.id)} className="text-destructive focus:text-destructive">
-                                    <Lock className="w-4 h-4 mr-2" /> Khóa
+                                    <Lock className="w-4 h-4 mr-2" /> {t("super.menuLockShort")}
                                   </DropdownMenuItem>
                                 ) : (
                                   <DropdownMenuItem onClick={() => unlockSubAdmin(sa.id)}>
-                                    <Unlock className="w-4 h-4 mr-2" /> Mở khóa
+                                    <Unlock className="w-4 h-4 mr-2" /> {t("super.menuUnlockShort")}
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem onClick={() => setDeletingSubAdmin(sa.id)} className="text-destructive focus:text-destructive">
-                                  <Trash2 className="w-4 h-4 mr-2" /> Xóa
+                                  <Trash2 className="w-4 h-4 mr-2" /> {t("super.menuDelete")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -520,7 +520,7 @@ export default function SuperAdminPage() {
                       );
                     })}
                     {subAdmins.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">Chưa có sub-admin nào.</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">{t("super.emptySubAdmins")}</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -618,43 +618,43 @@ export default function SuperAdminPage() {
         <SubAdminDialog
           open={createSubAdminOpen}
           onOpenChange={setCreateSubAdminOpen}
-          title="Tạo Sub-admin mới"
-          onSubmit={(input) => { createSubAdmin(input); toast({ title: "Đã tạo sub-admin", description: `${input.name} có thể đăng nhập với mật khẩu mặc định.` }); }}
+          title={t("super.createSubTitle")}
+          onSubmit={(input) => { createSubAdmin(input); toast({ title: t("super.toastSubCreated"), description: t("super.toastSubCreatedDesc").replace("{name}", input.name) }); }}
         />
         <SubAdminDialog
           open={!!editingSubAdmin}
           onOpenChange={(o) => { if (!o) setEditingSubAdmin(null); }}
-          title="Sửa Sub-admin"
+          title={t("super.editSubTitle")}
           isEdit
           initial={editingSubAdminData ? { name: editingSubAdminData.name, email: editingSubAdminData.email, phone: editingSubAdminData.phone || "", maxSites: editingSubAdminData.maxSites || 5000 } : null}
-          onSubmit={(input) => { if (editingSubAdmin) { updateSubAdmin(editingSubAdmin, input); toast({ title: "Đã cập nhật sub-admin" }); } }}
+          onSubmit={(input) => { if (editingSubAdmin) { updateSubAdmin(editingSubAdmin, input); toast({ title: t("super.toastSubUpdated") }); } }}
         />
         <AlertDialog open={!!deletingSubAdmin} onOpenChange={(o) => { if (!o) setDeletingSubAdmin(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="font-heading">Xóa sub-admin?</AlertDialogTitle>
+              <AlertDialogTitle className="font-heading">{t("super.deleteSubTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Bạn sắp xóa sub-admin <strong>{deletingSubAdminData?.name}</strong>. Các shop user do sub-admin này tạo vẫn được giữ nguyên. Hành động không thể hoàn tác.
+                {t("super.deleteSubDesc").replace("{name}", deletingSubAdminData?.name || "")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
-              <AlertDialogAction onClick={() => { if (deletingSubAdmin) { deleteSubAdmin(deletingSubAdmin); toast({ title: "Đã xóa sub-admin" }); setDeletingSubAdmin(null); } }} className="rounded-xl bg-destructive hover:bg-destructive/90">Xác nhận xóa</AlertDialogAction>
+              <AlertDialogCancel className="rounded-xl">{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (deletingSubAdmin) { deleteSubAdmin(deletingSubAdmin); toast({ title: t("super.toastSubDeleted") }); setDeletingSubAdmin(null); } }} className="rounded-xl bg-destructive hover:bg-destructive/90">{t("super.confirmDelete")}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
         <AlertDialog open={!!maintenanceAction} onOpenChange={(o) => { if (!o) setMaintenanceAction(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="font-heading">Xác nhận dọn dẹp</AlertDialogTitle>
+              <AlertDialogTitle className="font-heading">{t("super.maintenanceConfirmTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {maintenanceAction === "images" && `Bạn sắp xóa ${orphanedImages} ảnh dư thừa khỏi server. Hành động này không thể hoàn tác.`}
-                {maintenanceAction === "orders" && `Bạn sắp xóa ${oldOrdersCount} đơn hàng cũ trên 6 tháng. Hành động này không thể hoàn tác.`}
+                {maintenanceAction === "images" && t("super.maintenanceConfirmImages").replace("{n}", String(orphanedImages))}
+                {maintenanceAction === "orders" && t("super.maintenanceConfirmOrders").replace("{n}", String(oldOrdersCount))}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmMaintenance} className="rounded-xl bg-destructive hover:bg-destructive/90">Xác nhận xóa</AlertDialogAction>
+              <AlertDialogCancel className="rounded-xl">{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmMaintenance} className="rounded-xl bg-destructive hover:bg-destructive/90">{t("super.confirmDelete")}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
