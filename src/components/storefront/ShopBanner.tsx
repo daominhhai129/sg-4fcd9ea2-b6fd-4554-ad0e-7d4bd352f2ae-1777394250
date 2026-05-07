@@ -64,8 +64,8 @@ export function ShopBanner({ shop }: ShopBannerProps) {
     <div className="relative">
       <div className="relative h-48 md:h-56 overflow-hidden">
         <Image src={shop.banner} alt={shop.name} fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 container pb-6 md:pb-8">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-x-0 top-0 container pt-6 md:pt-8">
           <h1 className="text-3xl md:text-4xl font-heading font-extrabold text-white drop-shadow-lg">{shop.name}</h1>
         </div>
       </div>
