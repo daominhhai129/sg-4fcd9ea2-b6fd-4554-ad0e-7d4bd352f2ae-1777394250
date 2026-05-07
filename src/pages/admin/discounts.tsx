@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Search, Edit, Trash2, Tag, Copy, CheckCircle2, Percent, DollarSign, ChevronsUpDown, Check } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Tag, Copy, CheckCircle2, Percent, DollarSign, ChevronsUpDown, Check, LayoutGrid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +46,7 @@ export default function AdminDiscounts() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [copied, setCopied] = useState<string | null>(null);
   const [productPickerOpen, setProductPickerOpen] = useState(false);
+  const [view, setView] = useState<"grid" | "list">("grid");
 
   const shopProducts = allProducts.filter((p) => p.shopId === user?.shopId);
 
@@ -168,6 +169,24 @@ export default function AdminDiscounts() {
             <SelectItem value="inactive">{t("discount.inactive")}</SelectItem>
           </SelectContent>
         </Select>
+        <div className="inline-flex rounded-xl border border-border p-0.5 bg-card self-start">
+          <button
+            type="button"
+            onClick={() => setView("grid")}
+            className={"inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors " + (view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            aria-label="Grid view"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("list")}
+            className={"inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors " + (view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            aria-label="List view"
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -175,7 +194,7 @@ export default function AdminDiscounts() {
           <Tag className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
           <p className="text-muted-foreground">{t("discount.empty")}</p>
         </div>
-      ) : (
+      ) : view === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((c) => {
             const expired = c.expiresAt && new Date(c.expiresAt) < new Date();
@@ -241,6 +260,75 @@ export default function AdminDiscounts() {
               </div>
             );
           })}
+        </div>
+      ) : (
+        <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="text-left font-semibold px-4 py-3">{t("discount.code")}</th>
+                  <th className="text-left font-semibold px-4 py-3">{t("discount.type")}</th>
+                  <th className="text-right font-semibold px-4 py-3">{t("discount.value")}</th>
+                  <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">{t("discount.applyTo")}</th>
+                  <th className="text-right font-semibold px-4 py-3 hidden lg:table-cell">{t("discount.minOrder")}</th>
+                  <th className="text-center font-semibold px-4 py-3 hidden sm:table-cell">{t("discount.used")}</th>
+                  <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">{t("discount.expires")}</th>
+                  <th className="text-center font-semibold px-4 py-3">{t("discount.statusLabel")}</th>
+                  <th className="text-right font-semibold px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((c) => {
+                  const expired = c.expiresAt && new Date(c.expiresAt) < new Date();
+                  const exhausted = c.maxUses && c.usedCount >= c.maxUses;
+                  return (
+                    <tr key={c.id} className="border-t border-border/60 hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-foreground">{c.code}</span>
+                          <button onClick={() => copyCode(c.code)} className="p-1 rounded hover:bg-muted transition-colors" aria-label="Copy">
+                            {copied === c.code ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          {c.type === "percentage" ? <Percent className="w-3.5 h-3.5" /> : <DollarSign className="w-3.5 h-3.5" />}
+                          {c.type === "percentage" ? t("discount.typePercent") : t("discount.typeFixed")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold text-foreground whitespace-nowrap">
+                        {c.type === "percentage" ? c.value + "%" : formatPrice(c.value)}
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell text-muted-foreground max-w-[200px] truncate">{c.productName || t("discount.allProducts")}</td>
+                      <td className="px-4 py-3 hidden lg:table-cell text-right text-muted-foreground whitespace-nowrap">{c.minOrderValue ? formatPrice(c.minOrderValue) : "—"}</td>
+                      <td className="px-4 py-3 hidden sm:table-cell text-center text-muted-foreground whitespace-nowrap">{c.usedCount}{c.maxUses ? "/" + c.maxUses : ""}</td>
+                      <td className={"px-4 py-3 hidden md:table-cell whitespace-nowrap " + (expired ? "text-destructive" : "text-muted-foreground")}>{c.expiresAt || "—"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          <Switch checked={c.status === "active"} onCheckedChange={() => toggleStatus(c.id)} />
+                          <Badge variant={c.status === "active" && !expired && !exhausted ? "default" : "secondary"} className="text-[10px]">
+                            {expired ? t("discount.expired") : exhausted ? t("discount.exhausted") : c.status === "active" ? t("discount.statusActive") : t("discount.statusInactive")}
+                          </Badge>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex items-center gap-1">
+                          <button onClick={() => openEdit(c)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" aria-label="Edit">
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => { setDeleting(c); setDeleteOpen(true); }} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
