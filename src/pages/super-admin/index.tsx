@@ -12,7 +12,7 @@ import { orders as mockOrders } from "@/data/mock-data";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil, FileSpreadsheet, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
+import { Shield, Store, Users, Package, FolderOpen, LogOut, Menu, X, Search, Lock, Unlock, RefreshCw, Phone, MoreVertical, UserPlus, KeyRound, CalendarClock, FileText, SlidersHorizontal, LogIn, Globe, Wrench, Image as ImageIcon, ShoppingBag, Trash2, Copy, Pencil, FileSpreadsheet, ChevronLeft, ChevronRight, LayoutDashboard, HeadphonesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -37,7 +37,7 @@ export default function SuperAdminPage() {
   const [orphanedImages, setOrphanedImages] = useState(23);
   const [maintenanceAction, setMaintenanceAction] = useState<"images" | "orders" | null>(null);
   const [oldOrdersDeleted, setOldOrdersDeleted] = useState(false);
-  const [activeView, setActiveView] = useState<"shops" | "sub-admins" | "maintenance">("shops");
+  const [activeView, setActiveView] = useState<"shops" | "sub-admins" | "maintenance" | "support">("shops");
   const [shopPage, setShopPage] = useState(1);
   const SHOPS_PER_PAGE = 20;
 
@@ -174,6 +174,7 @@ export default function SuperAdminPage() {
               { id: "shops" as const, label: t("super.navShops"), icon: Store, count: filteredUsers.length },
               { id: "sub-admins" as const, label: t("super.navSubAdmins"), icon: Shield, count: subAdmins.length },
               { id: "maintenance" as const, label: t("super.navMaintenance"), icon: Wrench },
+              { id: "support" as const, label: "Hỗ trợ kỹ thuật", icon: HeadphonesIcon },
             ].map((item) => (
               <button
                 key={item.id}
@@ -230,7 +231,7 @@ export default function SuperAdminPage() {
           <header className="sticky top-0 z-30 h-16 bg-card/90 backdrop-blur-lg border-b border-border/50 flex items-center px-4 lg:px-8">
             <button className="lg:hidden p-2 -ml-2 text-foreground" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
             <h1 className="ml-2 lg:ml-0 text-lg font-heading font-bold text-foreground">
-              {activeView === "shops" ? t("super.headerShops") : activeView === "sub-admins" ? t("super.headerSubAdmins") : t("super.headerMaintenance")}
+              {activeView === "shops" ? t("super.headerShops") : activeView === "sub-admins" ? t("super.headerSubAdmins") : activeView === "maintenance" ? t("super.headerMaintenance") : "Hỗ trợ kỹ thuật"}
             </h1>
           </header>
 
