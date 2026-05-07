@@ -81,13 +81,7 @@ export default function ProductDetailPage() {
         <div className="lg:max-w-[70%] lg:mx-auto">
         <button
           type="button"
-          onClick={() => {
-            if (typeof window !== "undefined" && window.history.length > 1) {
-              router.back();
-            } else {
-              router.push("/shop/" + shop.slug);
-            }
-          }}
+          onClick={() => router.push("/shop/" + shop.slug)}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
