@@ -80,6 +80,7 @@ export interface ProductVariant {
   id: string;
   name: string;
   price: number;
+  sku?: string;
 }
 
 export interface Order {

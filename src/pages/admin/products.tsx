@@ -34,6 +34,7 @@ import "react-quill/dist/quill.snow.css";
 const shop = shops[0];
 const MAX_IMAGES = 8;
 const MAX_VIDEOS = 2;
+const MAX_VARIANTS = 20;
 const MAX_DESCRIPTION_LENGTH = 3000;
 
 const quillModules = {
@@ -68,7 +69,7 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
-  const [variants, setVariants] = useState<{ id: string; name: string; price: string }[]>([]);
+  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -145,7 +146,7 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
-    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "" })));
+    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "" })));
     setDialogOpen(true);
   };
 
@@ -197,16 +198,17 @@ export default function ProductsPage() {
   };
 
   const addVariant = () => {
-    setVariants((prev) => [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "" }]);
+    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "" }]);
   };
 
-  const updateVariant = (id: string, field: "name" | "price", value: string) => {
+  const updateVariant = (id: string, field: "name" | "price" | "sku", value: string) => {
     setVariants((prev) => prev.map((v) => {
       if (v.id !== id) return v;
       if (field === "price") {
         const raw = value.replace(/\D/g, "");
         return { ...v, price: raw ? Number(raw).toLocaleString("vi-VN") : "" };
       }
+      if (field === "sku") return { ...v, sku: value };
       return { ...v, name: value };
     }));
   };
@@ -239,7 +241,7 @@ export default function ProductsPage() {
     const form = new FormData(e.currentTarget);
     const cleanedVariants: ProductVariant[] = variants
       .filter((v) => v.name.trim() !== "")
-      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0 }));
+      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined }));
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
@@ -444,23 +446,26 @@ export default function ProductsPage() {
                       <Layers className="w-4 h-4" />
                       Biến thể sản phẩm
                     </Label>
-                    <span className="text-xs text-muted-foreground">{variants.length} biến thể</span>
+                    <span className="text-xs text-muted-foreground">{variants.length}/{MAX_VARIANTS} biến thể</span>
                   </div>
                   <p className="text-xs text-muted-foreground mb-2">VD: Size S/M/L, 13 inch / 14 inch / 15 inch, màu sắc...</p>
                   {variants.length > 0 && (
                     <div className="space-y-2 mb-2">
                       {variants.map((v) => (
-                        <div key={v.id} className="flex items-center gap-2">
+                        <div key={v.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 sm:p-0 rounded-xl sm:rounded-none border sm:border-0 border-border">
                           <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder="Tên biến thể (VD: Size M)" className="rounded-xl flex-1" />
-                          <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder="Giá" inputMode="numeric" className="rounded-xl w-32 sm:w-40" />
-                          <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
-                            <X className="w-4 h-4" />
-                          </Button>
+                          <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder="SKU" className="rounded-xl sm:w-32" />
+                          <div className="flex items-center gap-2">
+                            <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder="Giá" inputMode="numeric" className="rounded-xl flex-1 sm:w-36" />
+                            <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
-                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant}>
+                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant} disabled={variants.length >= MAX_VARIANTS}>
                     <Plus className="w-3.5 h-3.5 mr-1.5" />
                     Thêm biến thể
                   </Button>
