@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getPlatformSettings, DEFAULT_PLATFORM_SETTINGS, type PlatformSettings } from "@/lib/platform-settings";
 import { Store, User, Shield, Mail, Lock, ArrowRight, Eye, EyeOff, ShoppingBag, Phone, MessageCircle, HeadphonesIcon } from "lucide-react";
 
 export default function LoginPage() {
@@ -15,6 +16,9 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [settings, setSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
+
+  useEffect(() => { setSettings(getPlatformSettings()); }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,19 +189,19 @@ export default function LoginPage() {
             </p>
             <div className="space-y-2.5">
               <a
-                href="tel:1900123456"
+                href={"tel:" + settings.hotlinePhone.replace(/\s/g, "")}
                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
               >
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <Phone className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Hotline kỹ thuật</p>
-                  <p className="text-base font-heading font-bold text-foreground">1900 123 456</p>
+                  <p className="text-xs text-muted-foreground">{settings.hotlineLabel}</p>
+                  <p className="text-base font-heading font-bold text-foreground">{settings.hotlinePhone}</p>
                 </div>
               </a>
               <a
-                href="https://zalo.me/1900123456"
+                href={settings.zaloUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
@@ -207,12 +211,12 @@ export default function LoginPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Chat Zalo hỗ trợ</p>
-                  <p className="text-base font-heading font-bold text-foreground">0901 234 567</p>
+                  <p className="text-base font-heading font-bold text-foreground">{settings.zaloPhone}</p>
                 </div>
               </a>
             </div>
             <p className="text-xs text-muted-foreground text-center pt-1">
-              Giờ hỗ trợ: Thứ 2 - Chủ nhật, 8:00 - 22:00
+              Giờ hỗ trợ: {settings.supportHours}
             </p>
           </div>
         </DialogContent>
