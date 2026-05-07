@@ -81,6 +81,7 @@ export interface ProductVariant {
   name: string;
   price: number;
   sku?: string;
+  image?: string;
 }
 
 export interface Order {

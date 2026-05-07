@@ -69,8 +69,9 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
-  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string }[]>([]);
+  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const filtered = useMemo(() => {
     let result = products;
@@ -146,7 +147,7 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
-    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "" })));
+    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "" })));
     setDialogOpen(true);
   };
 
@@ -198,10 +199,10 @@ export default function ProductsPage() {
   };
 
   const addVariant = () => {
-    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "" }]);
+    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "", image: "" }]);
   };
 
-  const updateVariant = (id: string, field: "name" | "price" | "sku", value: string) => {
+  const updateVariant = (id: string, field: "name" | "price" | "sku" | "image", value: string) => {
     setVariants((prev) => prev.map((v) => {
       if (v.id !== id) return v;
       if (field === "price") {
@@ -209,8 +210,20 @@ export default function ProductsPage() {
         return { ...v, price: raw ? Number(raw).toLocaleString("vi-VN") : "" };
       }
       if (field === "sku") return { ...v, sku: value };
+      if (field === "image") return { ...v, image: value };
       return { ...v, name: value };
     }));
+  };
+
+  const handleVariantImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateVariant(id, "image", reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const removeVariant = (id: string) => {
@@ -241,7 +254,7 @@ export default function ProductsPage() {
     const form = new FormData(e.currentTarget);
     const cleanedVariants: ProductVariant[] = variants
       .filter((v) => v.name.trim() !== "")
-      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined }));
+      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined, image: v.image || undefined }));
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
@@ -452,7 +465,22 @@ export default function ProductsPage() {
                   {variants.length > 0 && (
                     <div className="space-y-2 mb-2">
                       {variants.map((v) => (
-                        <div key={v.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 sm:p-0 rounded-xl sm:rounded-none border sm:border-0 border-border">
+                        <div key={v.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 sm:p-2 rounded-xl border border-border">
+                          <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 border-border bg-muted/40">
+                            {v.image ? (
+                              <>
+                                <Image src={v.image} alt={v.name || "Variant"} fill className="object-cover" />
+                                <button type="button" onClick={() => updateVariant(v.id, "image", "")} className="absolute top-0.5 right-0.5 bg-destructive text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-destructive/80">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button type="button" onClick={() => variantImageInputRefs.current[v.id]?.click()} className="w-full h-full flex items-center justify-center hover:bg-muted transition-colors" aria-label="Tải ảnh biến thể">
+                                <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                              </button>
+                            )}
+                            <input ref={(el) => { variantImageInputRefs.current[v.id] = el; }} type="file" accept="image/*" onChange={(e) => handleVariantImageUpload(v.id, e)} className="hidden" />
+                          </div>
                           <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder="Tên biến thể (VD: Size M)" className="rounded-xl flex-1" />
                           <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder="SKU" className="rounded-xl sm:w-32" />
                           <div className="flex items-center gap-2">
