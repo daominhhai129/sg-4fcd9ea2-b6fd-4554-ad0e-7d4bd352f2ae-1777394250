@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, MapPin, Phone, Mail, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Eye, MapPin, Phone, Mail, Package, ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -33,6 +33,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [page, setPage] = useState(1);
+  const [view, setView] = useState<"grid" | "list">("grid");
   const PER_PAGE = 10;
 
   const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
@@ -88,7 +89,27 @@ export default function OrdersPage() {
               </SelectContent>
             </Select>
           </div>
-          <p className="text-sm text-muted-foreground">{t("orders.count").replace("{n}", String(filtered.length))}</p>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-xl border border-border p-0.5 bg-card">
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                className={"inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors " + (view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+                aria-label="Grid view"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className={"inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors " + (view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+                aria-label="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground">{t("orders.count").replace("{n}", String(filtered.length))}</p>
+          </div>
         </div>
 
         {filtered.length === 0 ? (
@@ -96,7 +117,7 @@ export default function OrdersPage() {
             <Package className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground">{t("orders.empty")}</p>
           </div>
-        ) : (
+        ) : view === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {paginated.map((order) => {
               const sc = statusConfig[order.status];
@@ -151,6 +172,65 @@ export default function OrdersPage() {
                 </div>
               );
             })}
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left font-semibold px-4 py-3">{t("orders.id")}</th>
+                    <th className="text-left font-semibold px-4 py-3">{t("orders.customer") || "Khách hàng"}</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">{t("orders.address") || "Địa chỉ"}</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden lg:table-cell">{t("orders.itemsLabel") || "SP"}</th>
+                    <th className="text-right font-semibold px-4 py-3">{t("orders.total")}</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden sm:table-cell">{t("orders.date") || "Ngày"}</th>
+                    <th className="text-left font-semibold px-4 py-3">{t("orders.status")}</th>
+                    <th className="text-right font-semibold px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.map((order) => {
+                    const sc = statusConfig[order.status];
+                    return (
+                      <tr key={order.id} className="border-t border-border/60 hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">{order.id}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-foreground truncate max-w-[180px]">{order.customerName}</div>
+                          <div className="text-xs text-muted-foreground">{order.customerPhone}</div>
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell text-muted-foreground max-w-[240px] truncate">{order.address}</td>
+                        <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{order.items.length}</td>
+                        <td className="px-4 py-3 text-right font-bold text-accent whitespace-nowrap">{formatPrice(order.total)}</td>
+                        <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground whitespace-nowrap">{order.createdAt}</td>
+                        <td className="px-4 py-3">
+                          <Select value={order.status} onValueChange={(val) => updateStatus(order.id, val as Order["status"])}>
+                            <SelectTrigger className={"rounded-lg h-8 text-xs w-32 border " + sc.className}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(statusConfig).map(([key, val]) => (
+                                <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <a href={"tel:" + order.customerPhone} className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 transition-colors" aria-label="Call">
+                              <Phone className="w-3.5 h-3.5" />
+                            </a>
+                            <button onClick={() => setSelectedOrder(order)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Details">
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
