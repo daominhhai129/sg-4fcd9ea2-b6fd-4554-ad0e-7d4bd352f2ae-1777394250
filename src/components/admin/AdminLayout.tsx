@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { getPlatformSettings, DEFAULT_PLATFORM_SETTINGS, type PlatformSettings } from "@/lib/platform-settings";
 import {
   LayoutDashboard,
   Package,
@@ -42,6 +43,9 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [settings, setSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
+
+  useEffect(() => { setSettings(getPlatformSettings()); }, [supportOpen]);
 
   const currentShop = shops.find((s) => s.id === user?.shopId);
   const themeColor = currentShop?.themeColor;
@@ -187,29 +191,31 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             </p>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("support.hotlineLabel")}</p>
-              <a href="tel:0965784668" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
+              <a href={"tel:" + settings.hotlinePhone.replace(/\s/g, "")} className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">096 578 4668</p>
-                  <p className="text-xs text-muted-foreground">{t("support.callPrompt")}</p>
+                  <p className="font-bold text-foreground">{settings.hotlinePhone}</p>
+                  <p className="text-xs text-muted-foreground">{settings.hotlineLabel || t("support.callPrompt")}</p>
                 </div>
               </a>
-              <a href="tel:0986851829" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-bold text-foreground">098 685 1829</p>
-                  <p className="text-xs text-muted-foreground">{t("support.callPrompt")}</p>
-                </div>
-              </a>
+              {settings.hotlinePhone2 && (
+                <a href={"tel:" + settings.hotlinePhone2.replace(/\s/g, "")} className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground">{settings.hotlinePhone2}</p>
+                    <p className="text-xs text-muted-foreground">{settings.hotlineLabel2 || t("support.callPrompt")}</p>
+                  </div>
+                </a>
+              )}
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("support.zaloLabel")}</p>
               <a
-                href="https://zalo.me/proidvn"
+                href={settings.zaloUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-xl bg-[#0068FF]/10 hover:bg-[#0068FF]/15 transition-colors border border-[#0068FF]/20"
@@ -218,10 +224,26 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
                   <MessageCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">Zalo OA - Pro ID</p>
-                  <p className="text-xs text-muted-foreground">zalo.me/proidvn</p>
+                  <p className="font-bold text-foreground">{settings.zaloPhone}</p>
+                  <p className="text-xs text-muted-foreground">{settings.zaloUrl.replace(/^https?:\/\//, "")}</p>
                 </div>
               </a>
+              {settings.zaloPhone2 && (
+                <a
+                  href={settings.zaloUrl2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-[#0068FF]/10 hover:bg-[#0068FF]/15 transition-colors border border-[#0068FF]/20"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#0068FF] text-white flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground">{settings.zaloPhone2}</p>
+                    <p className="text-xs text-muted-foreground">{settings.zaloUrl2.replace(/^https?:\/\//, "")}</p>
+                  </div>
+                </a>
+              )}
             </div>
           </div>
         </DialogContent>
