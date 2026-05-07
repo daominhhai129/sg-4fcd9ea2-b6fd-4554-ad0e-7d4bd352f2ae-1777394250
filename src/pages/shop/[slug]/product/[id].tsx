@@ -9,10 +9,11 @@ import { ProductCard } from "@/components/storefront/ProductCard";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play, Share2, Check } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play, Share2, Check, Ticket, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { discountCodes } from "@/data/discount-codes";
 
 export default function ProductDetailPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [api, setApi] = useState<CarouselApi | undefined>(undefined);
   const [shared, setShared] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
@@ -60,6 +62,18 @@ export default function ProductDetailPage() {
   const category = shop.categories.find((c) => c.id === product.categoryId);
   const relatedProducts = shop.products.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
   const relatedPosts = shop.posts.filter((post) => post.status === "published" && post.productIds?.includes(product.id)).slice(0, 3);
+
+  const applicableCodes = discountCodes.filter((dc) => dc.shopId === shop.id && dc.status === "active" && (!dc.productId || dc.productId === product.id));
+
+  const handleCopyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch {}
+  };
+
+  const formatDiscountValue = (dc: typeof applicableCodes[number]) => dc.type === "percentage" ? "Giảm " + dc.value + "%" : "Giảm " + formatPrice(dc.value);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -181,6 +195,33 @@ export default function ProductDetailPage() {
                 {formatPrice(product.price)}
               </span>
             </div>
+
+            {applicableCodes.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Ticket className="w-4 h-4 text-accent" />
+                  Mã giảm giá
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {applicableCodes.map((dc) => (
+                    <button
+                      key={dc.id}
+                      type="button"
+                      onClick={() => handleCopyCode(dc.code)}
+                      className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg border border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 transition-colors"
+                    >
+                      <div className="flex flex-col items-start leading-tight">
+                        <span className="text-xs font-bold text-accent">{dc.code}</span>
+                        <span className="text-[11px] text-muted-foreground">{formatDiscountValue(dc)}{dc.minOrderValue ? " • Đơn từ " + formatPrice(dc.minOrderValue) : ""}</span>
+                      </div>
+                      <span className="ml-1 inline-flex items-center justify-center w-6 h-6 rounded-md bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
+                        {copiedCode === dc.code ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
 
