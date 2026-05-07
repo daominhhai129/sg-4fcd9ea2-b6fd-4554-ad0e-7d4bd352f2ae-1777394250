@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
-import { MapPin, Phone, Mail, Download, QrCode, X } from "lucide-react";
+import { MapPin, Phone, Mail, Download, QrCode, Copy, Check } from "lucide-react";
 import type { Shop } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -11,12 +11,30 @@ interface ShopBannerProps {
 
 export function ShopBanner({ shop }: ShopBannerProps) {
   const [qrOpen, setQrOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const shopUrl = typeof window !== "undefined" 
     ? `${window.location.origin}/shop/${shop.slug}` 
     : `/shop/${shop.slug}`;
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shopUrl)}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shopUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = shopUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const handleSaveContact = () => {
     const vcard = [
@@ -105,6 +123,14 @@ export function ShopBanner({ shop }: ShopBannerProps) {
               Quét mã QR để truy cập cửa hàng <span className="font-semibold text-foreground">{shop.name}</span>
             </p>
             <p className="text-xs text-muted-foreground/70 break-all text-center px-4">{shopUrl}</p>
+            <Button
+              onClick={handleCopyLink}
+              className="text-white border-0 rounded-xl hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: `hsl(${shop.themeColor})` }}
+            >
+              {copied ? <Check className="w-4 h-4 mr-1.5" /> : <Copy className="w-4 h-4 mr-1.5" />}
+              {copied ? "Đã sao chép" : "Sao chép link cửa hàng"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
