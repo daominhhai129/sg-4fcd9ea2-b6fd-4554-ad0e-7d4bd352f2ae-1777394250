@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { shops, products as allProducts, posts as allPosts, formatPrice } from "@/data/mock-data";
+import { shops } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBanner } from "@/components/storefront/ShopBanner";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
@@ -87,7 +87,7 @@ export default function ShopPage() {
 
   const filteredProducts = useMemo(() => {
     if (!shop) return [];
-    let products = allProducts.filter((p) => !p.isHidden);
+    let products = shop.products.filter((p) => !p.isHidden);
     if (categoryFilter !== "all") {
       const children = childrenByParent[categoryFilter] || [];
       const ids = new Set<string>([categoryFilter, ...children.map((c) => c.id)]);
@@ -114,7 +114,7 @@ export default function ShopPage() {
 
   const publishedPosts = useMemo(() => {
     if (!shop) return [];
-    return allPosts.filter((p) => p.status === "published")
+    return shop.posts.filter((p) => p.status === "published")
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [shop]);
 
