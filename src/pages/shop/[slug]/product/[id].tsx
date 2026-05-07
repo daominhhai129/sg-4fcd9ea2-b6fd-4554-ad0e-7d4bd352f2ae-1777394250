@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/storefront/ProductCard";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
-import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
@@ -21,6 +21,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [api, setApi] = useState<CarouselApi | undefined>(undefined);
+  const [shared, setShared] = useState(false);
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
@@ -73,20 +74,46 @@ export default function ProductDetailPage() {
     router.push("/shop/" + shop.slug + "/checkout");
   };
 
+  const handleShare = async () => {
+    if (!product || !shop) return;
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = { title: product.name, text: product.description, url };
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {}
+  };
+
   return (
     <>
       <SEO title={product.name + " — " + shop.name} description={product.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
       <main className="container py-8 pb-24 md:pb-8">
         <div className="lg:max-w-[70%] lg:mx-auto">
-        <button
-          type="button"
-          onClick={() => router.push("/shop/" + shop.slug)}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Quay lại
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={() => router.push("/shop/" + shop.slug)}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Quay lại
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-foreground bg-muted hover:bg-muted/70 transition-colors"
+            aria-label="Chia sẻ"
+          >
+            {shared ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+            <span className="font-medium">{shared ? "Đã sao chép" : "Chia sẻ"}</span>
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div className="space-y-4">
