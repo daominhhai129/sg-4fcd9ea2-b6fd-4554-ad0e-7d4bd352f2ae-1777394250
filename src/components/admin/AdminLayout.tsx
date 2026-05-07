@@ -135,14 +135,14 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            Xem cửa hàng
+            {t("nav.viewShop")}
           </Link>
           <button
             onClick={logout}
             className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            Đăng xuất
+            {t("nav.logout")}
           </button>
         </div>
       </aside>

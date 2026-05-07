@@ -177,13 +177,13 @@ export default function CategoriesPage() {
                   <Input name="name" defaultValue={editing?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold">Danh mục cha</Label>
+                  <Label className="text-sm font-semibold">{t("cat.colParent")}</Label>
                   <Select value={parentId} onValueChange={setParentId}>
                     <SelectTrigger className="rounded-xl mt-1.5">
-                      <SelectValue placeholder="Không có (danh mục gốc)" />
+                      <SelectValue placeholder={t("cat.colParent")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_PARENT}>Không có (danh mục gốc)</SelectItem>
+                      <SelectItem value={NO_PARENT}>—</SelectItem>
                       {rootCategories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -211,7 +211,7 @@ export default function CategoriesPage() {
                 <tr className="border-b border-border bg-muted/50">
                   <th className="w-10 px-2 py-3"></th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">{t("cat.colName")}</th>
-                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">Danh mục cha</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden lg:table-cell">{t("cat.colParent")}</th>
                   <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 hidden md:table-cell">{t("cat.colDesc")}</th>
                   <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3 hidden sm:table-cell w-28">{t("cat.colProducts")}</th>
                   <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3 w-32">{t("cat.colActions")}</th>
@@ -245,7 +245,7 @@ export default function CategoriesPage() {
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">{cat.name}</p>
                             {!isChild && (
-                              <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold">DANH MỤC GỐC</span>
+                              <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold">{t("cat.rootBadge")}</span>
                             )}
                             <p className="text-xs text-muted-foreground sm:hidden mt-0.5">{cat.productCount} {t("cat.unitProducts")}</p>
                             {isChild && parentName && (
