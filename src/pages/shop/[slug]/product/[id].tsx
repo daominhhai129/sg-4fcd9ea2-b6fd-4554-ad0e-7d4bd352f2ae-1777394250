@@ -93,9 +93,9 @@ export default function ProductDetailPage() {
     <>
       <SEO title={product.name + " — " + shop.name} description={product.description} />
       <ShopHeader shop={shop} cartCount={totalItems} />
-      <main className="container py-8 pb-24 md:pb-8">
+      <main className="container py-4 md:py-8 pb-24 md:pb-8">
         <div className="lg:max-w-[70%] lg:mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-3 md:mb-6">
           <button
             type="button"
             onClick={() => router.push("/shop/" + shop.slug)}
@@ -115,14 +115,14 @@ export default function ProductDetailPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-12">
+          <div className="space-y-2 md:space-y-4">
             <div className="relative">
               <Carousel setApi={setApi} className="w-full" opts={{ loop: false }}>
                 <CarouselContent className="-ml-0">
                   {mediaItems.map((item, i) => (
                     <CarouselItem key={i} className="pl-0">
-                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
+                      <div className="relative aspect-square overflow-hidden bg-muted rounded-none md:rounded-2xl">
                         {item.type === "image" ? (
                           <Image src={item.src} alt={product.name} fill className="object-cover" />
                         ) : (
@@ -153,12 +153,12 @@ export default function ProductDetailPage() {
               )}
             </div>
             {mediaItems.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1">
+              <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1 px-3 md:px-0">
                 {mediaItems.map((item, i) => (
                   <button
                     key={i}
                     onClick={() => goToSlide(i)}
-                    className={"relative shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors " + (i === activeImage ? "border-primary" : "border-border")}
+                    className={"relative shrink-0 w-16 h-16 md:w-20 md:h-20 overflow-hidden border-2 transition-colors rounded-none md:rounded-xl " + (i === activeImage ? "border-primary" : "border-border")}
                   >
                     {item.type === "image" ? (
                       <Image src={item.src} alt="" width={80} height={80} className="object-cover w-full h-full" />
@@ -173,7 +173,7 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-3 md:space-y-6 px-3 md:px-0">
             <h1 className="text-xl md:text-2xl font-heading font-extrabold text-foreground">{product.name}</h1>
 
             <div className="flex items-baseline gap-3">
