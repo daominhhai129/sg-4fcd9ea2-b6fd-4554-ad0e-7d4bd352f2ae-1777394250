@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { shops } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBanner } from "@/components/storefront/ShopBanner";
@@ -28,23 +28,29 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [productPage, setProductPage] = useState(1);
   const [postPage, setPostPage] = useState(1);
+  const productsTopRef = useRef<HTMLDivElement>(null);
+  const postsTopRef = useRef<HTMLDivElement>(null);
 
   const changeProductPage = (newPage: number) => {
+    setProductPage(newPage);
     if (typeof window !== "undefined") {
-      const y = window.scrollY;
-      setProductPage(newPage);
-      requestAnimationFrame(() => window.scrollTo(0, y));
-    } else {
-      setProductPage(newPage);
+      requestAnimationFrame(() => {
+        const el = productsTopRef.current;
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      });
     }
   };
   const changePostPage = (newPage: number) => {
+    setPostPage(newPage);
     if (typeof window !== "undefined") {
-      const y = window.scrollY;
-      setPostPage(newPage);
-      requestAnimationFrame(() => window.scrollTo(0, y));
-    } else {
-      setPostPage(newPage);
+      requestAnimationFrame(() => {
+        const el = postsTopRef.current;
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      });
     }
   };
 
