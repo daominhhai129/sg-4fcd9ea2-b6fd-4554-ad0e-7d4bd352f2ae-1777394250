@@ -24,9 +24,18 @@ export default function ProductDetailPage() {
   const [api, setApi] = useState<CarouselApi | undefined>(undefined);
   const [shared, setShared] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
+
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      setSelectedVariantId(product.variants[0].id);
+    } else {
+      setSelectedVariantId(null);
+    }
+  }, [product?.id, product?.variants]);
 
   const mediaItems = product
     ? [
@@ -75,15 +84,19 @@ export default function ProductDetailPage() {
 
   const formatDiscountValue = (dc: typeof applicableCodes[number]) => dc.type === "percentage" ? "Giảm " + dc.value + "%" : "Giảm " + formatPrice(dc.value);
 
+  const selectedVariant = product.variants?.find((v) => v.id === selectedVariantId);
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined } : product;
+
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(productForCart);
     }
   };
 
   const handleBuyNow = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(productForCart);
     }
     router.push("/shop/" + shop.slug + "/checkout");
   };
@@ -192,25 +205,34 @@ export default function ProductDetailPage() {
 
             <div className="flex items-baseline gap-3">
               <span className="text-xl md:text-2xl font-heading font-extrabold text-accent">
-                {formatPrice(product.price)}
+                {formatPrice(displayPrice)}
               </span>
+              {selectedVariant && (
+                <span className="text-xs text-muted-foreground">{selectedVariant.name}</span>
+              )}
             </div>
 
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
-                <div className="text-sm font-semibold text-foreground">Biến thể sản phẩm</div>
-                <div className="rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden">
-                  {product.variants.map((v) => (
-                    <div key={v.id} className="flex items-center justify-between gap-3 px-3 py-2 bg-card hover:bg-muted/40 transition-colors">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-foreground truncate">{v.name}</div>
-                        {v.sku && (
-                          <div className="text-[11px] text-muted-foreground font-mono">SKU: {v.sku}</div>
-                        )}
-                      </div>
-                      <div className="text-sm font-bold text-accent whitespace-nowrap">{formatPrice(v.price)}</div>
-                    </div>
-                  ))}
+                <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((v) => {
+                    const active = v.id === selectedVariantId;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={"text-left px-3 py-2 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
+                      >
+                        <div className={"text-sm font-semibold " + (active ? "text-primary" : "text-foreground")}>{v.name}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
+                          {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
