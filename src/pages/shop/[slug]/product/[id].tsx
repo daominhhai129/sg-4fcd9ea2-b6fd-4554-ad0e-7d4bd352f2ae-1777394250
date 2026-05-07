@@ -40,6 +40,7 @@ export default function ProductDetailPage() {
   const mediaItems = product
     ? [
         ...product.images.map((src) => ({ type: "image" as const, src })),
+        ...((product.variants || []).filter((v) => v.image && !product.images.includes(v.image)).map((v) => ({ type: "image" as const, src: v.image as string }))),
         ...(product.videoUrl ? [{ type: "video" as const, src: product.videoUrl }] : []),
       ]
     : [];
@@ -56,6 +57,17 @@ export default function ProductDetailPage() {
     setActiveImage(i);
     api?.scrollTo(i);
   };
+
+  useEffect(() => {
+    if (!selectedVariantId || !product) return;
+    const v = product.variants?.find((x) => x.id === selectedVariantId);
+    if (!v?.image) return;
+    const idx = mediaItems.findIndex((m) => m.type === "image" && m.src === v.image);
+    if (idx >= 0) {
+      setActiveImage(idx);
+      api?.scrollTo(idx);
+    }
+  }, [selectedVariantId, api, product, mediaItems]);
 
   if (!shop || !product) {
     return (
