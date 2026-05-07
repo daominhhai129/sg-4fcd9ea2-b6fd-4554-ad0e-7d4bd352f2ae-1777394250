@@ -80,8 +80,11 @@ export interface ProductVariant {
   id: string;
   name: string;
   price: number;
+  salePrice?: number;
+  stock?: number;
   sku?: string;
   image?: string;
+  attributes?: Record<string, string>;
 }
 
 export interface Order {

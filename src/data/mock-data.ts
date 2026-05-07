@@ -218,6 +218,9 @@ export const products: Product[] = [
   { id: "p-70", shopId: "shop-1", name: "Corsair K100 RGB Optical", slug: "corsair-k100-rgb", description: "Corsair K100 RGB - Bàn phím cơ gaming cao cấp nhất, OPX Optical Switch, iCUE control wheel, 4000Hz polling rate, keycaps PBT Double-shot.", price: 6490000, salePrice: 5790000, images: ["https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&h=600&fit=crop"], categoryId: "cat-3", categoryName: "Phụ kiện", stock: 12, rating: 4.9, reviewCount: 76, createdAt: "2026-04-28", status: "active", variants: [{ id: "v-p70-1", name: "OPX Optical Switch - RGB", attributes: { switch: "OPX Optical", backlight: "RGB" }, price: 6490000, salePrice: 5790000, stock: 7, sku: "K100-OPX-RGB" }, { id: "v-p70-2", name: "Cherry MX Speed - RGB", attributes: { switch: "Cherry MX Speed", backlight: "RGB" }, price: 6290000, salePrice: 5590000, stock: 5, sku: "K100-MXS-RGB" }] },
 ];
 
+export const posts: Post[] = [];
+export const orders: Order[] = [];
+
 products.push(...extraProducts);
 posts.push(...extraPosts);
 orders.push(...extraOrders);
