@@ -19,6 +19,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
 
   if (product) {
     return (
+      <>
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none">
         <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pointer-events-auto">
           <div className="grid grid-cols-5 h-16">
@@ -54,6 +55,33 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
           </div>
         </div>
       </div>
+      <div className="hidden md:block fixed right-4 top-1/2 -translate-y-1/2 z-40 pointer-events-none">
+        <div className="bg-card/95 backdrop-blur-lg border border-border shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-2xl pointer-events-auto">
+          <div className="flex flex-col gap-1 p-2">
+            <a href={"tel:" + phoneNumber} className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-foreground transition-all hover:bg-muted/60">
+              <Phone className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Gọi điện</span>
+            </a>
+            <a href={messageHref} {...messageProps} className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-foreground transition-all hover:bg-muted/60">
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Nhắn tin</span>
+            </a>
+            <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-foreground transition-all hover:bg-muted/60">
+              <MapPin className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Bản đồ</span>
+            </a>
+            <button onClick={openSearch} className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-foreground transition-all hover:bg-muted/60">
+              <Search className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Tìm kiếm</span>
+            </button>
+            <button onClick={openMenu} className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl text-foreground transition-all hover:bg-muted/60">
+              <Menu className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Menu</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      </>
     );
   }
 

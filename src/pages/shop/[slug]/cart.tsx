@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
 import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 
 export default function CartPage() {
   const router = useRouter();
@@ -107,6 +108,7 @@ export default function CartPage() {
           </div>
         )}
       </main>
+      <ShopBottomBar shop={shop} />
     </>
   );
 }
