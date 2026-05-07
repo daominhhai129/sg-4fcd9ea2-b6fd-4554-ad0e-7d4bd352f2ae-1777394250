@@ -376,22 +376,41 @@ export default function ProductDetailPage() {
         <DialogContent overlayClassName="bg-black/10" className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-card border-0 rounded-2xl">
           <DialogTitle className="sr-only">{previewVariant?.name}</DialogTitle>
           {previewVariant?.image && (
-            <button
-              type="button"
-              onClick={() => setVariantPreviewId(null)}
-              className="block w-full text-left"
-            >
-              <div className="relative aspect-square w-full bg-muted overflow-hidden">
-                <Image src={previewVariant.image} alt={previewVariant.name} fill className="object-cover" sizes="(max-width: 640px) 80vw, 384px" />
-              </div>
-              <div className="p-3 space-y-1">
-                <div className="text-sm font-semibold text-foreground line-clamp-2">{previewVariant.name}</div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-base font-heading font-extrabold text-accent">{formatPrice(previewVariant.salePrice ?? previewVariant.price)}</span>
-                  {previewVariant.sku && <span className="text-[11px] font-mono text-muted-foreground">{previewVariant.sku}</span>}
+            <>
+              <button
+                type="button"
+                onClick={() => setVariantPreviewId(null)}
+                className="block w-full text-left"
+              >
+                <div className="relative aspect-square w-full bg-muted overflow-hidden">
+                  <Image src={previewVariant.image} alt={previewVariant.name} fill className="object-cover" sizes="(max-width: 640px) 80vw, 384px" />
                 </div>
+                <div className="p-3 space-y-1">
+                  <div className="text-sm font-semibold text-foreground line-clamp-2">{previewVariant.name}</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-base font-heading font-extrabold text-accent">{formatPrice(previewVariant.salePrice ?? previewVariant.price)}</span>
+                    {previewVariant.sku && <span className="text-[11px] font-mono text-muted-foreground">{previewVariant.sku}</span>}
+                  </div>
+                </div>
+              </button>
+              <div className="flex gap-2 p-3 pt-0">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground border-0 font-semibold"
+                  onClick={() => { handleAddToCart(); setVariantPreviewId(null); }}
+                >
+                  <ShoppingCart className="w-4 h-4 mr-1.5" />
+                  Thêm vào giỏ
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold"
+                  onClick={() => { setVariantPreviewId(null); handleBuyNow(); }}
+                >
+                  Mua ngay
+                </Button>
               </div>
-            </button>
+            </>
           )}
         </DialogContent>
       </Dialog>
