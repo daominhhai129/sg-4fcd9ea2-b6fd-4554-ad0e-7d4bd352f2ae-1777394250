@@ -373,7 +373,7 @@ export default function ProductDetailPage() {
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
 
       <Dialog open={!!previewVariant?.image} onOpenChange={(open) => { if (!open) setVariantPreviewId(null); }}>
-        <DialogContent overlayClassName="bg-black/50" className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-card border-0 rounded-2xl">
+        <DialogContent overlayClassName="bg-black/80" className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-card border-0 rounded-2xl">
           <DialogTitle className="sr-only">{previewVariant?.name}</DialogTitle>
           {previewVariant?.image && (
             <>
