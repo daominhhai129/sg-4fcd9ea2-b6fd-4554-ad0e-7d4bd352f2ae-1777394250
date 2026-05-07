@@ -39,9 +39,9 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
     const openMenu = () => {
       if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
         if (closeTimer.current) clearTimeout(closeTimer.current);
-        setMegaOpen(true);
+        setMegaOpen((prev) => !prev);
       } else {
-        setMobileOpen(true);
+        setMobileOpen((prev) => !prev);
       }
     };
     const openSearchEvt = () => { setQuery(""); setSearchOpen(true); };
@@ -164,7 +164,14 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
 
       {megaOpen && (
         <div
-          className="hidden md:block absolute left-0 right-0 top-full bg-card border-b border-border shadow-xl"
+          className="hidden md:block fixed inset-x-0 top-14 bottom-0 z-40 bg-black/30 backdrop-blur-[1px]"
+          onClick={() => setMegaOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      {megaOpen && (
+        <div
+          className="hidden md:block absolute left-0 right-0 top-full bg-card border-b border-border shadow-xl z-50"
           onMouseEnter={openMega}
           onMouseLeave={scheduleClose}
         >
