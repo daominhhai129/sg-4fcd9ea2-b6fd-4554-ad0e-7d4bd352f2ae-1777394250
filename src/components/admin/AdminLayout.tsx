@@ -135,7 +135,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            {t("nav.viewShop")}
+            {t("nav.viewStorefront")}
           </Link>
           <button
             onClick={logout}
