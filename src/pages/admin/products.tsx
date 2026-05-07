@@ -288,9 +288,9 @@ export default function ProductsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                <SelectItem value="visible">Đang hiển thị</SelectItem>
-                <SelectItem value="hidden">Đã ẩn</SelectItem>
+                <SelectItem value="all">{t("prod.filterAllStatus")}</SelectItem>
+                <SelectItem value="visible">{t("prod.filterVisible")}</SelectItem>
+                <SelectItem value="hidden">{t("prod.filterHidden")}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as "newest" | "priceAsc" | "priceDesc")}>
@@ -298,9 +298,9 @@ export default function ProductsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Mới nhất</SelectItem>
-                <SelectItem value="priceAsc">Giá thấp → cao</SelectItem>
-                <SelectItem value="priceDesc">Giá cao → thấp</SelectItem>
+                <SelectItem value="newest">{t("prod.sortNewest")}</SelectItem>
+                <SelectItem value="priceAsc">{t("prod.sortPriceAsc")}</SelectItem>
+                <SelectItem value="priceDesc">{t("prod.sortPriceDesc")}</SelectItem>
               </SelectContent>
             </Select>
             <div className="hidden lg:flex items-center border border-border rounded-xl overflow-hidden">
