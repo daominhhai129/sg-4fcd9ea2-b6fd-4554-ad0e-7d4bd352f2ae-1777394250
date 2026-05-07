@@ -11,8 +11,8 @@ import { useCart } from "@/contexts/CartContext";
 import { SEO } from "@/components/SEO";
 import { Minus, Plus, ShoppingCart, ArrowLeft, Calendar, ArrowRight, Play, Share2, Check, Ticket, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { discountCodes } from "@/data/discount-codes";
 
 export default function ProductDetailPage() {
@@ -25,6 +25,7 @@ export default function ProductDetailPage() {
   const [shared, setShared] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [variantPreviewId, setVariantPreviewId] = useState<string | null>(null);
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
@@ -68,7 +69,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const category = shop.categories.find((c) => c.id === product.categoryId);
   const relatedProducts = shop.products.filter((p) => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
   const relatedPosts = shop.posts.filter((post) => post.status === "published" && post.productIds?.includes(product.id)).slice(0, 3);
 
@@ -85,8 +85,15 @@ export default function ProductDetailPage() {
   const formatDiscountValue = (dc: typeof applicableCodes[number]) => dc.type === "percentage" ? "Giảm " + dc.value + "%" : "Giảm " + formatPrice(dc.value);
 
   const selectedVariant = product.variants?.find((v) => v.id === selectedVariantId);
+  const previewVariant = product.variants?.find((v) => v.id === variantPreviewId);
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
-  const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined } : product;
+  const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined, images: selectedVariant.image ? [selectedVariant.image, ...product.images] : product.images } : product;
+
+  const handleVariantClick = (variantId: string) => {
+    setSelectedVariantId(variantId);
+    const v = product.variants?.find((x) => x.id === variantId);
+    if (v?.image) setVariantPreviewId(variantId);
+  };
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -222,14 +229,23 @@ export default function ProductDetailPage() {
                       <button
                         key={v.id}
                         type="button"
-                        onClick={() => setSelectedVariantId(v.id)}
-                        className={"text-left px-3 py-2 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
+                        onClick={() => handleVariantClick(v.id)}
+                        className={"flex items-center gap-2 text-left pl-1.5 pr-3 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
                       >
-                        <div className={"text-sm font-semibold " + (active ? "text-primary" : "text-foreground")}>{v.name}</div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
-                          {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
-                        </div>
+                        {v.image ? (
+                          <span className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
+                            <Image src={v.image} alt={v.name} fill className="object-cover" />
+                          </span>
+                        ) : (
+                          <span className="w-10 h-10 rounded-lg bg-muted shrink-0" />
+                        )}
+                        <span className="flex flex-col min-w-0">
+                          <span className={"text-sm font-semibold truncate " + (active ? "text-primary" : "text-foreground")}>{v.name}</span>
+                          <span className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
+                            {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
+                          </span>
+                        </span>
                       </button>
                     );
                   })}
@@ -355,6 +371,21 @@ export default function ProductDetailPage() {
       </main>
       <ShopFooter shop={shop} />
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
+
+      <Dialog open={!!previewVariant?.image} onOpenChange={(open) => { if (!open) setVariantPreviewId(null); }}>
+        <DialogContent className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">{previewVariant?.name}</DialogTitle>
+          {previewVariant?.image && (
+            <button
+              type="button"
+              onClick={() => setVariantPreviewId(null)}
+              className="relative aspect-square w-full bg-muted rounded-2xl overflow-hidden"
+            >
+              <Image src={previewVariant.image} alt={previewVariant.name} fill className="object-cover" sizes="(max-width: 640px) 80vw, 384px" />
+            </button>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
