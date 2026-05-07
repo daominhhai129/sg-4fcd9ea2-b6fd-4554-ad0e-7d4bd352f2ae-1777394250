@@ -584,6 +584,8 @@ export default function SuperAdminPage() {
               </div>
             </div>
             )}
+
+            {activeView === "support" && <SupportSettingsView />}
           </main>
         </div>
 
