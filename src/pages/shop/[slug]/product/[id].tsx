@@ -196,6 +196,25 @@ export default function ProductDetailPage() {
               </span>
             </div>
 
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-foreground">Biến thể sản phẩm</div>
+                <div className="rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden">
+                  {product.variants.map((v) => (
+                    <div key={v.id} className="flex items-center justify-between gap-3 px-3 py-2 bg-card hover:bg-muted/40 transition-colors">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">{v.name}</div>
+                        {v.sku && (
+                          <div className="text-[11px] text-muted-foreground font-mono">SKU: {v.sku}</div>
+                        )}
+                      </div>
+                      <div className="text-sm font-bold text-accent whitespace-nowrap">{formatPrice(v.price)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {applicableCodes.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
