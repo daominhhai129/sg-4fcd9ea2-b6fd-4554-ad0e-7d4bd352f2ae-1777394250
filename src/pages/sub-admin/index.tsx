@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { CreateUserDialog, ExtendDialog, EditUserDialog, DomainDialog, LimitDialog } from "@/components/admin/SuperAdminDialogs";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
@@ -29,6 +30,11 @@ export default function SubAdminPage() {
   const [limitsUser, setLimitsUser] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.host);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "sub_admin")) router.replace("/login");
@@ -80,6 +86,7 @@ export default function SubAdminPage() {
             <span className="font-heading font-bold text-foreground">{t("sub.title")}</span>
           </div>
           <div className="ml-auto flex items-center gap-3">
+            <LanguageToggle />
             <button onClick={() => setProfileOpen(true)} className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
               <Image src={user.avatar || ""} alt={user.name} width={28} height={28} className="rounded-full" />
               <span className="text-sm font-semibold text-foreground">{user.name}</span>
@@ -168,7 +175,7 @@ export default function SubAdminPage() {
                     const productLimit = cfg?.limits.products || 0;
                     const productUsage = cfg?.usage.products || 0;
                     const usagePct = productLimit ? Math.min(100, (productUsage / productLimit) * 100) : 0;
-                    const defaultUrl = u.shopSlug ? "/shop/" + u.shopSlug : "—";
+                    const defaultUrl = u.shopSlug ? (origin ? origin + "/shop/" + u.shopSlug : "/shop/" + u.shopSlug) : "—";
                     return (
                       <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3">
@@ -211,33 +218,33 @@ export default function SubAdminPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <DropdownMenu>
+                          <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                               <button className="p-1.5 rounded-lg hover:bg-muted transition-colors"><MoreVertical className="w-4 h-4 text-muted-foreground" /></button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem onClick={() => setEditingUser(u.id)}>
+                              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setEditingUser(u.id), 0); }}>
                                 <Pencil className="w-4 h-4 mr-2" /> {t("super.menuEditInfo")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setDomainUser(u.id)}>
+                              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setDomainUser(u.id), 0); }}>
                                 <Globe className="w-4 h-4 mr-2" /> {t("super.menuDomainUrl")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setLimitsUser(u.id)}>
+                              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setLimitsUser(u.id), 0); }}>
                                 <Sliders className="w-4 h-4 mr-2" /> {t("super.menuLimits")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setExtendingUser(u.id)}>
+                              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setExtendingUser(u.id), 0); }}>
                                 <CalendarClock className="w-4 h-4 mr-2" /> {t("super.menuExtendShort")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleResetPassword(u.id, u.name)}>
+                              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleResetPassword(u.id, u.name); }}>
                                 <RefreshCw className="w-4 h-4 mr-2" /> {t("super.menuResetPwd")}
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               {u.status === "active" ? (
-                                <DropdownMenuItem onClick={() => lockUser(u.id)} className="text-destructive focus:text-destructive">
+                                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); lockUser(u.id); }} className="text-destructive focus:text-destructive">
                                   <Lock className="w-4 h-4 mr-2" /> {t("super.menuLockShort")}
                                 </DropdownMenuItem>
                               ) : (
-                                <DropdownMenuItem onClick={() => unlockUser(u.id)}>
+                                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); unlockUser(u.id); }}>
                                   <Unlock className="w-4 h-4 mr-2" /> {t("super.menuUnlockShort")}
                                 </DropdownMenuItem>
                               )}
