@@ -4,7 +4,8 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Store, User, Shield, Mail, Lock, ArrowRight, Eye, EyeOff, ShoppingBag } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Store, User, Shield, Mail, Lock, ArrowRight, Eye, EyeOff, ShoppingBag, Phone, MessageCircle, HeadphonesIcon } from "lucide-react";
 
 export default function LoginPage() {
   const { loginAsUser, loginAsSuperAdmin, loginAsMember, loginAsSubAdmin, loginWithCredentials } = useAuth();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +109,15 @@ export default function LoginPage() {
                 </div>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setForgotOpen(true)}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
               <Button type="submit" className="w-full gradient-primary text-white border-0 rounded-xl h-11" disabled={isSubmitting}>
                 {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
                 {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -159,6 +170,53 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <HeadphonesIcon className="w-5 h-5 text-primary" />
+              Quên mật khẩu?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Vui lòng liên hệ đội ngũ kỹ thuật để được hỗ trợ đặt lại mật khẩu. Chúng tôi sẵn sàng phục vụ 24/7.
+            </p>
+            <div className="space-y-2.5">
+              <a
+                href="tel:1900123456"
+                className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+              >
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Phone className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Hotline kỹ thuật</p>
+                  <p className="text-base font-heading font-bold text-foreground">1900 123 456</p>
+                </div>
+              </a>
+              <a
+                href="https://zalo.me/1900123456"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
+              >
+                <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                  <MessageCircle className="w-5 h-5 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Chat Zalo hỗ trợ</p>
+                  <p className="text-base font-heading font-bold text-foreground">0901 234 567</p>
+                </div>
+              </a>
+            </div>
+            <p className="text-xs text-muted-foreground text-center pt-1">
+              Giờ hỗ trợ: Thứ 2 - Chủ nhật, 8:00 - 22:00
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
