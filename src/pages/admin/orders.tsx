@@ -180,11 +180,11 @@ export default function OrdersPage() {
                 <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="text-left font-semibold px-4 py-3">{t("orders.id")}</th>
-                    <th className="text-left font-semibold px-4 py-3">{t("orders.customer") || "Khách hàng"}</th>
-                    <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">{t("orders.address") || "Địa chỉ"}</th>
-                    <th className="text-left font-semibold px-4 py-3 hidden lg:table-cell">{t("orders.itemsLabel") || "SP"}</th>
+                    <th className="text-left font-semibold px-4 py-3">Khách hàng</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">Địa chỉ</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden lg:table-cell">SP</th>
                     <th className="text-right font-semibold px-4 py-3">{t("orders.total")}</th>
-                    <th className="text-left font-semibold px-4 py-3 hidden sm:table-cell">{t("orders.date") || "Ngày"}</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden sm:table-cell">Ngày</th>
                     <th className="text-left font-semibold px-4 py-3">{t("orders.status")}</th>
                     <th className="text-right font-semibold px-4 py-3"></th>
                   </tr>
