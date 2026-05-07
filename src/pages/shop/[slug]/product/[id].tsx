@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="hidden md:flex gap-3">
               <Button
                 size="lg"
                 className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 transition-colors font-semibold"
