@@ -373,15 +373,24 @@ export default function ProductDetailPage() {
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
 
       <Dialog open={!!previewVariant?.image} onOpenChange={(open) => { if (!open) setVariantPreviewId(null); }}>
-        <DialogContent className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-transparent border-0 shadow-none">
+        <DialogContent className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-card border-0 rounded-2xl">
           <DialogTitle className="sr-only">{previewVariant?.name}</DialogTitle>
           {previewVariant?.image && (
             <button
               type="button"
               onClick={() => setVariantPreviewId(null)}
-              className="relative aspect-square w-full bg-muted rounded-2xl overflow-hidden"
+              className="block w-full text-left"
             >
-              <Image src={previewVariant.image} alt={previewVariant.name} fill className="object-cover" sizes="(max-width: 640px) 80vw, 384px" />
+              <div className="relative aspect-square w-full bg-muted overflow-hidden">
+                <Image src={previewVariant.image} alt={previewVariant.name} fill className="object-cover" sizes="(max-width: 640px) 80vw, 384px" />
+              </div>
+              <div className="p-3 space-y-1">
+                <div className="text-sm font-semibold text-foreground line-clamp-2">{previewVariant.name}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-base font-heading font-extrabold text-accent">{formatPrice(previewVariant.salePrice ?? previewVariant.price)}</span>
+                  {previewVariant.sku && <span className="text-[11px] font-mono text-muted-foreground">{previewVariant.sku}</span>}
+                </div>
+              </div>
             </button>
           )}
         </DialogContent>
