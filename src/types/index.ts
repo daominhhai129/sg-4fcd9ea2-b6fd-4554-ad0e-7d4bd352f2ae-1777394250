@@ -73,6 +73,13 @@ export interface Product {
   status: "active" | "draft" | "outOfStock";
   featured?: boolean;
   isHidden?: boolean;
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
 }
 
 export interface Order {

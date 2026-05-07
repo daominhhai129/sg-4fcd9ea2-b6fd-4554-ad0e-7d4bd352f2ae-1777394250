@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff, Layers } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Product } from "@/types";
+import type { ProductVariant } from "@/types";
 import NextDynamic from "next/dynamic";
 import { Switch } from "@/components/ui/switch";
 
@@ -67,6 +68,7 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
+  const [variants, setVariants] = useState<{ id: string; name: string; price: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -125,6 +127,7 @@ export default function ProductsPage() {
     setAffiliateLink("");
     setFeatured(false);
     setPriceInput("");
+    setVariants([]);
   };
 
   const openEdit = (product: Product) => {
@@ -142,6 +145,7 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
+    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "" })));
     setDialogOpen(true);
   };
 
@@ -192,6 +196,25 @@ export default function ProductsPage() {
     setVideoLinks((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const addVariant = () => {
+    setVariants((prev) => [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "" }]);
+  };
+
+  const updateVariant = (id: string, field: "name" | "price", value: string) => {
+    setVariants((prev) => prev.map((v) => {
+      if (v.id !== id) return v;
+      if (field === "price") {
+        const raw = value.replace(/\D/g, "");
+        return { ...v, price: raw ? Number(raw).toLocaleString("vi-VN") : "" };
+      }
+      return { ...v, name: value };
+    }));
+  };
+
+  const removeVariant = (id: string) => {
+    setVariants((prev) => prev.filter((v) => v.id !== id));
+  };
+
   const getPlainTextLength = (html: string) => {
     return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").length;
   };
@@ -214,6 +237,9 @@ export default function ProductsPage() {
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    const cleanedVariants: ProductVariant[] = variants
+      .filter((v) => v.name.trim() !== "")
+      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0 }));
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
@@ -225,6 +251,7 @@ export default function ProductsPage() {
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
       affiliateLink: affiliateLink.trim() || undefined,
       featured: featured,
+      variants: cleanedVariants,
     };
 
     const orderedImages = [...data.images];
@@ -409,6 +436,34 @@ export default function ProductsPage() {
                   <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[240px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body [&_.ql-editor_img]:rounded-lg [&_.ql-editor_img]:my-2">
                     <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder={t("prod.descPh")} />
                   </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
+                      <Layers className="w-4 h-4" />
+                      Biến thể sản phẩm
+                    </Label>
+                    <span className="text-xs text-muted-foreground">{variants.length} biến thể</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">VD: Size S/M/L, 13 inch / 14 inch / 15 inch, màu sắc...</p>
+                  {variants.length > 0 && (
+                    <div className="space-y-2 mb-2">
+                      {variants.map((v) => (
+                        <div key={v.id} className="flex items-center gap-2">
+                          <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder="Tên biến thể (VD: Size M)" className="rounded-xl flex-1" />
+                          <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder="Giá" inputMode="numeric" className="rounded-xl w-32 sm:w-40" />
+                          <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant}>
+                    <Plus className="w-3.5 h-3.5 mr-1.5" />
+                    Thêm biến thể
+                  </Button>
                 </div>
 
                 <div>
