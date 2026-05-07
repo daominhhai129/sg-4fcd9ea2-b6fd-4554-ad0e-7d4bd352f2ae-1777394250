@@ -36,7 +36,14 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
   }, [mobileOpen]);
 
   useEffect(() => {
-    const openMenu = () => setMobileOpen(true);
+    const openMenu = () => {
+      if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setMegaOpen(true);
+      } else {
+        setMobileOpen(true);
+      }
+    };
     const openSearchEvt = () => { setQuery(""); setSearchOpen(true); };
     window.addEventListener("shop:open-menu", openMenu);
     window.addEventListener("shop:open-search", openSearchEvt);
