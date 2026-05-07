@@ -144,10 +144,6 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
             <LogIn className="w-4 h-4" />
             <span>Đăng nhập</span>
           </Link>
-          <Link href="/register" className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors">
-            <UserPlus className="w-4 h-4" />
-            <span>Đăng ký</span>
-          </Link>
           <button onClick={openPreview} className="relative p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Giỏ hàng">
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {cartCount > 0 && (
@@ -359,14 +355,6 @@ export function ShopHeader({ shop, cartCount }: ShopHeaderProps) {
           >
             <LogIn className="w-4 h-4" />
             Đăng nhập
-          </Link>
-          <Link
-            href="/register"
-            onClick={closeMobile}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            Đăng ký
           </Link>
         </div>
       </div>

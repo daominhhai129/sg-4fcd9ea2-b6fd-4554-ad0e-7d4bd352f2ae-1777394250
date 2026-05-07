@@ -226,16 +226,10 @@ export default function CheckoutPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button asChild variant="outline" size="sm" className="rounded-xl border-primary/40 text-primary hover:bg-primary hover:text-white">
+              <Button asChild size="sm" className="rounded-xl gradient-primary text-white border-0">
                 <Link href={"/member/login?return=" + encodeURIComponent("/shop/" + shop.slug + "/checkout")}>
                   <LogIn className="w-4 h-4 mr-1" />
                   Đăng nhập
-                </Link>
-              </Button>
-              <Button asChild size="sm" className="rounded-xl gradient-primary text-white border-0">
-                <Link href={"/register?return=" + encodeURIComponent("/shop/" + shop.slug + "/checkout")}>
-                  <UserPlus className="w-4 h-4 mr-1" />
-                  Đăng ký
                 </Link>
               </Button>
             </div>
