@@ -173,8 +173,7 @@ export default function ProductDetailPage() {
             <div className="flex gap-3">
               <Button
                 size="lg"
-                className="flex-1 text-white border-0 h-12 hover:opacity-90 transition-opacity font-semibold"
-                style={shop.themeColor ? { backgroundColor: `hsl(${shop.themeColor})` } : undefined}
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 transition-colors font-semibold"
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
