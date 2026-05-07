@@ -113,7 +113,7 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <HeadphonesIcon className="w-4.5 h-4.5" />
-            Hỗ trợ
+            {t("support.menu")}
           </button>
         </nav>
 
@@ -178,22 +178,22 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
           <DialogHeader>
             <DialogTitle className="font-heading flex items-center gap-2">
               <HeadphonesIcon className="w-5 h-5 text-primary" />
-              Liên hệ hỗ trợ
+              {t("support.dialogTitle")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Cần trợ giúp? Đội ngũ Pro ID luôn sẵn sàng hỗ trợ bạn 24/7.
+              {t("support.dialogDesc")}
             </p>
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Hotline</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("support.hotlineLabel")}</p>
               <a href="tel:0965784668" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="font-bold text-foreground">096 578 4668</p>
-                  <p className="text-xs text-muted-foreground">Bấm để gọi</p>
+                  <p className="text-xs text-muted-foreground">{t("support.callPrompt")}</p>
                 </div>
               </a>
               <a href="tel:0986851829" className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/70 transition-colors">
@@ -202,12 +202,12 @@ export function AdminLayout({ children, title, shopName = "Tech Zone" }: AdminLa
                 </div>
                 <div>
                   <p className="font-bold text-foreground">098 685 1829</p>
-                  <p className="text-xs text-muted-foreground">Bấm để gọi</p>
+                  <p className="text-xs text-muted-foreground">{t("support.callPrompt")}</p>
                 </div>
               </a>
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Zalo Official</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("support.zaloLabel")}</p>
               <a
                 href="https://zalo.me/proidvn"
                 target="_blank"

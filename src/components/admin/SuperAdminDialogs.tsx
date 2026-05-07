@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Save, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { CreateUserInput, CreateSubAdminInput } from "@/contexts/AuthContext";
 
 interface LimitDialogProps {
@@ -18,22 +19,23 @@ interface LimitDialogProps {
 }
 
 export function LimitDialog({ open, onOpenChange, initialValue, shopName, onSave }: LimitDialogProps) {
+  const { t } = useLanguage();
   const [value, setValue] = useState(initialValue);
   useEffect(() => { if (open) setValue(initialValue); }, [open, initialValue]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle className="font-heading">Giới hạn cho {shopName}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.limitTitle").replace("{shop}", shopName)}</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-semibold">Số lượng tối đa (áp dụng cho sản phẩm, danh mục, bài viết)</Label>
+            <Label className="text-sm font-semibold">{t("saDlg.limitLabel")}</Label>
             <Input type="number" value={value} onChange={(e) => setValue(Number(e.target.value))} className="rounded-xl mt-1.5" />
-            <p className="text-xs text-muted-foreground mt-1.5">Ví dụ: nhập 100 → cả 3 mục đều giới hạn 100.</p>
+            <p className="text-xs text-muted-foreground mt-1.5">{t("saDlg.limitHint")}</p>
           </div>
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
             <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={() => { onSave(value); onOpenChange(false); }}>
-              <Save className="w-4 h-4 mr-1.5" /> Lưu
+              <Save className="w-4 h-4 mr-1.5" /> {t("common.save")}
             </Button>
           </div>
         </div>
@@ -51,10 +53,12 @@ interface ExtendDialogProps {
 }
 
 export function ExtendDialog({ open, onOpenChange, userName, currentExpiry, onConfirm }: ExtendDialogProps) {
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<"days" | "date">("days");
   const [days, setDays] = useState(30);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const locale = language === "en" ? "en-US" : "vi-VN";
 
   useEffect(() => {
     if (open) {
@@ -82,41 +86,41 @@ export function ExtendDialog({ open, onOpenChange, userName, currentExpiry, onCo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle className="font-heading">Gia hạn cho {userName}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.extendTitle").replace("{name}", userName)}</DialogTitle></DialogHeader>
         <div className="space-y-4">
           {currentExpiry && (
             <p className="text-xs text-muted-foreground">
-              Hạn hiện tại: <span className="font-semibold text-foreground">{new Date(currentExpiry).toLocaleDateString("vi-VN")}</span>
+              {t("saDlg.currentExpiry")} <span className="font-semibold text-foreground">{new Date(currentExpiry).toLocaleDateString(locale)}</span>
             </p>
           )}
 
           <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-xl">
             <button type="button" onClick={() => setMode("days")} className={cn("py-1.5 text-xs font-semibold rounded-lg transition-colors", mode === "days" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}>
-              Số ngày
+              {t("saDlg.modeDays")}
             </button>
             <button type="button" onClick={() => setMode("date")} className={cn("py-1.5 text-xs font-semibold rounded-lg transition-colors", mode === "date" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}>
-              Chọn ngày
+              {t("saDlg.modeDate")}
             </button>
           </div>
 
           {mode === "days" ? (
             <div>
-              <Label className="text-sm font-semibold">Số ngày gia hạn</Label>
+              <Label className="text-sm font-semibold">{t("saDlg.daysLabel")}</Label>
               <Input type="number" value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded-xl mt-1.5" />
               <div className="flex gap-2 mt-2">
                 {[30, 90, 180, 365].map((d) => (
-                  <button key={d} type="button" onClick={() => setDays(d)} className="px-3 py-1 rounded-lg text-xs font-medium bg-muted hover:bg-primary/10 transition-colors">{d} ngày</button>
+                  <button key={d} type="button" onClick={() => setDays(d)} className="px-3 py-1 rounded-lg text-xs font-medium bg-muted hover:bg-primary/10 transition-colors">{d} {t("saDlg.daysSuffix")}</button>
                 ))}
               </div>
             </div>
           ) : (
             <div>
-              <Label className="text-sm font-semibold">Hạn mới</Label>
+              <Label className="text-sm font-semibold">{t("saDlg.dateLabel")}</Label>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start rounded-xl mt-1.5 font-normal", !date && "text-muted-foreground")}>
                     <CalendarIcon className="w-4 h-4 mr-2" />
-                    {date ? date.toLocaleDateString("vi-VN") : "Chọn ngày..."}
+                    {date ? date.toLocaleDateString(locale) : t("saDlg.pickDate")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -133,8 +137,8 @@ export function ExtendDialog({ open, onOpenChange, userName, currentExpiry, onCo
           )}
 
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleConfirm}>Gia hạn</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={handleConfirm}>{t("saDlg.extendBtn")}</Button>
           </div>
         </div>
       </DialogContent>
@@ -149,6 +153,7 @@ interface CreateUserDialogProps {
 }
 
 export function CreateUserDialog({ open, onOpenChange, onCreate }: CreateUserDialogProps) {
+  const { t } = useLanguage();
   const [form, setForm] = useState<CreateUserInput>({ name: "", email: "", phone: "", shopName: "", expiryDays: 90 });
   useEffect(() => { if (open) setForm({ name: "", email: "", phone: "", shopName: "", expiryDays: 90 }); }, [open]);
   const submit = () => {
@@ -159,17 +164,17 @@ export function CreateUserDialog({ open, onOpenChange, onCreate }: CreateUserDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle className="font-heading">Tạo người dùng mới</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.createUserTitle")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Tên cửa hàng</Label><Input value={form.shopName} onChange={(e) => setForm({ ...form, shopName: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Hạn sử dụng (ngày)</Label><Input type="number" value={form.expiryDays} onChange={(e) => setForm({ ...form, expiryDays: Number(e.target.value) })} className="rounded-xl mt-1.5" /></div>
-          <p className="text-xs text-muted-foreground">Mật khẩu mặc định: <code className="font-mono text-foreground">iLoveProID@</code></p>
+          <div><Label className="text-sm font-semibold">{t("saDlg.fullName")}</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.email")}</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.shopName")}</Label><Input value={form.shopName} onChange={(e) => setForm({ ...form, shopName: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.expiryDays")}</Label><Input type="number" value={form.expiryDays} onChange={(e) => setForm({ ...form, expiryDays: Number(e.target.value) })} className="rounded-xl mt-1.5" /></div>
+          <p className="text-xs text-muted-foreground">{t("saDlg.defaultPwd")} <code className="font-mono text-foreground">iLoveProID@</code></p>
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Tạo</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{t("saDlg.create")}</Button>
           </div>
         </div>
       </DialogContent>
@@ -184,27 +189,28 @@ interface AdminPasswordDialogProps {
 }
 
 export function AdminPasswordDialog({ open, onOpenChange, onSave }: AdminPasswordDialogProps) {
+  const { t } = useLanguage();
   const [pwd, setPwd] = useState("");
   const [confirm, setConfirm] = useState("");
   const [err, setErr] = useState("");
   useEffect(() => { if (open) { setPwd(""); setConfirm(""); setErr(""); } }, [open]);
   const submit = () => {
-    if (pwd.length < 6) { setErr("Mật khẩu tối thiểu 6 ký tự"); return; }
-    if (pwd !== confirm) { setErr("Mật khẩu xác nhận không khớp"); return; }
+    if (pwd.length < 6) { setErr(t("saDlg.errPwdLen")); return; }
+    if (pwd !== confirm) { setErr(t("saDlg.errPwdMatch")); return; }
     onSave(pwd);
     onOpenChange(false);
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle className="font-heading">Đổi mật khẩu Super Admin</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.adminPwdTitle")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div><Label className="text-sm font-semibold">Mật khẩu mới</Label><Input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Xác nhận mật khẩu</Label><Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.newPwd")}</Label><Input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.confirmPwd")}</Label><Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="rounded-xl mt-1.5" /></div>
           {err && <p className="text-xs text-destructive">{err}</p>}
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{t("common.save")}</Button>
           </div>
         </div>
       </DialogContent>
@@ -221,6 +227,7 @@ interface DomainDialogProps {
 }
 
 export function DomainDialog({ open, onOpenChange, userName, currentDomain, onSave }: DomainDialogProps) {
+  const { t } = useLanguage();
   const [domain, setDomain] = useState("");
   useEffect(() => { if (open) setDomain(currentDomain || ""); }, [open, currentDomain]);
   const submit = () => {
@@ -230,21 +237,21 @@ export function DomainDialog({ open, onOpenChange, userName, currentDomain, onSa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle className="font-heading">Liên kết tên miền cho {userName}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.domainTitle").replace("{name}", userName)}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label className="text-sm font-semibold">Tên miền riêng</Label>
-            <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="vd: shop.example.com" className="rounded-xl mt-1.5" />
-            <p className="text-xs text-muted-foreground mt-1.5">Nhập domain không kèm http(s)://. Để trống để hủy liên kết.</p>
+            <Label className="text-sm font-semibold">{t("saDlg.domainLabel")}</Label>
+            <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder={t("saDlg.domainPh")} className="rounded-xl mt-1.5" />
+            <p className="text-xs text-muted-foreground mt-1.5">{t("saDlg.domainHint")}</p>
           </div>
           <div className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
-            <p className="font-semibold text-foreground">Hướng dẫn DNS:</p>
-            <p>• Trỏ bản ghi <code className="text-foreground">CNAME</code> tới <code className="text-foreground">cname.platform.vn</code></p>
-            <p>• Hoặc bản ghi <code className="text-foreground">A</code> tới <code className="text-foreground">76.76.21.21</code></p>
+            <p className="font-semibold text-foreground">{t("saDlg.dnsHelp")}</p>
+            <p>• {t("saDlg.dnsCname")} <code className="text-foreground">cname.platform.vn</code></p>
+            <p>• {t("saDlg.dnsA")} <code className="text-foreground">76.76.21.21</code></p>
           </div>
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{t("common.save")}</Button>
           </div>
         </div>
       </DialogContent>
@@ -260,6 +267,7 @@ interface EditUserDialogProps {
 }
 
 export function EditUserDialog({ open, onOpenChange, user, onSave }: EditUserDialogProps) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({ name: "", email: "", phone: "", shopName: "" });
   useEffect(() => {
     if (open && user) {
@@ -274,15 +282,15 @@ export function EditUserDialog({ open, onOpenChange, user, onSave }: EditUserDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle className="font-heading">Sửa thông tin chủ shop</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-heading">{t("saDlg.editUserTitle")}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Tên cửa hàng</Label><Input value={form.shopName} onChange={(e) => setForm({ ...form, shopName: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.fullName")}</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.email")}</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.shopName")}</Label><Input value={form.shopName} onChange={(e) => setForm({ ...form, shopName: e.target.value })} className="rounded-xl mt-1.5" /></div>
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>Lưu</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{t("common.save")}</Button>
           </div>
         </div>
       </DialogContent>
@@ -300,6 +308,7 @@ interface SubAdminDialogProps {
 }
 
 export function SubAdminDialog({ open, onOpenChange, initial, title, isEdit, onSubmit }: SubAdminDialogProps) {
+  const { t } = useLanguage();
   const [form, setForm] = useState<CreateSubAdminInput>({ name: "", email: "", phone: "", maxSites: 5000, password: "" });
   useEffect(() => {
     if (open) {
@@ -318,22 +327,22 @@ export function SubAdminDialog({ open, onOpenChange, initial, title, isEdit, onS
       <DialogContent className="max-w-md">
         <DialogHeader><DialogTitle className="font-heading">{title}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div><Label className="text-sm font-semibold">Họ và tên</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Email đăng nhập</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
-          <div><Label className="text-sm font-semibold">Số điện thoại</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.fullName")}</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.email")}</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl mt-1.5" /></div>
+          <div><Label className="text-sm font-semibold">{t("saDlg.phone")}</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl mt-1.5" /></div>
           <div>
-            <Label className="text-sm font-semibold">Mật khẩu {isEdit ? "mới" : ""}</Label>
-            <Input type="text" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} className="rounded-xl mt-1.5 font-mono" placeholder={isEdit ? "Để trống = giữ nguyên" : "iLoveProID@"} />
-            <p className="text-xs text-muted-foreground mt-1.5">{isEdit ? "Chỉ điền nếu muốn đổi mật khẩu đăng nhập." : "Mặc định: iLoveProID@. Có thể đổi ngay khi tạo."}</p>
+            <Label className="text-sm font-semibold">{isEdit ? t("saDlg.passwordNew") : t("saDlg.password")}</Label>
+            <Input type="text" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} className="rounded-xl mt-1.5 font-mono" placeholder={isEdit ? t("saDlg.passwordPhKeep") : "iLoveProID@"} />
+            <p className="text-xs text-muted-foreground mt-1.5">{isEdit ? t("saDlg.passwordHintEdit") : t("saDlg.passwordHintCreate")}</p>
           </div>
           <div>
-            <Label className="text-sm font-semibold">Giới hạn số sites quản lý</Label>
+            <Label className="text-sm font-semibold">{t("saDlg.maxSites")}</Label>
             <Input type="number" value={form.maxSites} onChange={(e) => setForm({ ...form, maxSites: Number(e.target.value) })} className="rounded-xl mt-1.5" />
-            <p className="text-xs text-muted-foreground mt-1.5">Mặc định: 5000 sites/sub-admin.</p>
+            <p className="text-xs text-muted-foreground mt-1.5">{t("saDlg.maxSitesHint")}</p>
           </div>
           <div className="flex gap-3 pt-2 border-t">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{isEdit ? "Lưu" : "Tạo"}</Button>
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+            <Button className="flex-1 gradient-primary text-white border-0 rounded-xl" onClick={submit}>{isEdit ? t("common.save") : t("saDlg.create")}</Button>
           </div>
         </div>
       </DialogContent>
