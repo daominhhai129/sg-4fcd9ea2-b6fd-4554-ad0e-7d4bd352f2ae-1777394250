@@ -45,11 +45,11 @@ export default function RegisterPage() {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4 py-10">
         <div className="w-full max-w-md">
           <button
-            onClick={() => (returnTo ? router.push(returnTo) : router.push("/"))}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+            onClick={() => router.push("/")}
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            {returnTo ? "Quay lại" : "Về trang chủ"}
+            Về trang chủ
           </button>
 
           <div className="bg-card border border-border/50 rounded-3xl shadow-xl p-8">
