@@ -222,7 +222,7 @@ export default function ProductDetailPage() {
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {product.variants.map((v) => {
                     const active = v.id === selectedVariantId;
                     return (
@@ -230,18 +230,17 @@ export default function ProductDetailPage() {
                         key={v.id}
                         type="button"
                         onClick={() => handleVariantClick(v.id)}
-                        className={"flex items-center gap-2 text-left pl-1.5 pr-3 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
+                        className={"flex items-center gap-2 text-left pl-1.5 pr-2 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
                       >
                         {v.image ? (
-                          <span className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
+                          <span className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-muted">
                             <Image src={v.image} alt={v.name} fill className="object-cover" />
                           </span>
                         ) : null}
-                        <span className="flex flex-col min-w-0">
-                          <span className={"text-sm font-semibold truncate " + (active ? "text-primary" : "text-foreground")}>{v.name}</span>
-                          <span className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
-                            {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
+                        <span className="flex flex-col min-w-0 flex-1">
+                          <span className={"text-xs font-semibold truncate " + (active ? "text-primary" : "text-foreground")}>{v.name}</span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-[11px] font-bold text-accent truncate">{formatPrice(v.price)}</span>
                           </span>
                         </span>
                       </button>
