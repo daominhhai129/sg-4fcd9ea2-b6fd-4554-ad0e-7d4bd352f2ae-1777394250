@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
-import { shops, formatPrice, discountCodes } from "@/data/mock-data";
+import { shops, formatPrice, discountCodes, decrementStock } from "@/data/mock-data";
 import { ShopHeader } from "@/components/storefront/ShopHeader";
 import { ShopBottomBar } from "@/components/storefront/ShopBottomBar";
 import { useCart } from "@/contexts/CartContext";
@@ -137,6 +137,7 @@ export default function CheckoutPage() {
     const id = "DH" + Date.now().toString().slice(-8);
     setOrderId(id);
     setSubmitted(true);
+    decrementStock(items);
     clearCart();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

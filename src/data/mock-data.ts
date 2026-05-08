@@ -221,6 +221,23 @@ export const products: Product[] = [
 export const posts: Post[] = [];
 export const orders: Order[] = [];
 
+export function decrementStock(cartItems: { product: { id: string }; quantity: number }[]) {
+  for (const item of cartItems) {
+    const [productId, variantId] = item.product.id.split(":");
+    const product = products.find((p) => p.id === productId);
+    if (!product) continue;
+    if (variantId && product.variants) {
+      const variant = product.variants.find((v) => v.id === variantId);
+      if (variant && typeof variant.stock === "number") {
+        variant.stock = Math.max(0, variant.stock - item.quantity);
+      }
+    }
+    if (typeof product.stock === "number") {
+      product.stock = Math.max(0, product.stock - item.quantity);
+    }
+  }
+}
+
 products.push(...extraProducts);
 posts.push(...extraPosts);
 orders.push(...extraOrders);

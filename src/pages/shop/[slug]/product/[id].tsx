@@ -87,6 +87,8 @@ export default function ProductDetailPage() {
   const selectedVariant = product.variants?.find((v) => v.id === selectedVariantId);
   const previewVariant = product.variants?.find((v) => v.id === variantPreviewId);
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const currentStock = selectedVariant ? (selectedVariant.stock ?? 0) : (product.stock ?? 0);
+  const outOfStock = currentStock <= 0;
   const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined, images: selectedVariant.image ? [selectedVariant.image, ...product.images] : product.images } : product;
 
   const handleVariantClick = (variantId: string) => {
@@ -219,6 +221,20 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            <div className="flex items-center gap-2 text-sm">
+              {outOfStock ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 text-destructive font-semibold text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
+                  Hết hàng
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Còn {currentStock} sản phẩm
+                </span>
+              )}
+            </div>
+
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
@@ -298,18 +314,20 @@ export default function ProductDetailPage() {
             <div className="hidden md:flex gap-3">
               <Button
                 size="lg"
-                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 transition-colors font-semibold"
+                disabled={outOfStock}
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 transition-colors font-semibold disabled:opacity-50"
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                Thêm vào giỏ
+                {outOfStock ? "Hết hàng" : "Thêm vào giỏ"}
               </Button>
               <Button
                 size="lg"
-                className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold"
+                disabled={outOfStock}
+                className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold disabled:opacity-50"
                 onClick={handleBuyNow}
               >
-                Mua ngay
+                {outOfStock ? "Hết hàng" : "Mua ngay"}
               </Button>
             </div>
           </div>
