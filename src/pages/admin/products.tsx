@@ -71,6 +71,7 @@ export default function ProductsPage() {
   const [priceInput, setPriceInput] = useState("");
   const [stockInput, setStockInput] = useState("");
   const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string }[]>([]);
+  const [properties, setProperties] = useState<{ id: string; name: string; values: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -132,6 +133,7 @@ export default function ProductsPage() {
     setPriceInput("");
     setStockInput("");
     setVariants([]);
+    setProperties([]);
   };
 
   const openEdit = (product: Product) => {
@@ -151,6 +153,7 @@ export default function ProductsPage() {
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
     setStockInput(product.stock ? String(product.stock) : "0");
     setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "" })));
+    setProperties((product.properties || []).map((p) => ({ id: p.id, name: p.name, values: p.values.join(", ") })));
     setDialogOpen(true);
   };
 
@@ -266,6 +269,13 @@ export default function ProductsPage() {
       price: Number(priceInput.replace(/\D/g, "")) || 0,
       stock: Number(stockInput) || 0,
       categoryId: form.get("categoryId") as string,
+      properties: properties
+        .filter((p) => p.name.trim() && p.values.trim())
+        .map((p) => ({
+          id: p.id,
+          name: p.name.trim(),
+          values: p.values.split(",").map((v) => v.trim()).filter(Boolean),
+        })),
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
       affiliateLink: affiliateLink.trim() || undefined,
