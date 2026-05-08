@@ -14,7 +14,6 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
   void themeColor;
   void onAddToCart;
   const displayPrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
-  const isOutOfStock = product.status === "outOfStock";
 
   return (
     <div className="group rounded-xl bg-card border border-border/50 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
@@ -25,11 +24,6 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="px-4 py-2 rounded-xl bg-white/90 text-foreground text-sm font-semibold">Hết hàng</span>
-          </div>
-        )}
       </Link>
 
       <div className="p-3">

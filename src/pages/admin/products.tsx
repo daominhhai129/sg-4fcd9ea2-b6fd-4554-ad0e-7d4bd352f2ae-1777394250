@@ -69,8 +69,7 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
-  const [stockInput, setStockInput] = useState("");
-  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string; stock: string }[]>([]);
+  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string }[]>([]);
   const [htmlMode, setHtmlMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -131,7 +130,6 @@ export default function ProductsPage() {
     setAffiliateLink("");
     setFeatured(false);
     setPriceInput("");
-    setStockInput("");
     setVariants([]);
   };
 
@@ -150,8 +148,7 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
-    setStockInput(product.stock ? String(product.stock) : "0");
-    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "", stock: v.stock != null ? String(v.stock) : "" })));
+    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "" })));
     setDialogOpen(true);
   };
 
@@ -203,10 +200,10 @@ export default function ProductsPage() {
   };
 
   const addVariant = () => {
-    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "", image: "", stock: "" }]);
+    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "", image: "" }]);
   };
 
-  const updateVariant = (id: string, field: "name" | "price" | "sku" | "image" | "stock", value: string) => {
+  const updateVariant = (id: string, field: "name" | "price" | "sku" | "image", value: string) => {
     setVariants((prev) => prev.map((v) => {
       if (v.id !== id) return v;
       if (field === "price") {
@@ -215,7 +212,6 @@ export default function ProductsPage() {
       }
       if (field === "sku") return { ...v, sku: value };
       if (field === "image") return { ...v, image: value };
-      if (field === "stock") return { ...v, stock: value.replace(/\D/g, "") };
       return { ...v, name: value };
     }));
   };
@@ -259,14 +255,13 @@ export default function ProductsPage() {
     const form = new FormData(e.currentTarget);
     const cleanedVariants: ProductVariant[] = variants
       .filter((v) => v.name.trim() !== "")
-      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined, image: v.image || undefined, stock: v.stock !== "" ? Number(v.stock) : undefined }));
+      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined, image: v.image || undefined }));
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
       description: shortDesc.trim() || description.replace(/<[^>]*>/g, "").slice(0, 200),
       longDescription: description,
       price: Number(priceInput.replace(/\D/g, "")) || 0,
-      stock: Number(stockInput) || 0,
       categoryId: form.get("categoryId") as string,
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
@@ -377,7 +372,7 @@ export default function ProductsPage() {
                   <Input name="name" defaultValue={editingProduct?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-semibold">{t("prod.sku")}</Label>
                     <Input name="sku" defaultValue={(editingProduct as unknown as { sku?: string })?.sku || ""} placeholder={t("prod.skuPh")} className="rounded-xl mt-1.5" />
@@ -385,10 +380,6 @@ export default function ProductsPage() {
                   <div>
                     <Label className="text-sm font-semibold">{t("prod.price")} <span className="text-destructive">*</span></Label>
                     <Input name="price" type="text" inputMode="numeric" value={priceInput} onChange={handlePriceChange} required placeholder="0" className="rounded-xl mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold">{t("prod.stockLabel")}</Label>
-                    <Input name="stock" type="number" min="0" value={stockInput} onChange={(e) => setStockInput(e.target.value.replace(/\D/g, ""))} placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                 </div>
 
@@ -514,7 +505,6 @@ export default function ProductsPage() {
                           </div>
                           <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder={t("prod.variantNamePh")} className="rounded-xl flex-1" />
                           <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder={t("prod.variantSkuPh")} className="rounded-xl sm:w-32" />
-                          <Input value={v.stock} onChange={(e) => updateVariant(v.id, "stock", e.target.value)} placeholder={t("prod.variantStockPh")} inputMode="numeric" className="rounded-xl sm:w-24" />
                           <div className="flex items-center gap-2">
                             <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder={t("prod.variantPricePh")} inputMode="numeric" className="rounded-xl flex-1 sm:w-36" />
                             <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
