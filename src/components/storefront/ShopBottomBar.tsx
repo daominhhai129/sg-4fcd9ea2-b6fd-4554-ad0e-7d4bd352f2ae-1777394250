@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Phone, MessageCircle, MapPin, Menu, Search, ShoppingCart, Zap } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Menu, Search, ShoppingCart, Zap, ArrowUp } from "lucide-react";
 import type { Shop, Product } from "@/types";
 
 interface ShopBottomBarProps {
@@ -16,6 +16,7 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.contact.address)}`;
 
   const [msgOpen, setMsgOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const msgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,6 +27,15 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [msgOpen]);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const openMenu = () => window.dispatchEvent(new CustomEvent("shop:open-menu"));
   const openSearch = () => window.dispatchEvent(new CustomEvent("shop:open-search"));
@@ -133,6 +143,15 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
           </div>
         </div>
       </div>
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Cuộn lên đầu trang"
+          className="md:hidden fixed bottom-[68px] right-3 z-40 w-10 h-10 rounded-full bg-card/95 backdrop-blur-md border border-border shadow-lg flex items-center justify-center text-foreground hover:bg-muted transition-all"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
       </>
     );
   }
@@ -200,6 +219,15 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
           </button>
         </div>
       </div>
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Cuộn lên đầu trang"
+          className="md:hidden fixed bottom-[72px] right-3 z-40 w-10 h-10 rounded-full bg-card/95 backdrop-blur-md border border-border shadow-lg flex items-center justify-center text-foreground hover:bg-muted transition-all pointer-events-auto"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
