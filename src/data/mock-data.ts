@@ -18,6 +18,7 @@ export const shops: Shop[] = [
       email: "contact@techzone.vn",
       address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
       messengerLink: "https://m.me/techzonevn",
+      zaloLink: "https://zalo.me/0901234567",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/techzone" },
         { platform: "Instagram", url: "https://instagram.com/techzone" },
@@ -53,7 +54,8 @@ export const shops: Shop[] = [
       phone: "0902 345 678",
       email: "hello@fashionhub.vn",
       address: "456 Lê Lợi, Quận 1, TP.HCM",
-      messengerLink: "https://zalo.me/fashionhubvn",
+      messengerLink: "https://m.me/fashionhubvn",
+      zaloLink: "https://zalo.me/0902345678",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/fashionhub" },
         { platform: "TikTok", url: "https://tiktok.com/@fashionhub" },
@@ -89,6 +91,7 @@ export const shops: Shop[] = [
       email: "support@greengarden.vn",
       address: "789 Võ Văn Tần, Quận 3, TP.HCM",
       messengerLink: "https://m.me/greengardenvn",
+      zaloLink: "https://zalo.me/0903456789",
       socialLinks: [
         { platform: "Facebook", url: "https://facebook.com/greengarden" },
       ],

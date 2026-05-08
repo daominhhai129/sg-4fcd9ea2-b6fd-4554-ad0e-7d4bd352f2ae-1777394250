@@ -55,6 +55,7 @@ export default function ProfilePage() {
         email: form.get("email") as string,
         address: form.get("address") as string,
         messengerLink: form.get("messengerLink") as string,
+        zaloLink: form.get("zaloLink") as string,
         socialLinks: [
           { platform: "facebook", url: form.get("facebook") as string },
           { platform: "instagram", url: form.get("instagram") as string },
@@ -182,10 +183,17 @@ export default function ProfilePage() {
                 <Label className="flex items-center gap-1.5 text-sm font-semibold"><MapPin className="w-3.5 h-3.5" />{t("profile.address")}</Label>
                 <Input name="address" defaultValue={shop.contact.address} className="rounded-xl mt-1.5" />
               </div>
-              <div>
-                <Label className="flex items-center gap-1.5 text-sm font-semibold"><MessageCircle className="w-3.5 h-3.5" />Link tin nhắn (Messenger / Zalo)</Label>
-                <Input name="messengerLink" defaultValue={shop.contact.messengerLink || ""} placeholder="https://m.me/yourshop hoặc https://zalo.me/0901234567" className="rounded-xl mt-1.5" />
-                <p className="text-[11px] text-muted-foreground mt-1">Link này sẽ được dùng cho nút &quot;Nhắn tin&quot; ở storefront.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="flex items-center gap-1.5 text-sm font-semibold"><Facebook className="w-3.5 h-3.5" />Facebook Messenger</Label>
+                  <Input name="messengerLink" defaultValue={shop.contact.messengerLink || ""} placeholder="https://m.me/yourshop" className="rounded-xl mt-1.5" />
+                  <p className="text-[11px] text-muted-foreground mt-1">Link nhắn tin qua Messenger.</p>
+                </div>
+                <div>
+                  <Label className="flex items-center gap-1.5 text-sm font-semibold"><MessageCircle className="w-3.5 h-3.5" />Zalo</Label>
+                  <Input name="zaloLink" defaultValue={shop.contact.zaloLink || ""} placeholder="https://zalo.me/0901234567" className="rounded-xl mt-1.5" />
+                  <p className="text-[11px] text-muted-foreground mt-1">Link nhắn tin qua Zalo.</p>
+                </div>
               </div>
             </div>
           </div>

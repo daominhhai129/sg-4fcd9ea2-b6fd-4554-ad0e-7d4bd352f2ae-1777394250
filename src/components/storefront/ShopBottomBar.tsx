@@ -12,7 +12,7 @@ interface ShopBottomBarProps {
 export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBottomBarProps) {
   const phoneNumber = shop.contact.phone.replace(/\s+/g, "");
   const messengerLink = shop.contact.messengerLink;
-  const zaloLink = `https://zalo.me/${phoneNumber}`;
+  const zaloLink = shop.contact.zaloLink || `https://zalo.me/${phoneNumber}`;
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.contact.address)}`;
 
   const [msgOpen, setMsgOpen] = useState(false);
