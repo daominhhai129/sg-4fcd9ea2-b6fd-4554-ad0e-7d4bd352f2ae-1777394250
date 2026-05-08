@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Plus } from "lucide-react";
 import type { Product } from "@/types";
 import { formatPrice } from "@/data/mock-data";
 
@@ -12,6 +11,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: ProductCardProps) {
+  void themeColor;
+  void onAddToCart;
   const displayPrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
   const isOutOfStock = product.status === "outOfStock";
 
@@ -29,20 +30,6 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
             <span className="px-4 py-2 rounded-xl bg-white/90 text-foreground text-sm font-semibold">Hết hàng</span>
           </div>
         )}
-        <button
-          type="button"
-          aria-label="Thêm vào giỏ"
-          disabled={isOutOfStock}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onAddToCart?.(product);
-          }}
-          className="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-full text-white shadow-md hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ backgroundColor: themeColor ? `hsl(${themeColor})` : "hsl(var(--accent))" }}
-        >
-          <Plus className="w-4 h-4" />
-        </button>
       </Link>
 
       <div className="p-3">
