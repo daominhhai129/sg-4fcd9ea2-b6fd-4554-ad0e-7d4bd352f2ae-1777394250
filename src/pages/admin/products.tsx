@@ -69,6 +69,7 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
+  const [stockInput, setStockInput] = useState("");
   const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -129,6 +130,7 @@ export default function ProductsPage() {
     setAffiliateLink("");
     setFeatured(false);
     setPriceInput("");
+    setStockInput("");
     setVariants([]);
   };
 
@@ -147,6 +149,7 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
+    setStockInput(product.stock ? String(product.stock) : "0");
     setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "" })));
     setDialogOpen(true);
   };
@@ -261,6 +264,7 @@ export default function ProductsPage() {
       description: shortDesc.trim() || description.replace(/<[^>]*>/g, "").slice(0, 200),
       longDescription: description,
       price: Number(priceInput.replace(/\D/g, "")) || 0,
+      stock: Number(stockInput) || 0,
       categoryId: form.get("categoryId") as string,
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
@@ -371,7 +375,7 @@ export default function ProductsPage() {
                   <Input name="name" defaultValue={editingProduct?.name || ""} required className="rounded-xl mt-1.5" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label className="text-sm font-semibold">{t("prod.sku")}</Label>
                     <Input name="sku" defaultValue={(editingProduct as unknown as { sku?: string })?.sku || ""} placeholder={t("prod.skuPh")} className="rounded-xl mt-1.5" />
@@ -379,6 +383,10 @@ export default function ProductsPage() {
                   <div>
                     <Label className="text-sm font-semibold">{t("prod.price")} <span className="text-destructive">*</span></Label>
                     <Input name="price" type="text" inputMode="numeric" value={priceInput} onChange={handlePriceChange} required placeholder="0" className="rounded-xl mt-1.5" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold">Tồn kho</Label>
+                    <Input name="stock" type="number" min="0" value={stockInput} onChange={(e) => setStockInput(e.target.value.replace(/\D/g, ""))} placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                 </div>
 
