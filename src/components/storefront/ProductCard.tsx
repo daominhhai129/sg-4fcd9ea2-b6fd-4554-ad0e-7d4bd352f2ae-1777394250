@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { Product } from "@/types";
 import { formatPrice } from "@/data/mock-data";
 
@@ -14,6 +13,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: ProductCardProps) {
   const displayPrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
+  const isOutOfStock = product.status === "outOfStock";
 
   return (
     <div className="group rounded-xl bg-card border border-border/50 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
@@ -24,7 +24,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        {product.status === "outOfStock" && (
+        {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="px-4 py-2 rounded-xl bg-white/90 text-foreground text-sm font-semibold">Hết hàng</span>
           </div>
@@ -38,25 +38,25 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
           </h3>
         </Link>
 
-        <div className="mt-2">
+        <div className="mt-2 flex items-center justify-between gap-2">
           <span className="text-sm font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
+          <button
+            type="button"
+            aria-label="Thêm vào giỏ"
+            disabled={isOutOfStock}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart?.(product);
+            }}
+            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full text-white shadow-sm hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: themeColor ? `hsl(${themeColor})` : "hsl(var(--accent))" }}
+          >
+            <ShoppingCart className="w-4 h-4" />
+          </button>
         </div>
-
-        <Button
-          size="sm"
-          className="w-full mt-3 text-white border-0 text-xs h-9 hover:opacity-90 transition-opacity"
-          style={themeColor ? { backgroundColor: `hsl(${themeColor})` } : undefined}
-          disabled={product.status === "outOfStock"}
-          onClick={(e) => {
-            e.preventDefault();
-            onAddToCart?.(product);
-          }}
-        >
-          <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
-          Thêm vào giỏ
-        </Button>
       </div>
     </div>
   );
