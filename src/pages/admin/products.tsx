@@ -395,7 +395,7 @@ export default function ProductsPage() {
                     <Input name="price" type="text" inputMode="numeric" value={priceInput} onChange={handlePriceChange} required placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Tồn kho</Label>
+                    <Label className="text-sm font-semibold">{t("prod.stockLabel")}</Label>
                     <Input name="stock" type="number" min="0" value={stockInput} onChange={(e) => setStockInput(e.target.value.replace(/\D/g, ""))} placeholder="0" className="rounded-xl mt-1.5" />
                   </div>
                 </div>
@@ -475,11 +475,11 @@ export default function ProductsPage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Layers className="w-4 h-4" />
-                      Biến thể sản phẩm
+                      {t("prod.variants")}
                     </Label>
-                    <span className="text-xs text-muted-foreground">{variants.length}/{MAX_VARIANTS} biến thể</span>
+                    <span className="text-xs text-muted-foreground">{t("prod.variantsCount").replace("{n}", String(variants.length)).replace("{max}", String(MAX_VARIANTS))}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">VD: Size S/M/L, 13 inch / 14 inch / 15 inch, màu sắc...</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t("prod.variantsTip")}</p>
                   {variants.length > 0 && (
                     <div className="space-y-2 mb-2">
                       {variants.map((v) => (
@@ -493,16 +493,16 @@ export default function ProductsPage() {
                                 </button>
                               </>
                             ) : (
-                              <button type="button" onClick={() => variantImageInputRefs.current[v.id]?.click()} className="w-full h-full flex items-center justify-center hover:bg-muted transition-colors" aria-label="Tải ảnh biến thể">
+                              <button type="button" onClick={() => variantImageInputRefs.current[v.id]?.click()} className="w-full h-full flex items-center justify-center hover:bg-muted transition-colors" aria-label={t("prod.variantImageAria")}>
                                 <ImagePlus className="w-5 h-5 text-muted-foreground" />
                               </button>
                             )}
                             <input ref={(el) => { variantImageInputRefs.current[v.id] = el; }} type="file" accept="image/*" onChange={(e) => handleVariantImageUpload(v.id, e)} className="hidden" />
                           </div>
-                          <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder="Tên biến thể (VD: Size M)" className="rounded-xl flex-1" />
-                          <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder="SKU" className="rounded-xl sm:w-32" />
+                          <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder={t("prod.variantNamePh")} className="rounded-xl flex-1" />
+                          <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder={t("prod.variantSkuPh")} className="rounded-xl sm:w-32" />
                           <div className="flex items-center gap-2">
-                            <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder="Giá" inputMode="numeric" className="rounded-xl flex-1 sm:w-36" />
+                            <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder={t("prod.variantPricePh")} inputMode="numeric" className="rounded-xl flex-1 sm:w-36" />
                             <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
                               <X className="w-4 h-4" />
                             </Button>
@@ -513,7 +513,7 @@ export default function ProductsPage() {
                   )}
                   <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant} disabled={variants.length >= MAX_VARIANTS}>
                     <Plus className="w-3.5 h-3.5 mr-1.5" />
-                    Thêm biến thể
+                    {t("prod.addVariant")}
                   </Button>
                 </div>
 
@@ -521,11 +521,11 @@ export default function ProductsPage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Layers className="w-4 h-4" />
-                      Thuộc tính sản phẩm
+                      {t("prod.properties")}
                     </Label>
-                    <span className="text-xs text-muted-foreground">{properties.length} thuộc tính</span>
+                    <span className="text-xs text-muted-foreground">{t("prod.propertiesCount").replace("{n}", String(properties.length))}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">VD: Thương hiệu: Apple | Màu sắc: Đen, Trắng, Xanh | Chất liệu: Nhôm</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t("prod.propertiesTip")}</p>
                   {properties.length > 0 && (
                     <div className="space-y-2 mb-2">
                       {properties.map((p) => (
@@ -533,14 +533,14 @@ export default function ProductsPage() {
                           <Input
                             value={p.name}
                             onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, name: e.target.value } : x))}
-                            placeholder="Tên thuộc tính (VD: Màu sắc)"
+                            placeholder={t("prod.propertyNamePh")}
                             className="rounded-xl sm:w-48"
                           />
                           <div className="flex items-center gap-2 flex-1">
                             <Input
                               value={p.values}
                               onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, values: e.target.value } : x))}
-                              placeholder="Giá trị, phân cách bằng dấu phẩy (VD: Đen, Trắng)"
+                              placeholder={t("prod.propertyValuesPh")}
                               className="rounded-xl flex-1"
                             />
                             <Button
@@ -565,7 +565,7 @@ export default function ProductsPage() {
                     onClick={() => setProperties((prev) => [...prev, { id: "prop-" + Date.now() + "-" + prev.length, name: "", values: "" }])}
                   >
                     <Plus className="w-3.5 h-3.5 mr-1.5" />
-                    Thêm thuộc tính
+                    {t("prod.addProperty")}
                   </Button>
                 </div>
 
