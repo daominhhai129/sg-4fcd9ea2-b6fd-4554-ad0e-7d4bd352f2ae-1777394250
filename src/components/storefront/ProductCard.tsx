@@ -29,6 +29,20 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
             <span className="px-4 py-2 rounded-xl bg-white/90 text-foreground text-sm font-semibold">Hết hàng</span>
           </div>
         )}
+        <button
+          type="button"
+          aria-label="Thêm vào giỏ"
+          disabled={isOutOfStock}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onAddToCart?.(product);
+          }}
+          className="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-full text-white shadow-md hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ backgroundColor: themeColor ? `hsl(${themeColor})` : "hsl(var(--accent))" }}
+        >
+          <Plus className="w-4 h-4" />
+        </button>
       </Link>
 
       <div className="p-3">
@@ -38,24 +52,10 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
           </h3>
         </Link>
 
-        <div className="mt-0.5 flex items-center justify-between gap-2">
+        <div className="mt-0.5">
           <span className="text-xs font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
-          <button
-            type="button"
-            aria-label="Thêm vào giỏ"
-            disabled={isOutOfStock}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onAddToCart?.(product);
-            }}
-            className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full text-white shadow-sm hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: themeColor ? `hsl(${themeColor})` : "hsl(var(--accent))" }}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
         </div>
       </div>
     </div>
