@@ -148,10 +148,44 @@ export function ShopBottomBar({ shop, product, onAddToCart, onBuyNow }: ShopBott
             <Phone className="w-5 h-5" />
             <span className="text-[11px] md:text-[10px] font-medium">Gọi điện</span>
           </a>
-          <a href={messageHref} {...messageProps} className="flex flex-col items-center justify-center gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60">
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-[11px] md:text-[10px] font-medium">Nhắn tin</span>
-          </a>
+          <div ref={msgRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setMsgOpen((v) => !v)}
+              className="w-full h-full flex flex-col items-center justify-center gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-[11px] md:text-[10px] font-medium">Nhắn tin</span>
+            </button>
+            {msgOpen && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 md:bottom-auto md:left-auto md:right-full md:top-1/2 md:-translate-x-0 md:-translate-y-1/2 md:mb-0 md:mr-2 bg-card border border-border rounded-xl shadow-xl py-1.5 min-w-[170px] overflow-hidden z-50">
+                <a
+                  href={zaloLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMsgOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 hover:bg-muted transition-colors"
+                >
+                  <span className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">Z</span>
+                  <span className="text-sm font-medium">Zalo</span>
+                </a>
+                {messengerLink && (
+                  <a
+                    href={messengerLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMsgOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 hover:bg-muted transition-colors"
+                  >
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="text-sm font-medium">Messenger</span>
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
           <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-1 md:p-3 md:rounded-xl text-foreground transition-all hover:bg-muted/60">
             <MapPin className="w-5 h-5" />
             <span className="text-[11px] md:text-[10px] font-medium">Bản đồ</span>
