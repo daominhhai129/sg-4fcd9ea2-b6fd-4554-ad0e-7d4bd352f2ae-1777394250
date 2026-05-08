@@ -72,6 +72,7 @@ export default function ProductsPage() {
   const [stockInput, setStockInput] = useState("");
   const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string; stock: string }[]>([]);
   const [properties, setProperties] = useState<{ id: string; name: string; values: string }[]>([]);
+  const [htmlMode, setHtmlMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -464,12 +465,33 @@ export default function ProductsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <Label className="text-sm font-semibold">{t("prod.desc")}</Label>
-                    <span className="text-xs text-muted-foreground">{getPlainTextLength(description)}/{MAX_DESCRIPTION_LENGTH}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="inline-flex items-center rounded-lg border border-border overflow-hidden text-xs">
+                        <button type="button" onClick={() => setHtmlMode(false)} className={"px-2.5 py-1 font-medium transition-colors " + (!htmlMode ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground")}>
+                          Visual
+                        </button>
+                        <button type="button" onClick={() => setHtmlMode(true)} className={"px-2.5 py-1 font-medium transition-colors " + (htmlMode ? "bg-primary text-white" : "bg-card text-muted-foreground hover:text-foreground")}>
+                          HTML
+                        </button>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{getPlainTextLength(description)}/{MAX_DESCRIPTION_LENGTH}</span>
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mb-1.5">{t("prod.descTip")}</p>
-                  <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[240px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body [&_.ql-editor_img]:rounded-lg [&_.ql-editor_img]:my-2">
-                    <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder={t("prod.descPh")} />
-                  </div>
+                  {htmlMode ? (
+                    <textarea
+                      value={description}
+                      onChange={(e) => handleDescriptionChange(e.target.value)}
+                      placeholder="<h3>Tiêu đề</h3><p>Nội dung...</p>"
+                      rows={10}
+                      spellCheck={false}
+                      className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y min-h-[200px]"
+                    />
+                  ) : (
+                    <div className="rounded-xl overflow-hidden border border-border [&_.ql-toolbar]:border-border [&_.ql-container]:border-border [&_.ql-editor]:min-h-[120px] [&_.ql-editor]:max-h-[240px] [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:font-body [&_.ql-editor_img]:rounded-lg [&_.ql-editor_img]:my-2">
+                      <ReactQuill theme="snow" value={description} onChange={handleDescriptionChange} modules={quillModules} placeholder={t("prod.descPh")} />
+                    </div>
+                  )}
                 </div>
 
                 <div>
