@@ -269,9 +269,7 @@ export default function ProductDetailPage() {
                           <span className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
                             <Image src={v.image} alt={v.name} fill className="object-cover" />
                           </span>
-                        ) : (
-                          <span className="w-10 h-10 rounded-lg bg-muted shrink-0" />
-                        )}
+                        ) : null}
                         <span className="flex flex-col min-w-0">
                           <span className={"text-sm font-semibold truncate " + (active ? "text-primary" : "text-foreground")}>{v.name}</span>
                           <span className="flex items-center gap-2">
