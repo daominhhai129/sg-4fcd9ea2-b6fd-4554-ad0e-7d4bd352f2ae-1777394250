@@ -38,7 +38,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
           </h3>
         </Link>
 
-        <div className="mt-1 flex items-center justify-between gap-2">
+        <div className="mt-0.5 flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
