@@ -520,6 +520,58 @@ export default function ProductsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <Label className="text-sm font-semibold flex items-center gap-1.5">
+                      <Layers className="w-4 h-4" />
+                      Thuộc tính sản phẩm
+                    </Label>
+                    <span className="text-xs text-muted-foreground">{properties.length} thuộc tính</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">VD: Thương hiệu: Apple | Màu sắc: Đen, Trắng, Xanh | Chất liệu: Nhôm</p>
+                  {properties.length > 0 && (
+                    <div className="space-y-2 mb-2">
+                      {properties.map((p) => (
+                        <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-xl border border-border">
+                          <Input
+                            value={p.name}
+                            onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, name: e.target.value } : x))}
+                            placeholder="Tên thuộc tính (VD: Màu sắc)"
+                            className="rounded-xl sm:w-48"
+                          />
+                          <div className="flex items-center gap-2 flex-1">
+                            <Input
+                              value={p.values}
+                              onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, values: e.target.value } : x))}
+                              placeholder="Giá trị, phân cách bằng dấu phẩy (VD: Đen, Trắng)"
+                              className="rounded-xl flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="shrink-0 text-destructive hover:text-destructive"
+                              onClick={() => setProperties((prev) => prev.filter((x) => x.id !== p.id))}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl"
+                    onClick={() => setProperties((prev) => [...prev, { id: "prop-" + Date.now() + "-" + prev.length, name: "", values: "" }])}
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1.5" />
+                    Thêm thuộc tính
+                  </Button>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-sm font-semibold flex items-center gap-1.5">
                       <Video className="w-4 h-4" />
                       {t("prod.video").replace("{n}", String(MAX_VIDEOS))}
                     </Label>
