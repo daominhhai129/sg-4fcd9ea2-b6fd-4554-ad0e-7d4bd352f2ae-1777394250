@@ -71,7 +71,6 @@ export default function ProductsPage() {
   const [priceInput, setPriceInput] = useState("");
   const [stockInput, setStockInput] = useState("");
   const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string; stock: string }[]>([]);
-  const [properties, setProperties] = useState<{ id: string; name: string; values: string }[]>([]);
   const [htmlMode, setHtmlMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -134,7 +133,6 @@ export default function ProductsPage() {
     setPriceInput("");
     setStockInput("");
     setVariants([]);
-    setProperties([]);
   };
 
   const openEdit = (product: Product) => {
@@ -154,7 +152,6 @@ export default function ProductsPage() {
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
     setStockInput(product.stock ? String(product.stock) : "0");
     setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "", stock: v.stock != null ? String(v.stock) : "" })));
-    setProperties((product.properties || []).map((p) => ({ id: p.id, name: p.name, values: p.values.join(", ") })));
     setDialogOpen(true);
   };
 
@@ -271,13 +268,6 @@ export default function ProductsPage() {
       price: Number(priceInput.replace(/\D/g, "")) || 0,
       stock: Number(stockInput) || 0,
       categoryId: form.get("categoryId") as string,
-      properties: properties
-        .filter((p) => p.name.trim() && p.values.trim())
-        .map((p) => ({
-          id: p.id,
-          name: p.name.trim(),
-          values: p.values.split(",").map((v) => v.trim()).filter(Boolean),
-        })),
       images: formImages.length > 0 ? formImages : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop"],
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
       affiliateLink: affiliateLink.trim() || undefined,
@@ -538,58 +528,6 @@ export default function ProductsPage() {
                   <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant} disabled={variants.length >= MAX_VARIANTS}>
                     <Plus className="w-3.5 h-3.5 mr-1.5" />
                     {t("prod.addVariant")}
-                  </Button>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Label className="text-sm font-semibold flex items-center gap-1.5">
-                      <Layers className="w-4 h-4" />
-                      {t("prod.properties")}
-                    </Label>
-                    <span className="text-xs text-muted-foreground">{t("prod.propertiesCount").replace("{n}", String(properties.length))}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">{t("prod.propertiesTip")}</p>
-                  {properties.length > 0 && (
-                    <div className="space-y-2 mb-2">
-                      {properties.map((p) => (
-                        <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-xl border border-border">
-                          <Input
-                            value={p.name}
-                            onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, name: e.target.value } : x))}
-                            placeholder={t("prod.propertyNamePh")}
-                            className="rounded-xl sm:w-48"
-                          />
-                          <div className="flex items-center gap-2 flex-1">
-                            <Input
-                              value={p.values}
-                              onChange={(e) => setProperties((prev) => prev.map((x) => x.id === p.id ? { ...x, values: e.target.value } : x))}
-                              placeholder={t("prod.propertyValuesPh")}
-                              className="rounded-xl flex-1"
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="shrink-0 text-destructive hover:text-destructive"
-                              onClick={() => setProperties((prev) => prev.filter((x) => x.id !== p.id))}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    onClick={() => setProperties((prev) => [...prev, { id: "prop-" + Date.now() + "-" + prev.length, name: "", values: "" }])}
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1.5" />
-                    {t("prod.addProperty")}
                   </Button>
                 </div>
 

@@ -235,23 +235,6 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.properties && product.properties.length > 0 && (
-              <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-1.5">
-                {product.properties.map((prop) => (
-                  <div key={prop.id} className="flex items-start gap-2 text-sm">
-                    <span className="text-muted-foreground min-w-[100px] shrink-0">{prop.name}:</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {prop.values.map((val, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-card border border-border text-foreground text-xs font-medium">
-                          {val}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
