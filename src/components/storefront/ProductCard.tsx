@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { Product } from "@/types";
 import { formatPrice } from "@/data/mock-data";
 
@@ -33,13 +33,13 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
 
       <div className="p-3">
         <Link href={"/shop/" + shopSlug + "/product/" + product.id}>
-          <h3 className="font-medium text-foreground line-clamp-2 text-sm leading-snug group-hover:text-primary transition-colors">
+          <h3 className="font-medium text-foreground line-clamp-2 text-xs leading-snug group-hover:text-primary transition-colors">
             {product.name}
           </h3>
         </Link>
 
         <div className="mt-1 flex items-center justify-between gap-2">
-          <span className="text-sm font-bold text-accent">
+          <span className="text-xs font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
           <button
@@ -54,7 +54,7 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
             className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full text-white shadow-sm hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: themeColor ? `hsl(${themeColor})` : "hsl(var(--accent))" }}
           >
-            <ShoppingCart className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
           </button>
         </div>
       </div>
