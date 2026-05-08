@@ -74,6 +74,13 @@ export interface Product {
   featured?: boolean;
   isHidden?: boolean;
   variants?: ProductVariant[];
+  properties?: ProductProperty[];
+}
+
+export interface ProductProperty {
+  id: string;
+  name: string;
+  values: string[];
 }
 
 export interface ProductVariant {
