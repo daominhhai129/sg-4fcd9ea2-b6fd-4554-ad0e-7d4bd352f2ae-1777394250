@@ -33,12 +33,12 @@ export function ProductCard({ product, shopSlug, themeColor, onAddToCart }: Prod
 
       <div className="p-3">
         <Link href={"/shop/" + shopSlug + "/product/" + product.id}>
-          <h3 className="font-medium text-foreground line-clamp-2 text-sm leading-snug group-hover:text-primary transition-colors min-h-[2.5rem]">
+          <h3 className="font-medium text-foreground line-clamp-2 text-sm leading-snug group-hover:text-primary transition-colors">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-2 flex items-center justify-between gap-2">
+        <div className="mt-1 flex items-center justify-between gap-2">
           <span className="text-sm font-bold text-accent">
             {formatPrice(displayPrice)}
           </span>
