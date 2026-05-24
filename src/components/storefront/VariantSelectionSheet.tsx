@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Minus, Plus, X, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/data/mock-data";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Product, ProductVariant } from "@/types";
 
 interface VariantSelectionSheetProps {
@@ -14,6 +15,7 @@ interface VariantSelectionSheetProps {
 }
 
 export function VariantSelectionSheet({ open, onOpenChange, product, mode, onConfirm }: VariantSelectionSheetProps) {
+  const { t } = useLanguage();
   const variants = product.variants || [];
   const variantGroups = product.variantGroups || [];
   const hasGroups = variantGroups.length > 0;
@@ -55,10 +57,10 @@ export function VariantSelectionSheet({ open, onOpenChange, product, mode, onCon
     || product.images[0];
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
   const sku = selectedVariant?.sku;
-  const stockText = selectedVariant?.stock != null ? "Kho: " + selectedVariant.stock : null;
+  const stockText = selectedVariant?.stock != null ? t("vsheet.stock") + " " + selectedVariant.stock : null;
 
   const canConfirm = variants.length === 0 || !!selectedVariant;
-  const confirmLabel = mode === "buy" ? "Mua ngay" : "Thêm vào giỏ";
+  const confirmLabel = mode === "buy" ? t("vsheet.buyNow") : t("vsheet.addToCart");
 
   const handleConfirm = () => {
     if (!canConfirm) return;
@@ -88,14 +90,14 @@ export function VariantSelectionSheet({ open, onOpenChange, product, mode, onCon
               {stockText && <span>{stockText}</span>}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
-              Đã chọn: <span className="font-semibold text-foreground">{selectedVariant?.name || "—"}</span>
+              {t("vsheet.selected")} <span className="font-semibold text-foreground">{selectedVariant?.name || "—"}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             className="shrink-0 -mr-1 -mt-1 p-1.5 rounded-full hover:bg-muted text-muted-foreground"
-            aria-label="Đóng"
+            aria-label={t("vsheet.close")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -151,7 +153,7 @@ export function VariantSelectionSheet({ open, onOpenChange, product, mode, onCon
 
           {!hasGroups && variants.length > 0 && (
             <div className="space-y-2">
-              <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
+              <div className="text-sm font-semibold text-foreground">{t("vsheet.pickVariant")}</div>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v) => {
                   const active = v.id === flatVariantId;
@@ -176,13 +178,13 @@ export function VariantSelectionSheet({ open, onOpenChange, product, mode, onCon
           )}
 
           <div className="space-y-2">
-            <div className="text-sm font-semibold text-foreground">Số lượng</div>
+            <div className="text-sm font-semibold text-foreground">{t("vsheet.quantity")}</div>
             <div className="inline-flex items-center border border-border rounded-xl">
               <button
                 type="button"
                 className="p-2 hover:bg-muted rounded-l-xl transition-colors"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                aria-label="Giảm số lượng"
+                aria-label={t("vsheet.dec")}
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -191,7 +193,7 @@ export function VariantSelectionSheet({ open, onOpenChange, product, mode, onCon
                 type="button"
                 className="p-2 hover:bg-muted rounded-r-xl transition-colors"
                 onClick={() => setQuantity(quantity + 1)}
-                aria-label="Tăng số lượng"
+                aria-label={t("vsheet.inc")}
               >
                 <Plus className="w-4 h-4" />
               </button>

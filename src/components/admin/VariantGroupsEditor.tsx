@@ -4,6 +4,7 @@ import { Plus, X, ImagePlus, Layers, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { ProductVariant, ProductVariantGroup, ProductVariantOption } from "@/types";
 
 interface Props {
@@ -19,6 +20,7 @@ const formatNumber = (n: number) => n ? n.toLocaleString("vi-VN") : "";
 const parseNumber = (s: string) => Number(s.replace(/\D/g, "")) || 0;
 
 export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVariantsChange }: Props) {
+  const { t } = useLanguage();
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const [bulkPrice, setBulkPrice] = useState("");
   const [bulkSku, setBulkSku] = useState("");
@@ -31,13 +33,13 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
 
   const addPrimary = () => {
     if (primary) return;
-    const g: ProductVariantGroup = { id: newId("g"), name: "Phân loại chính", hasImage: true, options: [{ id: newId("o"), name: "" }] };
+    const g: ProductVariantGroup = { id: newId("g"), name: t("variant.namePhPrimary").replace(/^VD: |^e\.g\. /, ""), hasImage: true, options: [{ id: newId("o"), name: "" }] };
     onGroupsChange([g, ...(secondary ? [secondary] : [])]);
   };
 
   const addSecondary = () => {
     if (secondary || !primary) return;
-    const g: ProductVariantGroup = { id: newId("g"), name: "Phân loại phụ", hasImage: false, options: [{ id: newId("o"), name: "" }] };
+    const g: ProductVariantGroup = { id: newId("g"), name: t("variant.namePhSecondary").replace(/^VD: |^e\.g\. /, ""), hasImage: false, options: [{ id: newId("o"), name: "" }] };
     onGroupsChange([primary, g]);
   };
 
@@ -142,13 +144,13 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
         <div className="flex items-center justify-between mb-2">
           <Label className="text-sm font-semibold flex items-center gap-1.5">
             <Layers className="w-4 h-4" />
-            Phân loại sản phẩm
+            {t("variant.section")}
           </Label>
         </div>
-        <p className="text-xs text-muted-foreground mb-2">Thêm phân loại chính (có ảnh) và phân loại phụ (không ảnh) — giống Shopee.</p>
+        <p className="text-xs text-muted-foreground mb-2">{t("variant.sectionTip")}</p>
         <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addPrimary}>
           <Plus className="w-3.5 h-3.5 mr-1.5" />
-          Thêm phân loại chính
+          {t("variant.addPrimary")}
         </Button>
       </div>
     );
@@ -158,7 +160,7 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
     <div className="space-y-4">
       <Label className="text-sm font-semibold flex items-center gap-1.5">
         <Layers className="w-4 h-4" />
-        Phân loại sản phẩm
+        {t("variant.section")}
       </Label>
 
       {[primary, secondary].filter(Boolean).map((group, gIdx) => {
@@ -166,11 +168,11 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
         return (
           <div key={g.id} className="rounded-xl border border-border p-3 space-y-3 bg-muted/20">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-primary shrink-0">{gIdx === 0 ? "Chính" : "Phụ"}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-primary shrink-0">{gIdx === 0 ? t("variant.primaryBadge") : t("variant.secondaryBadge")}</span>
               <Input
                 value={g.name}
                 onChange={(e) => updateGroup(g.id, { name: e.target.value })}
-                placeholder={gIdx === 0 ? "VD: Màu sắc" : "VD: Kích thước"}
+                placeholder={gIdx === 0 ? t("variant.namePhPrimary") : t("variant.namePhSecondary")}
                 className="rounded-lg h-9 text-sm font-semibold"
               />
               <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive h-9 w-9" onClick={() => removeGroup(g.id)}>
@@ -201,7 +203,7 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
                   <Input
                     value={o.name}
                     onChange={(e) => updateOption(g.id, o.id, { name: e.target.value })}
-                    placeholder={gIdx === 0 ? "VD: Đỏ" : "VD: M"}
+                    placeholder={gIdx === 0 ? t("variant.optionPhPrimary") : t("variant.optionPhSecondary")}
                     className="rounded-lg flex-1 h-9 text-sm"
                   />
                   <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive h-9 w-9" onClick={() => removeOption(g.id, o.id)}>
@@ -211,7 +213,7 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
               ))}
               <Button type="button" variant="outline" size="sm" className="rounded-lg h-8" onClick={() => addOption(g.id)}>
                 <Plus className="w-3.5 h-3.5 mr-1" />
-                Thêm tùy chọn
+                {t("variant.addOption")}
               </Button>
             </div>
           </div>
@@ -221,19 +223,19 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
       {!secondary && (
         <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addSecondary}>
           <Plus className="w-3.5 h-3.5 mr-1.5" />
-          Thêm phân loại phụ
+          {t("variant.addSecondary")}
         </Button>
       )}
 
       {matrix.length > 0 && (
         <div className="rounded-xl border border-border overflow-hidden">
           <div className="bg-muted/40 px-3 py-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            Bảng giá theo tổ hợp ({matrix.length})
+            {t("variant.matrixTitle").replace("{n}", String(matrix.length))}
           </div>
           <div className="bg-primary/5 border-b border-border p-2.5 space-y-2">
             <div className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
               <Wand2 className="w-3.5 h-3.5 text-primary" />
-              Áp dụng cho tất cả phân loại
+              {t("variant.bulkTitle")}
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
@@ -242,14 +244,14 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
                   const raw = e.target.value.replace(/\D/g, "");
                   setBulkPrice(raw ? Number(raw).toLocaleString("vi-VN") : "");
                 }}
-                placeholder="Giá đồng loạt"
+                placeholder={t("variant.bulkPricePh")}
                 inputMode="numeric"
                 className="rounded-lg h-9 text-sm sm:flex-1"
               />
               <Input
                 value={bulkSku}
                 onChange={(e) => setBulkSku(e.target.value)}
-                placeholder="SKU prefix (tự đánh số)"
+                placeholder={t("variant.bulkSkuPh")}
                 className="rounded-lg h-9 text-sm sm:flex-1"
               />
               <Button
@@ -259,10 +261,10 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
                 onClick={applyBulk}
                 disabled={!bulkPrice && !bulkSku.trim()}
               >
-                Áp dụng
+                {t("variant.applyBtn")}
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground">Điền và bấm Áp dụng để fill toàn bộ. SKU sẽ tự đánh số -01, -02… Sau đó bạn có thể chỉnh từng dòng nếu cần.</p>
+            <p className="text-[10px] text-muted-foreground">{t("variant.bulkHint")}</p>
           </div>
           <div className="divide-y divide-border">
             {matrix.map((row) => {
@@ -278,14 +280,14 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
                   <Input
                     value={formatNumber(v?.price || 0)}
                     onChange={(e) => updateMatrixCell(row.key, row.optionIds, row.labels, row.image, "price", e.target.value)}
-                    placeholder="Giá"
+                    placeholder={t("variant.cellPricePh")}
                     inputMode="numeric"
                     className="rounded-lg sm:w-32 h-9 text-sm"
                   />
                   <Input
                     value={v?.sku || ""}
                     onChange={(e) => updateMatrixCell(row.key, row.optionIds, row.labels, row.image, "sku", e.target.value)}
-                    placeholder="SKU"
+                    placeholder={t("variant.cellSkuPh")}
                     className="rounded-lg sm:w-32 h-9 text-sm"
                   />
                 </div>
