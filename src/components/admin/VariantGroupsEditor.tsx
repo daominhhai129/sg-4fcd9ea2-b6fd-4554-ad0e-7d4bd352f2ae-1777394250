@@ -1,6 +1,6 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import Image from "next/image";
-import { Plus, X, ImagePlus, Layers } from "lucide-react";
+import { Plus, X, ImagePlus, Layers, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,8 @@ const parseNumber = (s: string) => Number(s.replace(/\D/g, "")) || 0;
 
 export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVariantsChange }: Props) {
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [bulkPrice, setBulkPrice] = useState("");
+  const [bulkSku, setBulkSku] = useState("");
   const primary = groups[0];
   const secondary = groups[1];
 
@@ -109,6 +111,29 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
     next.optionIds = optionIds;
     const filtered = variants.filter((v) => (v.optionIds || []).join("_") !== key);
     onVariantsChange([...filtered, next]);
+  };
+
+  const applyBulk = () => {
+    const priceVal = parseNumber(bulkPrice);
+    const skuVal = bulkSku.trim();
+    if (priceVal === 0 && skuVal === "") return;
+    const next: ProductVariant[] = matrix.map((row, idx) => {
+      const existing = variantByKey[row.key];
+      const v: ProductVariant = existing ? { ...existing } : {
+        id: newId("v"),
+        name: row.labels.join(" - "),
+        price: 0,
+        optionIds: row.optionIds,
+        image: row.image,
+      };
+      if (priceVal > 0) v.price = priceVal;
+      if (skuVal !== "") v.sku = skuVal + "-" + (idx + 1).toString().padStart(2, "0");
+      v.name = row.labels.join(" - ");
+      v.image = row.image;
+      v.optionIds = row.optionIds;
+      return v;
+    });
+    onVariantsChange(next);
   };
 
   if (!primary) {
@@ -204,6 +229,40 @@ export function VariantGroupsEditor({ groups, variants, onGroupsChange, onVarian
         <div className="rounded-xl border border-border overflow-hidden">
           <div className="bg-muted/40 px-3 py-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Bảng giá theo tổ hợp ({matrix.length})
+          </div>
+          <div className="bg-primary/5 border-b border-border p-2.5 space-y-2">
+            <div className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+              <Wand2 className="w-3.5 h-3.5 text-primary" />
+              Áp dụng cho tất cả phân loại
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={bulkPrice}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  setBulkPrice(raw ? Number(raw).toLocaleString("vi-VN") : "");
+                }}
+                placeholder="Giá đồng loạt"
+                inputMode="numeric"
+                className="rounded-lg h-9 text-sm sm:flex-1"
+              />
+              <Input
+                value={bulkSku}
+                onChange={(e) => setBulkSku(e.target.value)}
+                placeholder="SKU prefix (tự đánh số)"
+                className="rounded-lg h-9 text-sm sm:flex-1"
+              />
+              <Button
+                type="button"
+                size="sm"
+                className="rounded-lg h-9 bg-primary hover:bg-primary/90 shrink-0"
+                onClick={applyBulk}
+                disabled={!bulkPrice && !bulkSku.trim()}
+              >
+                Áp dụng
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Điền và bấm Áp dụng để fill toàn bộ. SKU sẽ tự đánh số -01, -02… Sau đó bạn có thể chỉnh từng dòng nếu cần.</p>
           </div>
           <div className="divide-y divide-border">
             {matrix.map((row) => {
