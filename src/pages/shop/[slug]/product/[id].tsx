@@ -89,6 +89,27 @@ export default function ProductDetailPage() {
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
   const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined, images: selectedVariant.image ? [selectedVariant.image, ...product.images] : product.images } : product;
 
+  const hasGroups = Boolean(product.variantGroups && product.variantGroups.length > 0);
+  const primaryGroup = product.variantGroups?.[0];
+  const secondaryGroup = product.variantGroups?.[1];
+  const selectedPrimaryId = selectedVariant?.optionIds?.[0] || null;
+  const selectedSecondaryId = selectedVariant?.optionIds?.[1] || null;
+
+  const selectOptionCombo = (primaryId: string | null, secondaryId: string | null) => {
+    if (!product.variants) return;
+    const match = product.variants.find((v) => {
+      const ids = v.optionIds || [];
+      if (primaryId && ids[0] !== primaryId) return false;
+      if (secondaryId && ids[1] !== secondaryId) return false;
+      if (!secondaryGroup && primaryId) return ids[0] === primaryId;
+      return true;
+    });
+    if (match) {
+      setSelectedVariantId(match.id);
+      if (match.image && primaryId !== selectedPrimaryId) setVariantPreviewId(match.id);
+    }
+  };
+
   const handleVariantClick = (variantId: string) => {
     setSelectedVariantId(variantId);
     const v = product.variants?.find((x) => x.id === variantId);
@@ -219,7 +240,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.variants && product.variants.length > 0 && (
+            {product.variants && product.variants.length > 0 && !hasGroups && (
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
                 <div className="flex flex-wrap gap-2">
@@ -248,6 +269,69 @@ export default function ProductDetailPage() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {hasGroups && primaryGroup && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-foreground">
+                    {primaryGroup.name}
+                    {selectedPrimaryId && (
+                      <span className="ml-2 text-muted-foreground font-normal">
+                        {primaryGroup.options.find((o) => o.id === selectedPrimaryId)?.name}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {primaryGroup.options.map((opt) => {
+                      const active = opt.id === selectedPrimaryId;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => selectOptionCombo(opt.id, selectedSecondaryId)}
+                          className={"flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
+                        >
+                          {opt.image && (
+                            <span className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-muted">
+                              <Image src={opt.image} alt={opt.name} fill className="object-cover" />
+                            </span>
+                          )}
+                          <span className={"text-sm font-semibold " + (active ? "text-primary" : "text-foreground")}>{opt.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {secondaryGroup && (
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-foreground">
+                      {secondaryGroup.name}
+                      {selectedSecondaryId && (
+                        <span className="ml-2 text-muted-foreground font-normal">
+                          {secondaryGroup.options.find((o) => o.id === selectedSecondaryId)?.name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {secondaryGroup.options.map((opt) => {
+                        const active = opt.id === selectedSecondaryId;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => selectOptionCombo(selectedPrimaryId, opt.id)}
+                            className={"px-3.5 py-1.5 rounded-xl border text-sm font-semibold transition-all " + (active ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/30" : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted/40")}
+                          >
+                            {opt.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
