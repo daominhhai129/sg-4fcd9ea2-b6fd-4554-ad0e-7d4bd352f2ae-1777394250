@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { discountCodes } from "@/data/discount-codes";
+import { VariantSelectionSheet } from "@/components/storefront/VariantSelectionSheet";
+import type { ProductVariant } from "@/types";
 
 export default function ProductDetailPage() {
   const router = useRouter();
@@ -26,6 +28,8 @@ export default function ProductDetailPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [variantPreviewId, setVariantPreviewId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<"cart" | "buy">("cart");
 
   const shop = shops.find((s) => s.slug === slug);
   const product = shop?.products.find((p) => p.id === id);
@@ -117,16 +121,39 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = () => {
+    if (product?.variants && product.variants.length > 0) {
+      setSheetMode("cart");
+      setSheetOpen(true);
+      return;
+    }
     for (let i = 0; i < quantity; i++) {
       addToCart(productForCart);
     }
   };
 
   const handleBuyNow = () => {
+    if (product?.variants && product.variants.length > 0) {
+      setSheetMode("buy");
+      setSheetOpen(true);
+      return;
+    }
     for (let i = 0; i < quantity; i++) {
       addToCart(productForCart);
     }
     router.push("/shop/" + shop.slug + "/checkout");
+  };
+
+  const handleSheetConfirm = (variant: ProductVariant | undefined, qty: number) => {
+    if (!shop || !product) return;
+    const itemForCart = variant
+      ? { ...product, id: product.id + ":" + variant.id, name: product.name + " - " + variant.name, price: variant.price, salePrice: undefined, images: variant.image ? [variant.image, ...product.images] : product.images }
+      : product;
+    for (let i = 0; i < qty; i++) {
+      addToCart(itemForCart);
+    }
+    if (sheetMode === "buy") {
+      router.push("/shop/" + shop.slug + "/checkout");
+    }
   };
 
   const handleShare = async () => {
@@ -453,6 +480,14 @@ export default function ProductDetailPage() {
       </main>
       <ShopFooter shop={shop} />
       <ShopBottomBar shop={shop} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
+
+      <VariantSelectionSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        product={product}
+        mode={sheetMode}
+        onConfirm={handleSheetConfirm}
+      />
 
       <Dialog open={!!previewVariant?.image} onOpenChange={(open) => { if (!open) setVariantPreviewId(null); }}>
         <DialogContent overlayClassName="bg-black/80" className="max-w-xs sm:max-w-sm p-0 overflow-hidden bg-card border-0 rounded-2xl">
