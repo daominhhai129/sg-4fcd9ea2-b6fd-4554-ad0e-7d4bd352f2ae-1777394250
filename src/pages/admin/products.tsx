@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff, Layers } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,9 +24,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Product } from "@/types";
-import type { ProductVariant } from "@/types";
+import type { ProductVariant, ProductVariantGroup } from "@/types";
 import NextDynamic from "next/dynamic";
 import { Switch } from "@/components/ui/switch";
+import { VariantGroupsEditor } from "@/components/admin/VariantGroupsEditor";
 
 const ReactQuill = NextDynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -34,7 +35,6 @@ import "react-quill/dist/quill.snow.css";
 const shop = shops[0];
 const MAX_IMAGES = 8;
 const MAX_VIDEOS = 2;
-const MAX_VARIANTS = 20;
 const MAX_DESCRIPTION_LENGTH = 3000;
 
 const quillModules = {
@@ -69,10 +69,10 @@ export default function ProductsPage() {
   const [affiliateLink, setAffiliateLink] = useState("");
   const [featured, setFeatured] = useState(false);
   const [priceInput, setPriceInput] = useState("");
-  const [variants, setVariants] = useState<{ id: string; name: string; price: string; sku: string; image: string }[]>([]);
+  const [variantGroups, setVariantGroups] = useState<ProductVariantGroup[]>([]);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [htmlMode, setHtmlMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const variantImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const filtered = useMemo(() => {
     let result = products;
@@ -130,6 +130,7 @@ export default function ProductsPage() {
     setAffiliateLink("");
     setFeatured(false);
     setPriceInput("");
+    setVariantGroups([]);
     setVariants([]);
   };
 
@@ -148,7 +149,8 @@ export default function ProductsPage() {
     setAffiliateLink((product as unknown as { affiliateLink?: string }).affiliateLink || "");
     setFeatured(product.featured || false);
     setPriceInput(product.price ? product.price.toLocaleString("vi-VN") : "");
-    setVariants((product.variants || []).map((v) => ({ id: v.id, name: v.name, price: v.price ? v.price.toLocaleString("vi-VN") : "", sku: v.sku || "", image: v.image || "" })));
+    setVariantGroups(product.variantGroups || []);
+    setVariants(product.variants || []);
     setDialogOpen(true);
   };
 
@@ -176,15 +178,6 @@ export default function ProductsPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const removeImage = (index: number) => {
-    setFormImages((prev) => prev.filter((_, i) => i !== index));
-    setThumbnailIndex((prev) => {
-      if (index === prev) return 0;
-      if (index < prev) return prev - 1;
-      return prev;
-    });
-  };
-
   const handleVideoLinkChange = (index: number, value: string) => {
     setVideoLinks((prev) => prev.map((v, i) => (i === index ? value : v)));
   };
@@ -195,67 +188,9 @@ export default function ProductsPage() {
     }
   };
 
-  const removeVideoLink = (index: number) => {
-    setVideoLinks((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addVariant = () => {
-    setVariants((prev) => prev.length >= MAX_VARIANTS ? prev : [...prev, { id: "v-" + Date.now() + "-" + prev.length, name: "", price: "", sku: "", image: "" }]);
-  };
-
-  const updateVariant = (id: string, field: "name" | "price" | "sku" | "image", value: string) => {
-    setVariants((prev) => prev.map((v) => {
-      if (v.id !== id) return v;
-      if (field === "price") {
-        const raw = value.replace(/\D/g, "");
-        return { ...v, price: raw ? Number(raw).toLocaleString("vi-VN") : "" };
-      }
-      if (field === "sku") return { ...v, sku: value };
-      if (field === "image") return { ...v, image: value };
-      return { ...v, name: value };
-    }));
-  };
-
-  const handleVariantImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      updateVariant(id, "image", reader.result as string);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  };
-
-  const removeVariant = (id: string) => {
-    setVariants((prev) => prev.filter((v) => v.id !== id));
-  };
-
-  const getPlainTextLength = (html: string) => {
-    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").length;
-  };
-
-  const handleDescriptionChange = (value: string) => {
-    if (getPlainTextLength(value) <= MAX_DESCRIPTION_LENGTH) {
-      setDescription(value);
-    }
-  };
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "");
-    if (!raw) {
-      setPriceInput("");
-      return;
-    }
-    setPriceInput(Number(raw).toLocaleString("vi-VN"));
-  };
-
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const cleanedVariants: ProductVariant[] = variants
-      .filter((v) => v.name.trim() !== "")
-      .map((v) => ({ id: v.id, name: v.name.trim(), price: Number(v.price.replace(/\D/g, "")) || 0, sku: v.sku.trim() || undefined, image: v.image || undefined }));
     const data = {
       name: form.get("name") as string,
       sku: form.get("sku") as string,
@@ -267,7 +202,8 @@ export default function ProductsPage() {
       videoLinks: videoLinks.filter((v) => v.trim() !== ""),
       affiliateLink: affiliateLink.trim() || undefined,
       featured: featured,
-      variants: cleanedVariants,
+      variantGroups: variantGroups,
+      variants: variants,
     };
 
     const orderedImages = [...data.images];
@@ -476,49 +412,12 @@ export default function ProductsPage() {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Label className="text-sm font-semibold flex items-center gap-1.5">
-                      <Layers className="w-4 h-4" />
-                      {t("prod.variants")}
-                    </Label>
-                    <span className="text-xs text-muted-foreground">{t("prod.variantsCount").replace("{n}", String(variants.length)).replace("{max}", String(MAX_VARIANTS))}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">{t("prod.variantsTip")}</p>
-                  {variants.length > 0 && (
-                    <div className="space-y-2 mb-2">
-                      {variants.map((v) => (
-                        <div key={v.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 sm:p-2 rounded-xl border border-border">
-                          <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 border-border bg-muted/40">
-                            {v.image ? (
-                              <>
-                                <Image src={v.image} alt={v.name || "Variant"} fill className="object-cover" />
-                                <button type="button" onClick={() => updateVariant(v.id, "image", "")} className="absolute top-0.5 right-0.5 bg-destructive text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-destructive/80">
-                                  <X className="w-2.5 h-2.5" />
-                                </button>
-                              </>
-                            ) : (
-                              <button type="button" onClick={() => variantImageInputRefs.current[v.id]?.click()} className="w-full h-full flex items-center justify-center hover:bg-muted transition-colors" aria-label={t("prod.variantImageAria")}>
-                                <ImagePlus className="w-5 h-5 text-muted-foreground" />
-                              </button>
-                            )}
-                            <input ref={(el) => { variantImageInputRefs.current[v.id] = el; }} type="file" accept="image/*" onChange={(e) => handleVariantImageUpload(v.id, e)} className="hidden" />
-                          </div>
-                          <Input value={v.name} onChange={(e) => updateVariant(v.id, "name", e.target.value)} placeholder={t("prod.variantNamePh")} className="rounded-xl flex-1" />
-                          <Input value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} placeholder={t("prod.variantSkuPh")} className="rounded-xl sm:w-32" />
-                          <div className="flex items-center gap-2">
-                            <Input value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} placeholder={t("prod.variantPricePh")} inputMode="numeric" className="rounded-xl flex-1 sm:w-36" />
-                            <Button type="button" variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive" onClick={() => removeVariant(v.id)}>
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addVariant} disabled={variants.length >= MAX_VARIANTS}>
-                    <Plus className="w-3.5 h-3.5 mr-1.5" />
-                    {t("prod.addVariant")}
-                  </Button>
+                  <VariantGroupsEditor
+                    groups={variantGroups}
+                    variants={variants}
+                    onGroupsChange={setVariantGroups}
+                    onVariantsChange={setVariants}
+                  />
                 </div>
 
                 <div>

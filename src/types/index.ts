@@ -75,6 +75,7 @@ export interface Product {
   featured?: boolean;
   isHidden?: boolean;
   variants?: ProductVariant[];
+  variantGroups?: ProductVariantGroup[];
   properties?: ProductProperty[];
 }
 
@@ -82,6 +83,19 @@ export interface ProductProperty {
   id: string;
   name: string;
   values: string[];
+}
+
+export interface ProductVariantOption {
+  id: string;
+  name: string;
+  image?: string;
+}
+
+export interface ProductVariantGroup {
+  id: string;
+  name: string;
+  hasImage: boolean;
+  options: ProductVariantOption[];
 }
 
 export interface ProductVariant {
@@ -93,6 +107,7 @@ export interface ProductVariant {
   sku?: string;
   image?: string;
   attributes?: Record<string, string>;
+  optionIds?: string[];
 }
 
 export interface Order {
