@@ -178,8 +178,32 @@ export default function ProductsPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const removeImage = (idx: number) => {
+    setFormImages((prev) => prev.filter((_, i) => i !== idx));
+    setThumbnailIndex((prev) => {
+      if (idx === prev) return 0;
+      if (idx < prev) return prev - 1;
+      return prev;
+    });
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    setPriceInput(raw ? Number(raw).toLocaleString("vi-VN") : "");
+  };
+
+  const getPlainTextLength = (html: string) => html.replace(/<[^>]*>/g, "").length;
+
+  const handleDescriptionChange = (value: string) => {
+    if (getPlainTextLength(value) <= MAX_DESCRIPTION_LENGTH) setDescription(value);
+  };
+
   const handleVideoLinkChange = (index: number, value: string) => {
     setVideoLinks((prev) => prev.map((v, i) => (i === index ? value : v)));
+  };
+
+  const removeVideoLink = (index: number) => {
+    setVideoLinks((prev) => prev.length === 1 ? [""] : prev.filter((_, i) => i !== index));
   };
 
   const addVideoLink = () => {
