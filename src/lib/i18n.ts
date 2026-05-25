@@ -211,6 +211,8 @@ export const translations = {
     "prod.detailTitle": "Chi tiết sản phẩm",
     "prod.videoSection": "Video",
     "prod.affiliateSection": "Link Affiliate",
+    "prod.duplicate": "Nhân bản",
+    "prod.duplicateTitle": "Tạo bản sao sản phẩm này",
 
     "variant.section": "Phân loại sản phẩm",
     "variant.sectionTip": "Thêm phân loại chính (có ảnh) và phân loại phụ (không ảnh) — giống Shopee.",
@@ -815,6 +817,8 @@ export const translations = {
     "prod.detailTitle": "Product details",
     "prod.videoSection": "Video",
     "prod.affiliateSection": "Affiliate link",
+    "prod.duplicate": "Duplicate",
+    "prod.duplicateTitle": "Create a copy of this product",
 
     "variant.section": "Product variants",
     "variant.sectionTip": "Add a primary variant (with images) and a secondary variant (no images) — Shopee style.",

@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { shops, formatPrice } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ImagePlus, X, Star, Video, Link2, LayoutGrid, List, ExternalLink, ShoppingCart, Sparkles, ChevronLeft, ChevronRight, Eye, EyeOff, Copy } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -115,6 +115,46 @@ export default function ProductsPage() {
 
   const handleDelete = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleDuplicate = () => {
+    if (!editingProduct) return;
+    const data = {
+      name: (document.querySelector('input[name="name"]') as HTMLInputElement)?.value || editingProduct.name,
+      sku: (document.querySelector('input[name="sku"]') as HTMLInputElement)?.value || "",
+      description: shortDesc.trim() || description.replace(/<[^>]*>/g, "").slice(0, 200),
+      longDescription: description,
+      price: Number(priceInput.replace(/\D/g, "")) || 0,
+      categoryId: (document.querySelector('[name="categoryId"]') as HTMLInputElement)?.value || editingProduct.categoryId,
+      images: formImages.length > 0 ? formImages : editingProduct.images,
+      videoLinks: videoLinks.filter((v) => v.trim() !== ""),
+      affiliateLink: affiliateLink.trim() || undefined,
+      featured: featured,
+      variantGroups: variantGroups,
+      variants: variants,
+    };
+    const orderedImages = [...data.images];
+    if (thumbnailIndex > 0 && thumbnailIndex < orderedImages.length) {
+      const [thumb] = orderedImages.splice(thumbnailIndex, 1);
+      orderedImages.unshift(thumb);
+    }
+    const copyName = data.name + " (Copy)";
+    const newProduct: Product = {
+      id: "p-new-" + Date.now(),
+      shopId: shop.id,
+      slug: copyName.toLowerCase().replace(/\s+/g, "-"),
+      rating: 0,
+      reviewCount: 0,
+      stock: 0,
+      status: "active",
+      createdAt: new Date().toISOString(),
+      categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "",
+      ...data,
+      name: copyName,
+      images: orderedImages,
+    } as Product;
+    setProducts((prev) => [newProduct, ...prev]);
+    setEditingProduct(newProduct);
   };
 
   const toggleHidden = (id: string) => {
@@ -499,6 +539,12 @@ export default function ProductsPage() {
 
                 <div className="flex gap-3 pt-2 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
+                  {editingProduct && (
+                    <Button type="button" variant="outline" className="rounded-xl border-2 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary" onClick={handleDuplicate} title={t("prod.duplicateTitle")}>
+                      <Copy className="w-4 h-4 mr-1.5" />
+                      {t("prod.duplicate")}
+                    </Button>
+                  )}
                   <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">{t("prod.save")}</Button>
                 </div>
               </form>
