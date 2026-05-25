@@ -95,7 +95,7 @@ export default function ProductDetailPage() {
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
   const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined, images: selectedVariant.image ? [selectedVariant.image, ...product.images] : product.images } : product;
 
-  const hasGroups = Boolean(product.variantGroups && product.variantsGroups.length > 0);
+  const hasGroups = Boolean(product.variantGroups && product.variantGroups.length > 0);
   const primaryGroup = product.variantGroups?.[0];
   const secondaryGroup = product.variantGroups?.[1];
   const selectedPrimaryId = selectedVariant?.optionIds?.[0] || null;
