@@ -16,13 +16,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("vi");
 
   useEffect(() => {
-    const saved = localStorage.getItem("dashboard-lang");
+    const saved = localStorage.getItem("dashboard-lang-v2");
     if (saved === "vi" || saved === "en") setLanguageState(saved);
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("dashboard-lang", lang);
+    localStorage.setItem("dashboard-lang-v2", lang);
   };
 
   const t = (key: TranslationKey, vars?: Record<string, string | number>): string => {
