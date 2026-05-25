@@ -117,44 +117,24 @@ export default function ProductsPage() {
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleDuplicate = () => {
-    if (!editingProduct) return;
-    const data = {
-      name: (document.querySelector('input[name="name"]') as HTMLInputElement)?.value || editingProduct.name,
-      sku: (document.querySelector('input[name="sku"]') as HTMLInputElement)?.value || "",
-      description: shortDesc.trim() || description.replace(/<[^>]*>/g, "").slice(0, 200),
-      longDescription: description,
-      price: Number(priceInput.replace(/\D/g, "")) || 0,
-      categoryId: (document.querySelector('[name="categoryId"]') as HTMLInputElement)?.value || editingProduct.categoryId,
-      images: formImages.length > 0 ? formImages : editingProduct.images,
-      videoLinks: videoLinks.filter((v) => v.trim() !== ""),
-      affiliateLink: affiliateLink.trim() || undefined,
-      featured: featured,
-      variantGroups: variantGroups,
-      variants: variants,
-    };
-    const orderedImages = [...data.images];
-    if (thumbnailIndex > 0 && thumbnailIndex < orderedImages.length) {
-      const [thumb] = orderedImages.splice(thumbnailIndex, 1);
-      orderedImages.unshift(thumb);
-    }
-    const copyName = data.name + " (Copy)";
+  const duplicateProduct = (product: Product) => {
+    const copyName = product.name + " (Copy)";
     const newProduct: Product = {
+      ...product,
       id: "p-new-" + Date.now(),
-      shopId: shop.id,
+      name: copyName,
       slug: copyName.toLowerCase().replace(/\s+/g, "-"),
       rating: 0,
       reviewCount: 0,
-      stock: 0,
-      status: "active",
       createdAt: new Date().toISOString(),
-      categoryName: shop.categories.find((c) => c.id === data.categoryId)?.name || "",
-      ...data,
-      name: copyName,
-      images: orderedImages,
-    } as Product;
-    setProducts((prev) => [newProduct, ...prev]);
-    setEditingProduct(newProduct);
+    };
+    setProducts((prev) => {
+      const idx = prev.findIndex((p) => p.id === product.id);
+      if (idx === -1) return [newProduct, ...prev];
+      const next = [...prev];
+      next.splice(idx + 1, 0, newProduct);
+      return next;
+    });
   };
 
   const toggleHidden = (id: string) => {
@@ -539,12 +519,6 @@ export default function ProductsPage() {
 
                 <div className="flex gap-3 pt-2 border-t">
                   <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
-                  {editingProduct && (
-                    <Button type="button" variant="outline" className="rounded-xl border-2 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary" onClick={handleDuplicate} title={t("prod.duplicateTitle")}>
-                      <Copy className="w-4 h-4 mr-1.5" />
-                      {t("prod.duplicate")}
-                    </Button>
-                  )}
                   <Button type="submit" className="flex-1 gradient-primary text-white border-0 rounded-xl">{t("prod.save")}</Button>
                 </div>
               </form>
@@ -578,6 +552,9 @@ export default function ProductsPage() {
                     <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2 border-2 text-foreground border-border hover:bg-muted hover:text-foreground" onClick={() => openEdit(product)}>
                       <Pencil className="w-3.5 h-3.5 mr-1" />
                       {t("common.edit")}
+                    </Button>
+                    <Button variant="outline" size="icon" className="rounded-xl shrink-0 border-2" onClick={() => duplicateProduct(product)} title={t("prod.duplicate")}>
+                      <Copy className="w-4 h-4" />
                     </Button>
                     <Button variant="outline" size="icon" className="rounded-xl shrink-0 border-2" onClick={() => toggleHidden(product.id)} title={product.isHidden ? "Hiện sản phẩm" : "Ẩn sản phẩm"}>
                       {product.isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -635,6 +612,9 @@ export default function ProductsPage() {
                           <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
                             <Pencil className="w-3.5 h-3.5 mr-1" />
                             {t("common.edit")}
+                          </Button>
+                          <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => duplicateProduct(product)} title={t("prod.duplicate")}>
+                            <Copy className="w-3.5 h-3.5" />
                           </Button>
                           <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => toggleHidden(product.id)} title={product.isHidden ? "Hiện sản phẩm" : "Ẩn sản phẩm"}>
                             {product.isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
