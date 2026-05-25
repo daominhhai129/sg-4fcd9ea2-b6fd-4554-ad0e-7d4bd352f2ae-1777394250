@@ -15,12 +15,14 @@ import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/com
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { discountCodes } from "@/data/discount-codes";
 import { VariantSelectionSheet } from "@/components/storefront/VariantSelectionSheet";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { ProductVariant } from "@/types";
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const { slug, id } = router.query;
   const { addToCart, totalItems } = useCart();
+  const { t } = useLanguage();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [api, setApi] = useState<CarouselApi | undefined>(undefined);
@@ -93,7 +95,7 @@ export default function ProductDetailPage() {
   const displayPrice = selectedVariant ? selectedVariant.price : product.price;
   const productForCart = selectedVariant ? { ...product, id: product.id + ":" + selectedVariant.id, name: product.name + " - " + selectedVariant.name, price: selectedVariant.price, salePrice: undefined, images: selectedVariant.image ? [selectedVariant.image, ...product.images] : product.images } : product;
 
-  const hasGroups = Boolean(product.variantGroups && product.variantGroups.length > 0);
+  const hasGroups = Boolean(product.variantGroups && product.variantsGroups.length > 0);
   const primaryGroup = product.variantGroups?.[0];
   const secondaryGroup = product.variantGroups?.[1];
   const selectedPrimaryId = selectedVariant?.optionIds?.[0] || null;
@@ -169,6 +171,11 @@ export default function ProductDetailPage() {
       setShared(true);
       setTimeout(() => setShared(false), 2000);
     } catch {}
+  };
+
+  const openVariantSheet = (mode: "cart" | "buy") => {
+    setSheetMode(mode);
+    setSheetOpen(true);
   };
 
   return (
@@ -269,32 +276,29 @@ export default function ProductDetailPage() {
 
             {product.variants && product.variants.length > 0 && !hasGroups && (
               <div className="space-y-2">
-                <div className="text-sm font-semibold text-foreground">Chọn biến thể</div>
+                <div className="text-sm font-semibold text-foreground">{t("vsheet.pickVariant")}</div>
                 <div className="flex flex-wrap gap-2">
-                  {product.variants.map((v) => {
-                    const active = v.id === selectedVariantId;
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => handleVariantClick(v.id)}
-                        className={"flex items-center gap-2 text-left pl-1.5 pr-3 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
-                      >
-                        {v.image ? (
-                          <span className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
-                            <Image src={v.image} alt={v.name} fill className="object-cover" />
-                          </span>
-                        ) : null}
-                        <span className="flex flex-col min-w-0">
-                          <span className={"text-sm font-semibold truncate " + (active ? "text-primary" : "text-foreground")}>{v.name}</span>
-                          <span className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
-                            {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
-                          </span>
+                  {product.variants.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => openVariantSheet("cart")}
+                      className="flex items-center gap-2 text-left pl-1.5 pr-3 py-1.5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/40 transition-all"
+                    >
+                      {v.image ? (
+                        <span className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-muted">
+                          <Image src={v.image} alt={v.name} fill className="object-cover" />
                         </span>
-                      </button>
-                    );
-                  })}
+                      ) : null}
+                      <span className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold truncate text-foreground">{v.name}</span>
+                        <span className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-accent">{formatPrice(v.price)}</span>
+                          {v.sku && <span className="text-[10px] text-muted-foreground font-mono">{v.sku}</span>}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -302,60 +306,40 @@ export default function ProductDetailPage() {
             {hasGroups && primaryGroup && (
               <div className="space-y-3">
                 <div className="space-y-2">
-                  <div className="text-sm font-semibold text-foreground">
-                    {primaryGroup.name}
-                    {selectedPrimaryId && (
-                      <span className="ml-2 text-muted-foreground font-normal">
-                        {primaryGroup.options.find((o) => o.id === selectedPrimaryId)?.name}
-                      </span>
-                    )}
-                  </div>
+                  <div className="text-sm font-semibold text-foreground">{primaryGroup.name}</div>
                   <div className="flex flex-wrap gap-2">
-                    {primaryGroup.options.map((opt) => {
-                      const active = opt.id === selectedPrimaryId;
-                      return (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => selectOptionCombo(opt.id, selectedSecondaryId)}
-                          className={"flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-xl border transition-all " + (active ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border bg-card hover:border-primary/40 hover:bg-muted/40")}
-                        >
-                          {opt.image && (
-                            <span className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-muted">
-                              <Image src={opt.image} alt={opt.name} fill className="object-cover" />
-                            </span>
-                          )}
-                          <span className={"text-sm font-semibold " + (active ? "text-primary" : "text-foreground")}>{opt.name}</span>
-                        </button>
-                      );
-                    })}
+                    {primaryGroup.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => openVariantSheet("cart")}
+                        className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/40 transition-all"
+                      >
+                        {opt.image && (
+                          <span className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-muted">
+                            <Image src={opt.image} alt={opt.name} fill className="object-cover" />
+                          </span>
+                        )}
+                        <span className="text-sm font-semibold text-foreground">{opt.name}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 {secondaryGroup && (
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-foreground">
-                      {secondaryGroup.name}
-                      {selectedSecondaryId && (
-                        <span className="ml-2 text-muted-foreground font-normal">
-                          {secondaryGroup.options.find((o) => o.id === selectedSecondaryId)?.name}
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-sm font-semibold text-foreground">{secondaryGroup.name}</div>
                     <div className="flex flex-wrap gap-2">
-                      {secondaryGroup.options.map((opt) => {
-                        const active = opt.id === selectedSecondaryId;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            onClick={() => selectOptionCombo(selectedPrimaryId, opt.id)}
-                            className={"px-3.5 py-1.5 rounded-xl border text-sm font-semibold transition-all " + (active ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/30" : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted/40")}
-                          >
-                            {opt.name}
-                          </button>
-                        );
-                      })}
+                      {secondaryGroup.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => openVariantSheet("cart")}
+                          className="px-3.5 py-1.5 rounded-xl border border-border bg-card text-foreground text-sm font-semibold hover:border-primary/40 hover:bg-muted/40 transition-all"
+                        >
+                          {opt.name}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -411,14 +395,14 @@ export default function ProductDetailPage() {
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                Thêm vào giỏ
+                {t("vsheet.addToCart")}
               </Button>
               <Button
                 size="lg"
                 className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold"
                 onClick={handleBuyNow}
               >
-                Mua ngay
+                {t("vsheet.buyNow")}
               </Button>
             </div>
           </div>
@@ -517,14 +501,14 @@ export default function ProductDetailPage() {
                   onClick={() => { handleAddToCart(); setVariantPreviewId(null); }}
                 >
                   <ShoppingCart className="w-4 h-4 mr-1.5" />
-                  Thêm vào giỏ
+                  {t("vsheet.addToCart")}
                 </Button>
                 <Button
                   size="sm"
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold"
                   onClick={() => { setVariantPreviewId(null); handleBuyNow(); }}
                 >
-                  Mua ngay
+                  {t("vsheet.buyNow")}
                 </Button>
               </div>
             </>
