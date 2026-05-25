@@ -549,9 +549,8 @@ export default function ProductsPage() {
                     <span className="text-sm font-bold text-accent">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="outline" size="sm" className="flex-1 min-w-0 rounded-xl px-2 border-2 text-foreground border-border hover:bg-muted hover:text-foreground" onClick={() => openEdit(product)}>
-                      <Pencil className="w-3.5 h-3.5 mr-1" />
-                      {t("common.edit")}
+                    <Button variant="outline" size="icon" className="rounded-xl shrink-0 border-2" onClick={() => openEdit(product)} title={t("common.edit")}>
+                      <Pencil className="w-4 h-4" />
                     </Button>
                     <Button variant="outline" size="icon" className="rounded-xl shrink-0 border-2" onClick={() => duplicateProduct(product)} title={t("prod.duplicate")}>
                       <Copy className="w-4 h-4" />
@@ -609,9 +608,8 @@ export default function ProductsPage() {
                               <ExternalLink className="w-3.5 h-3.5" />
                             </Button>
                           </Link>
-                          <Button variant="outline" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => openEdit(product)}>
-                            <Pencil className="w-3.5 h-3.5 mr-1" />
-                            {t("common.edit")}
+                          <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => openEdit(product)} title={t("common.edit")}>
+                            <Pencil className="w-3.5 h-3.5" />
                           </Button>
                           <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => duplicateProduct(product)} title={t("prod.duplicate")}>
                             <Copy className="w-3.5 h-3.5" />
@@ -619,7 +617,7 @@ export default function ProductsPage() {
                           <Button variant="outline" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => toggleHidden(product.id)} title={product.isHidden ? "Hiện sản phẩm" : "Ẩn sản phẩm"}>
                             {product.isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                           </Button>
-                          <Button variant="destructive" size="sm" className="rounded-xl h-8 px-2.5" onClick={() => handleDelete(product.id)}>
+                          <Button variant="destructive" size="sm" className="rounded-xl h-8 w-8 p-0" onClick={() => handleDelete(product.id)} title={t("common.delete")}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
